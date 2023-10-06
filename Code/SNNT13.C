@@ -18,12 +18,14 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
 // Constants and data used throughout the code
 // -------------------------------------------
-static int N_part;       // Number of generated particles in an event
+static int N_part; // Number of generated particles in an event
 static double First_angle;
 static double Eff[MaxNeurons * MaxClasses];      // Efficiency of each neuron to signals of different classes
 static double Efftot[MaxClasses];                // Global efficiency to a different class
@@ -52,6 +54,7 @@ static double ConnectedFraction_L0_L1;
 static vector<double> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
+static vector<int> neurons_index;   // contains neurons identifiers in random positions
 static double tmax;                 // t of max value for EPSP
 static double Pmax_EPSP;            // maximum EPSP spike height
 static double K;                    // constant computed such that it sets the max of excitation spike at 1V
@@ -840,12 +843,16 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
             pclass = (int)cluster_pclass;
             N_part = 1;
             phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
-            if(phi >= 2. * M_PI) phi -= 2. * M_PI;
-            if(phi<First_angle) First_angle = phi;
+            if (phi >= 2. * M_PI)
+                phi -= 2. * M_PI;
+            if (phi < First_angle)
+                First_angle = phi;
         }
-        else {
+        else
+        {
             type = BGR;
-            if(phi >= 2. * M_PI) phi -= 2. * M_PI;
+            if (phi >= 2. * M_PI)
+                phi -= 2. * M_PI;
         }
 
         hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
@@ -872,12 +879,16 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
         {
             phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
             type = SIG;
-            if(phi >= 2. * M_PI) phi -= 2. * M_PI;
-            if(phi<First_angle) First_angle = phi;
+            if (phi >= 2. * M_PI)
+                phi -= 2. * M_PI;
+            if (phi < First_angle)
+                First_angle = phi;
         }
-        else{
+        else
+        {
             type = BGR;
-            if(phi >= 2. * M_PI) phi -= 2. * M_PI;
+            if (phi >= 2. * M_PI)
+                phi -= 2. * M_PI;
         }
 
         hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
@@ -895,7 +906,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                   int TrainingCode = 5, bool ReadPars = false, long int _NROOT = 100000)
 {
     // OLD PARAMETERS:
-    
+
     // Pass parameters:
     // ----------------__
     // N_ev:      total number of simulated events
@@ -988,6 +999,10 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     N_streams = N_InputStreams + N_neuronsL[0];
     NevPerEpoch = N_events / N_epochs;
     N_classes = N_cl;
+
+    // initialization of neurons_index vector
+    for (int i = 0; i < N_neurons; i++)
+        neurons_index.push_back(i);
 
     // Assign meta-learning booleans
     update9 = false;
@@ -1534,10 +1549,19 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             // -------------------------------------------------
             double min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
-            for (int in = 0; in < N_neurons; in++)
+
+            // Loop on neurons, but not in order to not favor any neuron
+            // ---------------------------------------------------------
+
+            // Shuffle order
+            auto rng = default_random_engine {};
+            shuffle(neurons_index.begin(), neurons_index.end(), rng);
+
+            for (auto in : neurons_index)
             {
-                // We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
-                // Add to neuron history, masking out L1 spikes for L0 neurons
+
+                //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
+                //  Add to neuron history, masking out L1 spikes for L0 neurons
                 int is = PreSpike_Stream[ispike];
                 if (is < N_InputStreams || Neuron_layer[in] > 0)
                 { // otherwise stream "is" does not lead to neuron "in"
