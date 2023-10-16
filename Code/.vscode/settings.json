@@ -11,6 +11,8 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__locale": "cpp",
+        "ios": "cpp"
     }
 }

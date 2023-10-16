@@ -4,6 +4,8 @@
         "SNNT13.C": "cpp",
         "__split_buffer": "c",
         "string": "c",
-        "vector": "c"
+        "vector": "c",
+        "draw_gif_events.C": "cpp",
+        "generate_data.C": "cpp"
     }
 }
