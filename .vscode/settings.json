@@ -6,6 +6,7 @@
         "string": "c",
         "vector": "c",
         "draw_gif_events.C": "cpp",
-        "generate_data.C": "cpp"
+        "generate_data.C": "cpp",
+        "__locale": "cpp"
     }
 }

@@ -426,7 +426,14 @@ void Encode(double t_in)
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
         PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+
+        // Adding the scan of the projection 
+        PreSpike_Time.push_back(time);
+        PreSpike_Stream.push_back( N_bin_r*N_bin_z  + GetBinR(row.r));
+        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
     }
+
+    
 
     // rescan from [0, delta]
     for (auto &&row : hit_pos)
@@ -439,6 +446,11 @@ void Encode(double t_in)
 
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
+        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+
+        // Adding the scan of the projection 
+        PreSpike_Time.push_back(time);
+        PreSpike_Stream.push_back( N_bin_r*N_bin_z  + GetBinR(row.r));
         PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
     }
 }
@@ -900,7 +912,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 // ------------
 void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, bool batch = false,  double _tau_m = 1e-09, double _tau_s = 0.25e-09,
                   double _tau_plus = 1.68e-09, double _tau_minus = 3.37e-09, double _a_plus = 0.03125, double _a_minus = 0.02656, double CFI0 = 1, double CFI1 = 1, double CF01 = 1, double a = 0.25,
-                  double Thresh0 = 15, double Thresh1 = 10, double _MaxFactor = 0.2, double l1if = 1., double k = 1., double k1 = 2., double k2 = 4.,
+                  double Thresh0 = 40, double Thresh1 = 40, double _MaxFactor = 0.2, double l1if = 1., double k = 1., double k1 = 2., double k2 = 4.,
                   double IEPC = 2.5, double ipspdf = 1.0, double _MaxDelay = 0.1e-9,
                   int N_cl = 6,
                   int TrainingCode = 4, bool ReadPars = false, long int _NROOT = 100000)

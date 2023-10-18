@@ -18,7 +18,7 @@ static double z_range = 1200.;                 // bin z in [-z_range/2, z_range/
 static double max_R = 1200.;                  // bin r in [0, max_R]
 static const short int N_bin_r = 50;
 static const int N_bin_z = 50;
-static const int N_InputStreams = (N_bin_r)*N_bin_z;
+static const int N_InputStreams = N_bin_r*N_bin_z + N_bin_r;
 static double z_bin_length = z_range / N_bin_z;    
 static double r_bin_length = max_R / N_bin_r;       
 
