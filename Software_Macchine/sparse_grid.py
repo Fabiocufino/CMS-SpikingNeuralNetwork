@@ -10,14 +10,14 @@ import itertools
 #----------------------------------------------------------------
 
 #path of the main folder
-macro_path = "/lustre/cmswork/SNN_group/sparse_grid_search/Code"
+macro_path = "/lustre/cmswork/SNN_group/sparse_grid_search/100br/Code"
 
 #------------------------- PARAMETERS --------------------------
 #edit with the parameters value you're interested in
 N_ev = 100000                     
 N_ep = 1                        #1 to turn off the parameters optimization
 rootInput = "/lustre/cmsdata/SNN_group/100k_100br.root"   #name of the root file
-batch = True                    #True -> Batch mode
+batch = 1                       #True -> Batch mode
 NL0_list =          [6]       
 NL1_list =          [6]
 tau_m_list =        [2e-09, 5.e-09, 0.5e-09]
@@ -30,8 +30,8 @@ CFI0_list =         [1]
 CFI1_list =         [1]
 CF01_list =         [1]
 a_list =            [0.50, 0.125]      #alfa parameter -> inhibition strength
-Thresh0 = 20
-Thresh1 = 20
+Thresh0 =           35
+Thresh1 =           35
 
 parameters_list = (NL0_list, NL1_list, tau_m_list, tau_s_list, tau_plus_list, tau_minus_list, a_plus_list, a_minus_list, CFI0_list, CFI1_list, CF01_list, a_list)
 #----------------------------------------------------------------
