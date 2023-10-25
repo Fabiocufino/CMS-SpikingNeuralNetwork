@@ -26,20 +26,20 @@ using namespace std;
 // Constants and data used throughout the code
 // -------------------------------------------
 static int N_part; // Number of generated particles in an event
-static double First_angle;
-static double Eff[MaxNeurons * MaxClasses];      // Efficiency of each neuron to signals of different classes
-static double Efftot[MaxClasses];                // Global efficiency to a different class
-static double Weight[MaxNeurons][MaxStreams];    // Weight of synapse-neuron strength
+static float First_angle;
+static float Eff[MaxNeurons * MaxClasses];      // Efficiency of each neuron to signals of different classes
+static float Efftot[MaxClasses];                // Global efficiency to a different class
+static float Weight[MaxNeurons][MaxStreams];    // Weight of synapse-neuron strength
 static bool check_LTD[MaxNeurons][MaxStreams];   // checks to generate LTD after neuron discharge
 static bool Void_weight[MaxNeurons][MaxStreams]; // These may be used to model disconnections
 static bool bestVoid_weight[MaxNeurons][MaxStreams];
-static double Weight_initial[MaxNeurons][MaxStreams]; // store to be able to return to initial conditions when optimizing
-static double Delay[MaxNeurons][MaxStreams];          // Delay in incoming signals
-static double bestDelay[MaxNeurons][MaxStreams];      // Opt delay in incoming signals
-static vector<double> History_time[MaxNeurons];       // Time of signal events per each neuron
+static float Weight_initial[MaxNeurons][MaxStreams]; // store to be able to return to initial conditions when optimizing
+static float Delay[MaxNeurons][MaxStreams];          // Delay in incoming signals
+static float bestDelay[MaxNeurons][MaxStreams];      // Opt delay in incoming signals
+static vector<float> History_time[MaxNeurons];       // Time of signal events per each neuron
 static vector<int> History_type[MaxNeurons];          // Type of signal
 static vector<int> History_ID[MaxNeurons];            // ID of generating signal stream or neuron
-static vector<double> Fire_time[MaxNeurons];          // Times of firing of each neuron
+static vector<float> Fire_time[MaxNeurons];          // Times of firing of each neuron
 static int Neuron_layer[MaxNeurons];
 static int N_neuronsL[2]; // Number of neurons in layers 0 and 1
 static int N_streams;
@@ -48,33 +48,33 @@ static int N_classes;
 static int N_events;
 static int N_epochs;
 static int NevPerEpoch;
-static double ConnectedFraction_Input_L0;
-static double ConnectedFraction_Input_L1;
-static double ConnectedFraction_L0_L1;
-static vector<double> PreSpike_Time;
+static float ConnectedFraction_Input_L0;
+static float ConnectedFraction_Input_L1;
+static float ConnectedFraction_L0_L1;
+static vector<float> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
-static double tmax;                 // t of max value for EPSP
-static double Pmax_EPSP;            // maximum EPSP spike height
-static double K;                    // constant computed such that it sets the max of excitation spike at 1V
+static float tmax;                 // t of max value for EPSP
+static float Pmax_EPSP;            // maximum EPSP spike height
+static float K;                    // constant computed such that it sets the max of excitation spike at 1V
 static bool update9;                // controls whether to optimize 7 network parameters
 static bool updateDelays;           // controls whether to optimize neuron delays
 static bool updateConnections;      // controls whether to optimize connections between streams and neurons
 static bool anyHits = true;         // Whether to accept tracks with any number of hits <8 or not
-static double Q_best;
-static double SelL1_best;
-static double Eff_best;
-static double Acc_best;
-static double T0_best;
-static double T1_best;
-static double A_best;
-static double L1if_best;
-static double K_best;
-static double K1_best;
-static double K2_best;
-static double IEPC_best;
-static double IPSPdf_best;
+static float Q_best;
+static float SelL1_best;
+static float Eff_best;
+static float Acc_best;
+static float T0_best;
+static float T1_best;
+static float A_best;
+static float L1if_best;
+static float K_best;
+static float K1_best;
+static float K2_best;
+static float IEPC_best;
+static float IPSPdf_best;
 static int indfile;
 static char progress[53] = "[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]"; // Progress bar
 static long int ievent;
@@ -113,7 +113,7 @@ int Read_Parameters()
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
-    double e;
+    float e;
     int ie;
     parfile >> ie;
     if (ie != N_neurons)
@@ -395,7 +395,7 @@ int GetBinR(float r_hit)
 
 int GetBinZ(float z)
 {
-    double tmp = (z + z_range / 2.);
+    float tmp = (z + z_range / 2.);
     if (tmp < 0)
         tmp = 0;
     else if (tmp > z_range)
@@ -412,7 +412,7 @@ int GetStreamID(int r, int z)
 // End binning r-z plane -----------------
 
 // Transforms hits into spikes streams by scanning the event
-void Encode(double t_in)
+void Encode(float t_in)
 {
     // sort by phi angle
     sort(hit_pos.begin(), hit_pos.end(), [](const Hit &h1, const Hit &h2)
@@ -420,7 +420,7 @@ void Encode(double t_in)
 
     for (auto &&row : hit_pos)
     {
-        double time = t_in + row.phi / omega;
+        float time = t_in + row.phi / omega;
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
         PreSpike_Time.push_back(time);
@@ -440,7 +440,7 @@ void Encode(double t_in)
     {
         if (row.phi > delta)
             break;
-        double time = t_in + (row.phi + M_PI * 2.) / omega;
+        float time = t_in + (row.phi + M_PI * 2.) / omega;
         // uncomment when implemented:
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
@@ -458,9 +458,9 @@ void Encode(double t_in)
 // Model Excitatory Post-Synaptic Potential
 // We take this as parametrized in T. Masquelier et al., "Competitive STDP-Based Spike Pattern Learning", DOI: 10.1162/neco.2008.06-08-804
 // ---------------------------------------------------------------------------------------------------------------------------------------
-double EPS_potential(double delta_t)
+float EPS_potential(float delta_t)
 {
-    double psp = 0.;
+    float psp = 0.;
     if (delta_t >= 0. && delta_t < MaxDeltaT)
         psp = K * (exp(-delta_t / tau_m) - exp(-delta_t / tau_s));
     return psp;
@@ -469,9 +469,9 @@ double EPS_potential(double delta_t)
 // Model membrane potential after spike
 // Also modeled as in paper cited above, like IPSP and other signals below
 // -----------------------------------------------------------------------
-double Spike_potential(double delta_t, int ilayer)
+float Spike_potential(float delta_t, int ilayer)
 {
-    double sp = 0.;
+    float sp = 0.;
     if (delta_t >= 0. && delta_t < MaxDeltaT)
         sp = Threshold[ilayer] * (K1 * exp(-delta_t / tau_m) - K2 * (exp(-delta_t / tau_m) - exp(-delta_t / tau_s)));
     return sp;
@@ -481,9 +481,9 @@ double Spike_potential(double delta_t, int ilayer)
 // This is a crude model, loosely inspired by shapes in Fig.2 of F. Sandin and M. Nilsson, "Synaptic Delays for Insect-Inspired
 // Feature Detection in Dynamic Neuromorphic Processors", doi.org/10.3389/fnins.2020.00150
 // ----------------------------------------------------------------------------------------------------------------------------
-double IE_potential(double delta_t, int in, int is)
+float IE_potential(float delta_t, int in, int is)
 {
-    double sp = 0.;
+    float sp = 0.;
     if (delta_t >= 0. && delta_t < Delay[in][is])
     {
         sp = -IE_Pot_const * EPS_potential(delta_t);
@@ -498,13 +498,13 @@ double IE_potential(double delta_t, int in, int is)
 
 // Model Inhibitory Post-Synaptic Potential (IPSP)
 // -----------------------------------------------
-double Inhibitory_potential(double delta_t, int ilayer)
+float Inhibitory_potential(float delta_t, int ilayer)
 {
     // In order to dilate the inhibition to larger times (in the attempt at obtaining higher selectivity),
     // we kludge it by multiplying delta_t and maxdeltat by a factor
     delta_t = delta_t * IPSP_dt_dilation;
-    double ip = 0.;
-    double thisalpha = alpha;
+    float ip = 0.;
+    float thisalpha = alpha;
     if (ilayer > 0)
         thisalpha = L1inhibitfactor * alpha; // Different inhibition in L1
     if (delta_t >= 0. && delta_t < MaxDeltaT)
@@ -515,7 +515,7 @@ double Inhibitory_potential(double delta_t, int ilayer)
 // Model Spike-Timing-Dependent Plasticity (LTP - Long-Term Potentiation) - modify weights
 // based on how close a previous synapse fired before the spike)
 // ---------------------------------------------------------------------------------------
-void LTP(int in, int is, int this_spike, double fire_time)
+void LTP(int in, int is, int this_spike, float fire_time)
 {
     if (Void_weight[in][is])
         return;
@@ -526,7 +526,7 @@ void LTP(int in, int is, int this_spike, double fire_time)
     {
         if (PreSpike_Stream[isp] == is)
         {
-            double delta_t = PreSpike_Time[isp] - fire_time;
+            float delta_t = PreSpike_Time[isp] - fire_time;
             Weight[in][is] += a_plus * exp(delta_t / tau_plus);
             if (Weight[in][is] > 1.)
                 Weight[in][is] = 1.;
@@ -538,10 +538,10 @@ void LTP(int in, int is, int this_spike, double fire_time)
     // Also modify delays (experimental)
     if (learnDelays)
     {
-        double dtbig = MaxDelay / NevPerEpoch;
+        float dtbig = MaxDelay / NevPerEpoch;
         if (Delay[in][is] >= dtbig)
             Delay[in][is] -= dtbig;
-        double dt = dtbig / N_neuronsL[Neuron_layer[in]];
+        float dt = dtbig / N_neuronsL[Neuron_layer[in]];
         int inmin = 0;
         int inmax = N_neuronsL[0];
         if (Neuron_layer[in] == 1)
@@ -560,14 +560,14 @@ void LTP(int in, int is, int this_spike, double fire_time)
 
 // Model Spike-Timing-Dependent Plasticity (LTD - Long-Term Depression)
 // --------------------------------------------------------------------
-void LTD(int in, int is, double spike_time)
+void LTD(int in, int is, float spike_time)
 {
     // Use nearest-spike approximation: search for closest neuron spike to this input spike
     if (Fire_time[in].size() == 0)
         return;
     if (Void_weight[in][is])
         return;
-    double delta_t = spike_time - Fire_time[in].back();
+    float delta_t = spike_time - Fire_time[in].back();
     check_LTD[in][is] = false;
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
@@ -578,10 +578,10 @@ void LTD(int in, int is, double spike_time)
     // Also modify delay (experimental)
     if (learnDelays)
     {
-        double dtbig = MaxDelay / NevPerEpoch;
+        float dtbig = MaxDelay / NevPerEpoch;
         if (Delay[in][is] < MaxDelay - dtbig)
             Delay[in][is] += dtbig;
-        double dt = dtbig / (N_neurons - 1);
+        float dt = dtbig / (N_neurons - 1);
         for (int in2 = 0; in2 < N_neurons; in2++)
         {
             if (in2 != in && Neuron_layer[in] == Neuron_layer[in2] && Delay[in2][is] > dt)
@@ -593,18 +593,18 @@ void LTD(int in, int is, double spike_time)
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
-double Neuron_firetime(int in, double t)
+float Neuron_firetime(int in, float t)
 {
     int ilayer = Neuron_layer[in];
-    double P0 = 0.;
-    double t0 = History_time[in][0];
-    double delta_t = t - t0;
+    float P0 = 0.;
+    float t0 = History_time[in][0];
+    float delta_t = t - t0;
     if (t0 > 0. && delta_t >= 0. && delta_t < MaxDeltaT)
     {
         int ilayer = Neuron_layer[in];
         P0 = Spike_potential(delta_t, ilayer); // the first event in the history sequence is a spike
     }
-    double P = P0;
+    float P = P0;
 
     // Now we extrapolate the effect of all past spikes and inhibitions to time t, to compute the potential when EPSP arrives
     int len = History_time[in].size();
@@ -663,13 +663,13 @@ double Neuron_firetime(int in, double t)
     if (P > Threshold[ilayer])
     { // Neuron will fire as spike contribution will bring it above threshold
         // compute fire time by looping more finely from t to t+tmax (tmax is peak time of EPSP)
-        double this_t = t;
+        float this_t = t;
         do
         {
             P = P0;
             for (int ih = 1; ih < len; ih++)
             {
-                double delta_t = this_t - History_time[in][ih];
+                float delta_t = this_t - History_time[in][ih];
                 if (History_type[in][ih] == 1)
                 { // EPSP
                     if (!Void_weight[in][History_ID[in][ih]])
@@ -696,18 +696,18 @@ double Neuron_firetime(int in, double t)
 
 // Learning rate scheduler - this returns an oscillating, dampened function as a function of the epoch
 // ---------------------------------------------------------------------------------------------------
-double LR_Scheduler(double LR0, int epoch, int Nepochs)
+float LR_Scheduler(float LR0, int epoch, int Nepochs)
 {
-    double par[3] = {-0.01, 0.2, 0.2};
-    double x = 100. * epoch / Nepochs;
+    float par[3] = {-0.01, 0.2, 0.2};
+    float x = 100. * epoch / Nepochs;
     return LR0 * exp(par[0] * x) * (par[1] + (1. - par[1]) * pow(cos(par[2] * x), 2));
 }
 
 // Calculate selectivity of set of neurons
 // ---------------------------------------
-double Compute_Selectivity(int level, int mode)
+float Compute_Selectivity(int level, int mode)
 {
-    double S = 0.;
+    float S = 0.;
     int inmin, inmax;
     if (level == 0)
     {
@@ -724,11 +724,11 @@ double Compute_Selectivity(int level, int mode)
         for (int in = inmin; in < inmax; in++)
         {
             // select max efficiency class
-            double maxeff = 0.;
-            double sumeff = 0.;
+            float maxeff = 0.;
+            float sumeff = 0.;
             for (int ic = 0; ic < N_classes; ic++)
             {
-                double e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
@@ -745,11 +745,11 @@ double Compute_Selectivity(int level, int mode)
         for (int in = inmin; in < inmax; in++)
         {
             // select max efficiency class
-            double maxeff = 0.;
-            double sumeff = 0.;
+            float maxeff = 0.;
+            float sumeff = 0.;
             for (int ic = 0; ic < N_classes; ic++)
             {
-                double e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
@@ -764,9 +764,9 @@ double Compute_Selectivity(int level, int mode)
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
         // average efficiency on class j over neurons
         S = 0.;
-        double Effn[MaxNeurons];
-        double Effc[MaxClasses];
-        double sumeff = 0.;
+        float Effn[MaxNeurons];
+        float Effc[MaxClasses];
+        float sumeff = 0.;
         for (int in = inmin; in < inmax; in++)
         {
             sumeff = 0.;
@@ -804,7 +804,7 @@ double Compute_Selectivity(int level, int mode)
 
 // Compute Q-value
 // ---------------
-double Compute_Q(double eff, double acc, double sel)
+float Compute_Q(float eff, float acc, float sel)
 {
     // efficiency saturates at eff_target
     if (eff > eff_target)
@@ -812,8 +812,8 @@ double Compute_Q(double eff, double acc, double sel)
     // acceptance saturates at acc_target
     if (acc < acc_target)
         acc = acc_target - pow(acc_target - acc, 1.5);
-    double Q0 = eff / sqrt(acc);
-    double w = 5. * (exp(Q0 / 4.) - 1.) / (exp(1.) - 1.);
+    float Q0 = eff / sqrt(acc);
+    float w = 5. * (exp(Q0 / 4.) - 1.) / (exp(1.) - 1.);
     return Q0 + w * sel;
 }
 
@@ -905,6 +905,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 
         hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
     }
+
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1192,7 +1193,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     for (int i = 0; i < N_neurons * N_classes; i++)
     {
         sprintf(name, "Latency%d", i);
-        Latency[i] = new TH2F(name, name, N_bins, 0., (double)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
+        Latency[i] = new TH2F(name, name, N_bins, 0., (float)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
     }
     TH1F *HWeight[MaxNeurons * MaxStreams];
     TH1F *Efficiency[MaxNeurons * MaxClasses];
@@ -1209,7 +1210,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     for (int i = 0; i < N_neurons * N_streams; i++)
     {
         sprintf(name, "HWeight%d", i);
-        HWeight[i] = new TH1F(name, name, N_bins, 0., (double)NevPerEpoch);
+        HWeight[i] = new TH1F(name, name, N_bins, 0., (float)NevPerEpoch);
     }
     for (int i = 0; i < N_neurons * N_classes; i++)
     {
@@ -1249,7 +1250,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     }
 
     // Calculation of constant in excitation spike, to make it max at 1
-    // double deltat_max = (tau_m*tau_s)/(tau_m-tau_s)*log(tau_m/tau_s);
+    // float deltat_max = (tau_m*tau_s)/(tau_m-tau_s)*log(tau_m/tau_s);
     // K = 1./(exp(-deltat_max/tau_m)-exp(-deltat_max/tau_s)); // Now an optimization parameter
 
     // Calculation of time at maximum of EPSP
@@ -1301,7 +1302,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // Prime the event loop - we continuously sample detector readout and feed inputs to synapses
     // ------------------------------------------------------------------------------------------
     int N_fires[MaxNeurons];
-    double LastP[MaxNeurons];
+    float LastP[MaxNeurons];
     for (int in = 0; in < N_neurons; in++)
     {
         N_fires[in] = 0.;
@@ -1331,22 +1332,22 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     bool doneL0[MaxClasses];
     bool doneL1[MaxClasses];
     bool Seen[MaxClasses][MaxNeurons];
-    double selectivityL0 = 0.;
-    double selectivityL1 = 0.;
-    double averefftotL1 = 0.;
-    double averacctotL1 = 0.;
+    float selectivityL0 = 0.;
+    float selectivityL1 = 0.;
+    float averefftotL1 = 0.;
+    float averacctotL1 = 0.;
 
     // Storing parameters subjected to random search
-    double oldThresholdL0 = Threshold[0];
-    double oldThresholdL1 = Threshold[1];
-    double oldalpha = alpha;
-    double oldL1inhibitfactor = L1inhibitfactor;
-    double oldK = K;
-    double oldK1 = K1;
-    double oldK2 = K2;
-    double oldIE_Pot_const = IE_Pot_const;
-    double oldIPSPdf = IPSP_dt_dilation;
-    double oldDelay[MaxNeurons][MaxStreams];
+    float oldThresholdL0 = Threshold[0];
+    float oldThresholdL1 = Threshold[1];
+    float oldalpha = alpha;
+    float oldL1inhibitfactor = L1inhibitfactor;
+    float oldK = K;
+    float oldK1 = K1;
+    float oldK2 = K2;
+    float oldIE_Pot_const = IE_Pot_const;
+    float oldIPSPdf = IPSP_dt_dilation;
+    float oldDelay[MaxNeurons][MaxStreams];
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
@@ -1364,8 +1365,8 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             bestVoid_weight[in][is] = Void_weight[in][is];
         }
     }
-    double Q = 0.;
-    double Q_old = 0.;
+    float Q = 0.;
+    float Q_old = 0.;
     Q_best = 0.;
     SelL1_best = 0.;
     Eff_best = 0.;
@@ -1380,9 +1381,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     IEPC_best = 0.;
     IPSPdf_best = 0.;
 
-    double Optvar[9];
-    double max_dx[9];
-    double aver_dQ[9];
+    float Optvar[9];
+    float max_dx[9];
+    float aver_dQ[9];
     Optvar[0] = 0.; // Threshold[0];
     Optvar[1] = 0.; // Threshold[1];
     Optvar[2] = 0.; // alpha;
@@ -1397,9 +1398,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         aver_dQ[i] = 0.;
         max_dx[i] = MaxFactor; // max factor of change in parameter values during optimization
     }
-    double OptvarD[MaxNeurons * MaxStreams];
-    double max_dxD[MaxNeurons * MaxStreams];
-    double aver_dQD[MaxNeurons * MaxStreams];
+    float OptvarD[MaxNeurons * MaxStreams];
+    float max_dxD[MaxNeurons * MaxStreams];
+    float aver_dQD[MaxNeurons * MaxStreams];
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
@@ -1411,11 +1412,11 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         }
     }
     int MaxdQHist = 50; // we do not want the full history, because we are moving in the par space; only last 10 points.
-    vector<double> dQHist;
-    vector<double> OptvarHist[9];
-    vector<double> OptvarDHist[MaxNeurons * MaxStreams];
+    vector<float> dQHist;
+    vector<float> OptvarHist[9];
+    vector<float> OptvarDHist[MaxNeurons * MaxStreams];
     int ibad = 0;
-    double LR = MaxFactor;
+    float LR = MaxFactor;
 
     // Big loop on events
     // ------------------
@@ -1517,7 +1518,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
-        double t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        float t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
 
         // Keep track of latency calc for each neuron in this event
@@ -1532,7 +1533,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
         {
             // By looping to size(), we can insert along the way and still make it to the end
-            double t = PreSpike_Time[ispike];
+            float t = PreSpike_Time[ispike];
 
             // Save information on hit-based streams for last 500 events to histograms
             if (ievent >= N_events - 500.)
@@ -1540,7 +1541,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 // dividing N_events in 10 groups
                 int is = (ievent - N_events + 500) / 50;
                 // time = tin + thit - tin(First event of the group)
-                double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                float time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
 
                 // Histograms
                 if (PreSpike_Signal[ispike] == 1)
@@ -1559,7 +1560,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
 
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
-            double min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
+            float min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
 
             // Loop on neurons, but not in order to not favor any neuron
@@ -1593,7 +1594,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         LTD(in, is, t);
 
                     // Compute future fire times of neurons and their order
-                    double fire_time = Neuron_firetime(in, t);
+                    float fire_time = Neuron_firetime(in, t);
                     if (fire_time < min_fire_time)
                     {
                         in_first = in;
@@ -1612,7 +1613,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 if (PreSpike_Time[ispike + 1] >= min_fire_time)
                 { // otherwise we go to next spike in list
                     // handle firing of neuron in_first
-                    double latency = 0.;
+                    float latency = 0.;
                     N_fires[in_first]++;
                     Fire_time[in_first].push_back(min_fire_time);
 
@@ -1658,7 +1659,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     if (ievent >= N_events - 500.)
                     {
                         int is = (ievent - N_events + 500) / 50;
-                        double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                        float time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
                         if (Neuron_layer[in_first] == 1)
                             StreamsN[is]->Fill(time, in_first + 1);
                     }
@@ -1736,7 +1737,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             {
                 for (int is = 0; is < N_streams; is++)
                 {
-                    int bin = (int)(1000. * (double)iev_thisepoch / NevPerEpoch);
+                    int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
                     HWeight[in * N_streams + is]->SetBinContent(bin, Weight[in][is]);
                 }
             }
@@ -1768,17 +1769,17 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         Eff[combind] /= gen_sum[ic];
                     Efficiency[combind]->SetBinContent(iepoch, Eff[combind]);
                 }
-                double fakerate = random_fire[in] * 2. / NevPerEpoch; // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
+                float fakerate = random_fire[in] * 2. / NevPerEpoch; // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
             }
-            double Efftot[MaxClasses];
+            float Efftot[MaxClasses];
             for (int ic = 0; ic < N_classes; ic++)
             {
-                double etl0 = fired_anyL0[ic];
+                float etl0 = fired_anyL0[ic];
                 if (gen_sum[ic] > 0)
                     etl0 /= gen_sum[ic];
                 Eff_totL0[ic]->SetBinContent(iepoch, etl0);
-                double etl1 = fired_anyL1[ic]; // L1 efficiency is what counts.
+                float etl1 = fired_anyL1[ic]; // L1 efficiency is what counts.
                 if (gen_sum[ic] > 0)
                     etl1 /= gen_sum[ic];
                 Eff_totL1[ic]->SetBinContent(iepoch, etl1);
@@ -1799,7 +1800,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 averefftotL1 += Efftot[ic];
             }
             averefftotL1 /= N_classes;
-            double den = 0.05 + averacctotL1; // deem 10% fake rate ok-ish
+            float den = 0.05 + averacctotL1; // deem 10% fake rate ok-ish
             Q = Compute_Q(averefftotL1, averacctotL1, selectivityL1);
 
             // Fix maximum excursion of parameters with a schedule
@@ -1857,14 +1858,14 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 }
             }
             // Find running weighted average of dQ-values in par space
-            double dQ_max = 0.;
+            float dQ_max = 0.;
             for (int i = 0; i < 9; i++)
             {
-                double sum_dQdx = 0.;
-                double sum_dx = 0.;
+                float sum_dQdx = 0.;
+                float sum_dx = 0.;
                 for (int j = 1; j < dQHist.size(); j++)
                 {
-                    double dx = OptvarHist[i][j] - OptvarHist[i][j - 1];
+                    float dx = OptvarHist[i][j] - OptvarHist[i][j - 1];
                     sum_dQdx += (dQHist[j] - dQHist[j - 1]) * dx;
                     sum_dx += dx;
                 }
@@ -1875,14 +1876,14 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     dQ_max = fabs(aver_dQ[i]);
             }
             // Same, for delays
-            double dQ_maxD = 0.;
+            float dQ_maxD = 0.;
             for (int id = 0; id < N_neurons * N_streams; id++)
             {
-                double sum_dQdxD = 0.;
-                double sum_dxD = 0.;
+                float sum_dQdxD = 0.;
+                float sum_dxD = 0.;
                 for (int j = 1; j < dQHist.size(); j++)
                 {
-                    double dxD = OptvarDHist[id][j] - OptvarDHist[id][j - 1];
+                    float dxD = OptvarDHist[id][j] - OptvarDHist[id][j - 1];
                     sum_dQdxD += (dQHist[j] - dQHist[j - 1]) * dxD;
                     sum_dxD += dxD;
                 }
@@ -1895,7 +1896,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
 
             // Fill debugging graphs of Q as a function of parameters
             int ibin, jbin;
-            double n, cont, newcont;
+            float n, cont, newcont;
             if (iepoch > 1 || N_epochs == 1)
             { // only do it from end of second epoch onwards, as we are filling delta values
                 ibin = 1 + (int)(20. * (Threshold[0] / oldThresholdL0 - 1. + MaxFactor) / (2. * MaxFactor));
@@ -1949,10 +1950,10 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     N_93->SetBinContent(ibin, jbin, n + 1);
                 }
                 // Now graph of mean vs sqm of Delay distribution
-                double meanDelay = 0.;
-                double sqmDelay = 0.;
-                double meanOldDelay = 0.;
-                double sqmOldDelay = 0.;
+                float meanDelay = 0.;
+                float sqmDelay = 0.;
+                float meanOldDelay = 0.;
+                float sqmOldDelay = 0.;
                 for (int in = 0; in < N_neurons; in++)
                 {
                     for (int is = 0; is < N_streams; is++)
@@ -2065,8 +2066,8 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             CU->cd(2);
             HEff->Draw();
             HAcc->Draw("SAME");
-            double h;
-            double hmax = -largenumber;
+            float h;
+            float hmax = -largenumber;
             for (int ibin = 1; ibin <= N_epochs; ibin++)
             {
                 h = HT0->GetBinContent(ibin);
@@ -2253,10 +2254,10 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         //   which distributes uniformly for no slope of dq vs dx, and peaky at the extrema for larger correlation
                         for (int i = 0; i < 9; i++)
                         {
-                            double lambda = 1.;
+                            float lambda = 1.;
                             if (dQ_max != 0.)
                                 lambda = exp(2. * aver_dQ[i] / dQ_max);
-                            double r = myRNG->Uniform();
+                            float r = myRNG->Uniform();
                             Optvar[i] = -max_dx[i] + 2. * max_dx[i] * pow(r, lambda);
                         }
                         if (update9)
@@ -2273,7 +2274,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         }
                         if (updateDelays)
                         {
-                            double lambda;
+                            float lambda;
                             for (int in = 0; in < N_neurons; in++)
                             {
                                 for (int is = 0; is < N_streams; is++)
@@ -2282,7 +2283,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                                     lambda = 1.;
                                     if (dQ_maxD > 0.)
                                         lambda = exp(2. * aver_dQD[id] / dQ_maxD);
-                                    double r = myRNG->Uniform();
+                                    float r = myRNG->Uniform();
                                     OptvarD[id] = -max_dxD[id] + 2. * max_dxD[id] * pow(r, lambda);
                                     Delay[in][is] += OptvarD[id];
                                     if (Delay[in][is] > MaxDelay)
@@ -2413,15 +2414,15 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     // Find parameter multipliers, to continue in the same direction that improved Q (with some added momentum and stochasticity)
                     if (update9)
                     {
-                        double RT0 = myRNG->Gaus(1.1, 0.1) * Threshold[0] / oldThresholdL0;
-                        double RT1 = myRNG->Gaus(1.1, 0.1) * Threshold[1] / oldThresholdL1;
-                        double Ra = myRNG->Gaus(1.1, 0.1) * alpha / oldalpha;
-                        double RI = myRNG->Gaus(1.1, 0.1) * L1inhibitfactor / oldL1inhibitfactor;
-                        double RK = myRNG->Gaus(1.1, 0.1) * K / oldK;
-                        double RK1 = myRNG->Gaus(1.1, 0.1) * K1 / oldK1;
-                        double RK2 = myRNG->Gaus(1.1, 0.1) * K2 / oldK2;
-                        double RIE = myRNG->Gaus(1.1, 0.1) * IE_Pot_const / oldIE_Pot_const;
-                        double RID = myRNG->Gaus(1.1, 0.1) * IPSP_dt_dilation / oldIPSPdf;
+                        float RT0 = myRNG->Gaus(1.1, 0.1) * Threshold[0] / oldThresholdL0;
+                        float RT1 = myRNG->Gaus(1.1, 0.1) * Threshold[1] / oldThresholdL1;
+                        float Ra = myRNG->Gaus(1.1, 0.1) * alpha / oldalpha;
+                        float RI = myRNG->Gaus(1.1, 0.1) * L1inhibitfactor / oldL1inhibitfactor;
+                        float RK = myRNG->Gaus(1.1, 0.1) * K / oldK;
+                        float RK1 = myRNG->Gaus(1.1, 0.1) * K1 / oldK1;
+                        float RK2 = myRNG->Gaus(1.1, 0.1) * K2 / oldK2;
+                        float RIE = myRNG->Gaus(1.1, 0.1) * IE_Pot_const / oldIE_Pot_const;
+                        float RID = myRNG->Gaus(1.1, 0.1) * IPSP_dt_dilation / oldIPSPdf;
                         // Store previous values
                         oldThresholdL0 = Threshold[0];
                         oldThresholdL1 = Threshold[1];
@@ -2459,7 +2460,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         {
                             for (int is = 0; is < N_streams; is++)
                             {
-                                double R = myRNG->Gaus(1.1, 0.1) * (Delay[in][is] - oldDelay[in][is]);
+                                float R = myRNG->Gaus(1.1, 0.1) * (Delay[in][is] - oldDelay[in][is]);
                                 oldDelay[in][is] = Delay[in][is];
                                 if (R > 0.)
                                 {

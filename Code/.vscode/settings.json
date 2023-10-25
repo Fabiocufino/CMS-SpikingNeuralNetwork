@@ -13,6 +13,8 @@
         "utility": "cpp",
         "algorithm": "cpp",
         "__locale": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "generate_data.C": "cpp",
+        "chrono": "cpp"
     }
 }
