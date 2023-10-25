@@ -10,7 +10,7 @@ import itertools
 #----------------------------------------------------------------
 
 #path of the main folder
-macro_path = "/lustre/cmswork/SNN_group/sparse_grid_search/100br/Code"
+macro_path = "/lustre/cmswork/SNN_group/neuron_search/100br/Code"
 
 #------------------------- PARAMETERS --------------------------
 #edit with the parameters value you're interested in
