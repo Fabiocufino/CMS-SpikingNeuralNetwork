@@ -96,7 +96,7 @@ int Read_Parameters()
             tmpfile.close();
         indfile++;
         stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_" << indfile;
+        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
         string tmpfilename = Path + tmpstring.str() + ".txt";
         tmpfile.open(tmpfilename);
     } while (tmpfile.is_open());
@@ -109,7 +109,7 @@ int Read_Parameters()
     ifstream parfile;
     stringstream sstr;
     char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, indfile - 1); // we'll pick the last one in the list
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
@@ -177,7 +177,7 @@ void Write_Parameters()
             tmpfile.close();
         indfile++;
         stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_" << indfile;
+        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
         string tmpfilename = Path + tmpstring.str() + ".txt";
         tmpfile.open(tmpfilename);
     } while (tmpfile.is_open());
@@ -185,7 +185,7 @@ void Write_Parameters()
     ofstream parfile;
     stringstream sstr;
     char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, indfile);
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
@@ -2741,7 +2741,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     string Path = "./MODE/SNNT/";
     std::stringstream sstr;
     char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, indfile);
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
     sstr << "Histos13_";
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");
