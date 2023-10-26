@@ -48,9 +48,9 @@ static int N_classes;
 static int N_events;
 static int N_epochs;
 static int NevPerEpoch;
-static float ConnectedFraction_Input_L0;
-static float ConnectedFraction_Input_L1;
-static float ConnectedFraction_L0_L1;
+static float CFI0;
+static float CFI1;
+static float CF01;
 static vector<float> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
@@ -108,8 +108,8 @@ int Read_Parameters()
     }
     ifstream parfile;
     stringstream sstr;
-    char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile -1);// we'll pick the last one in the list
+    char num[80];
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile -1);// we'll pick the last one in the list
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
@@ -184,8 +184,8 @@ void Write_Parameters()
 
     ofstream parfile;
     stringstream sstr;
-    char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
+    char num[80];
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile);
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
@@ -214,9 +214,9 @@ void Write_Parameters()
     // Finally, write complete set of hyperparameters and settings
     parfile << "                       L0 neurons: " << N_neuronsL[0] << endl;
     parfile << "                       L1 neurons: " << N_neuronsL[1] << endl;
-    parfile << "            Connected L0-L1 frac.: " << ConnectedFraction_L0_L1 << endl;
-    parfile << "            Connected IN-L0 frac.: " << ConnectedFraction_Input_L0 << endl;
-    parfile << "            Connected IN-L1 frac.: " << ConnectedFraction_Input_L1 << endl;
+    parfile << "            Connected L0-L1 frac.: " << CF01 << endl;
+    parfile << "            Connected IN-L0 frac.: " << CFI0 << endl;
+    parfile << "            Connected IN-L1 frac.: " << CFI1 << endl;
     parfile << "                    Track classes: " << N_classes << endl;
     parfile << "                     Total events: " << N_events << endl;
     parfile << "               Optimization loops: " << N_epochs << endl;
@@ -344,7 +344,7 @@ void Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > ConnectedFraction_Input_L0)
+            if (myRNG->Uniform() > CFI0)
                 Void_weight[in][is] = true;
         }
         // input connections L0 -> L0
@@ -361,14 +361,14 @@ void Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > ConnectedFraction_Input_L1)
+            if (myRNG->Uniform() > CFI1)
                 Void_weight[in][is] = true;
         }
         // input connections L0 -> L1
         for (int is = N_InputStreams; is < N_streams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > ConnectedFraction_L0_L1)
+            if (myRNG->Uniform() > CF01)
                 Void_weight[in][is] = true;
         }
     }
@@ -910,7 +910,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 // Main routine
 // ------------
 void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, bool batch = false, double _tau_m = 1e-09, double _tau_s = 0.25e-09,
-                  double _tau_plus = 1.68e-09, double _tau_minus = 3.37e-09, double _a_plus = 0.03125, double _a_minus = 0.02656, double CFI0 = 1, double CFI1 = 1, double CF01 = 1, double a = 0.25,
+                  double _tau_plus = 1.68e-09, double _tau_minus = 3.37e-09, double _a_plus = 0.03125, double _a_minus = 0.02656, double _CFI0 = 1, double _CFI1 = 1, double _CF01 = 1, double a = 0.25,
                   double Thresh0 = 40, double Thresh1 = 40, double _MaxFactor = 0.2, double l1if = 1., double k = 1., double k1 = 2., double k2 = 4.,
                   double IEPC = 2.5, double ipspdf = 1.0, double _MaxDelay = 0.1e-9,
                   int N_cl = 6,
@@ -984,9 +984,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     N_epochs = N_ep;
     N_neuronsL[0] = NL0;
     N_neuronsL[1] = NL1;
-    ConnectedFraction_Input_L0 = CFI0;
-    ConnectedFraction_Input_L1 = CFI1;
-    ConnectedFraction_L0_L1 = CF01;
+    CFI0 = _CFI0;
+    CFI1 = _CFI1;
+    CF01 = _CF01;
     Threshold[0] = Thresh0;
     Threshold[1] = Thresh1;
     alpha = a;
@@ -1481,7 +1481,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // End of reading ----------------------------------------------
     // Create csv fout file
     ofstream fout;
-    fout.open("output.csv");
+    char csv_name[80];
+    sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha);
+    fout.open(csv_name);
     fout << "Event, ID, Stream, Time, Pclass" << endl;
 
     // Loop on events ----------------------------------------------
@@ -2551,6 +2553,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     delete dirIT;
     delete dirOT;
 
+    fout.close();
     file->Close();
     delete file;
 
@@ -2752,8 +2755,8 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // Dump histograms to root file
     string Path = "./MODE/SNNT/";
     std::stringstream sstr;
-    char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
+    char num[80];
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile);
     sstr << "Histos13_";
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");

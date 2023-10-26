@@ -7,6 +7,7 @@
         "vector": "c",
         "draw_gif_events.C": "cpp",
         "generate_data.C": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "random": "cpp"
     }
 }

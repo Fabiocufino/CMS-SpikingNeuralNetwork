@@ -61,3 +61,20 @@ SNN_Tracking({N_ev}, {N_ep}, {NL0}, {NL0}, "{rootInput}", {batch}, {tau_m}, {tau
     with open(filename, "w") as file:
         file.write(file_content)
     print(f"File {filename} creato con successo.")
+
+#Add combinations whith CFI1 = 0
+all_combinations = itertools.product(*parameters_list)
+for i, combination in enumerate(all_combinations):
+    id = i + tot_comb
+    NL0, NL1, tau_m, tau_s, tau_plus, tau_minus, a_plus, a_minus, CFI0, CFI1, CF01, a = combination
+    file_content = f'''
+TROOT::SetMacroPath("{macro_path}");
+.L SNNT13.C
+SNN_Tracking({N_ev}, {N_ep}, {NL0}, {NL0}, "{rootInput}", {batch}, {tau_m}, {tau_s}, {tau_plus}, {tau_minus}, {a_plus}, {a_minus}, {CFI0}, 0, {CFI0}, {a}, {Thresh0}, {Thresh1});
+.q
+'''
+    print("File creation")
+    filename = f"starting_parameters/start_{id}.cmd"
+    with open(filename, "w") as file:
+        file.write(file_content)
+    print(f"File {filename} creato con successo.")
