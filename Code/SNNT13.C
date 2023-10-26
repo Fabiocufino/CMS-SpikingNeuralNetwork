@@ -109,7 +109,7 @@ int Read_Parameters()
     ifstream parfile;
     stringstream sstr;
     char num[40];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile);
+    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%d_CFI0=%d_CFI1=%d_alfa=%d_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alfa, indfile -1);// we'll pick the last one in the list
     sstr << "Params13_";
     string nameparfile = Path + sstr.str() + num + ".txt";
     parfile.open(nameparfile);
