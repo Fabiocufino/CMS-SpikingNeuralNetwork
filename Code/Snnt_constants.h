@@ -9,18 +9,23 @@
 // -------------------------------------------
 
 static int Empty_buffer = 0;                  // (old) We process events every 300 TimeSteps, leaving time for L0 neurons to pass delayed signal to L1 ones
-static double delta = 0.7;                    // max delta for 1Gev is 0.66rad
-static double max_angle = 2.0 * M_PI + delta; // max angle to scan
-static double frequency = 40e6;               // CMS tracker reading frequency [Hz]
-static double omega = max_angle * frequency;  // reading angular velocity
+static float delta = 0.7;                    // max delta for 1Gev is 0.66rad
+static float max_angle = 2.0 * M_PI + delta; // max angle to scan
+static float frequency = 40e6;               // CMS tracker reading frequency [Hz]
+static float omega = max_angle * frequency;  // reading angular velocity
 
-static double z_range = 1200.;                 // bin z in [-z_range/2, z_range/2]          
-static double max_R = 1200.;                  // bin r in [0, max_R]
-static const short int N_bin_r = 50;
+static const short int N_bin_r = 21;
 static const int N_bin_z = 0;
+static float Left_Layers[10]  = {25, 55, 100, 140, 210, 335, 490, 655, 835, 1050}; //mm 
+static float Right_Layers[10] = {40, 75, 116, 158, 290, 400, 540, 720, 895, 1110}; //mm
+static float z_range = 1200.;                 // bin z in [-z_range/2, z_range/2]          
+static float max_R = 1200;                    // bin r in [0, max_R]
+static short int N_TrackingLayers = 10;
+
 static const int N_InputStreams = N_bin_r*N_bin_z + N_bin_r;
-static double z_bin_length = z_range / N_bin_z;    
-static double r_bin_length = max_R / N_bin_r;       
+static float z_bin_length = z_range / N_bin_z;    
+static float r_bin_length = max_R / N_bin_r;     
+
 
 // -------------------------------------------
 // Hits and signals related constants
@@ -53,29 +58,29 @@ static long int NROOT = 100000;                //number of events inside the roo
 // neural network constants
 // -------------------------------------------
 static const int MaxEvents = 10000000;
-static const double largenumber = 999999999.;
-static const double epsilon = 1. / largenumber;
+static const float largenumber = 999999999.;
+static const float epsilon = 1. / largenumber;
 static const int MaxNeurons = 100;
-static double ProbWSwitchUp = 0.5;
-static double ProbWSwitchDown = 0.05;
-static double MaxDelay = 0.1e-9;         // Determines shape of IE signal[s]
-static double tau_m = 1e-09;             // membrane time constant[s]
-static double tau_s = 0.25e-09;          // synapse time constant[s]
-static double K1 = 2.;                   // constants to tune post-synaptic shape
-static double K2 = 4.;                   // see above
-static double IE_Pot_const = 2.5;        // Constant for IE modeling
-static double Threshold[2] = {15., 10.}; // Neuron threshold in arbitrary units; in paper it is 550V but they have 1000 channels, 100x ours
-static double alpha = 0.25;              // 0.25; // factor tuning inhibition strength
-static double L1inhibitfactor = 1.;      // multiplier for L1 inhibits
-static double MaxDeltaT = 7. * tau_m;    // time window wherein pre-synaptic, inhibition, and post-synaptic kernels affect neuron potential
-static double tau_plus = 1.68e-09;       // [s]
-static double tau_minus = 3.37e-09;      // [s]
-static double IPSP_dt_dilation = 1.;     // shape factor of exponential IPSP signal
-static double a_plus = 0.03125;          // for model of EPSP
-static double a_minus = 0.0265625;       // 0.85*a_plus;
-static double MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
-static double eff_target = 0.9;
-static double acc_target = 0.05;
+static float ProbWSwitchUp = 0.5;
+static float ProbWSwitchDown = 0.05;
+static float MaxDelay = 0.1e-9;         // Determines shape of IE signal[s]
+static float tau_m = 1e-09;             // membrane time constant[s]
+static float tau_s = 0.25e-09;          // synapse time constant[s]
+static float K1 = 2.;                   // constants to tune post-synaptic shape
+static float K2 = 4.;                   // see above
+static float IE_Pot_const = 2.5;        // Constant for IE modeling
+static float Threshold[2] = {15., 10.}; // Neuron threshold in arbitrary units; in paper it is 550V but they have 1000 channels, 100x ours
+static float alpha = 0.25;              // 0.25; // factor tuning inhibition strength
+static float L1inhibitfactor = 1.;      // multiplier for L1 inhibits
+static float MaxDeltaT = 7. * tau_m;    // time window wherein pre-synaptic, inhibition, and post-synaptic kernels affect neuron potential
+static float tau_plus = 1.68e-09;       // [s]
+static float tau_minus = 3.37e-09;      // [s]
+static float IPSP_dt_dilation = 1.;     // shape factor of exponential IPSP signal
+static float a_plus = 0.03125;          // for model of EPSP
+static float a_minus = 0.0265625;       // 0.85*a_plus;
+static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
+static float eff_target = 0.9;
+static float acc_target = 0.05;
 static bool learnDelays = false;
 static const int MaxStreams = MaxNeurons + N_bin_r * N_bin_z;
 
