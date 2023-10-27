@@ -61,7 +61,6 @@ static float K;                    // constant computed such that it sets the ma
 static bool update9;                // controls whether to optimize 7 network parameters
 static bool updateDelays;           // controls whether to optimize neuron delays
 static bool updateConnections;      // controls whether to optimize connections between streams and neurons
-static bool anyHits = true;         // Whether to accept tracks with any number of hits <8 or not
 static float Q_best;
 static float SelL1_best;
 static float Eff_best;
@@ -248,15 +247,6 @@ void Write_Parameters()
         parfile << "False" << endl;
     }
     parfile << "                  Max mod. factor: " << MaxFactor << endl;
-    parfile << "                  Only " << N_bin_r << "-hit tracks: ";
-    if (!anyHits)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
     parfile.close();
     return;
 }
@@ -390,7 +380,15 @@ int GetBinR(float r_hit)
     if (r_hit > max_R)
         r_hit = max_R - epsilon;
 
-    return (int)(r_hit / r_bin_length);
+    //10 bins in even positions are associated to a tracking layer
+    //11 bins in odd positions are associated to empty space among the former
+    for(int i = 0; i<N_TrackingLayers; i++){
+        if(r_hit>Left_Layers[i] && r_hit<Right_Layers[i])
+            return 2*i+1;
+        else if (r_hit<Left_Layers[i])
+            return 2*i;
+    }
+    return N_bin_r - 1;
 }
 
 int GetBinZ(float z)
@@ -1042,7 +1040,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         cout << "  Sorry, max # of events is 10,000,000. Terminating." << endl;
         return;
     }
-    if (N_ev / N_ep < 10000)
+    if (N_ev / N_ep < 1000)
     {
         cout << "  Too few events per epoch. Set to " << 10000 * N_ep << endl;
         // N_ev = 10000*N_ep;
@@ -1119,15 +1117,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         cout << "False" << endl;
     }
     cout << "                  Max mod. factor: " << MaxFactor << endl;
-    cout << "                Only " << N_bin_r << "-hit tracks: ";
-    if (!anyHits)
-    {
-        cout << "True" << endl;
-    }
-    else
-    {
-        cout << "False" << endl;
-    }
 
     // Suppress root warnings
     gROOT->ProcessLine("gErrorIgnoreLevel = 6001;");

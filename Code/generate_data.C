@@ -187,6 +187,11 @@ pair<std::vector<Event>, std::vector<Event>> GetEventFromMia(TTree *IT, TTree *O
     return make_pair(event_IT, event_OT);
 }
 
+double weight(double x, double y){
+    return 1/scale;
+    return sqrt(x*x + y*y)/scale;
+}
+
 void ComputeCumulative(TTree *IT, TTree *OT){
     NIT = IT->GetEntries();
     NOT = OT->GetEntries();
@@ -205,11 +210,11 @@ void ComputeCumulative(TTree *IT, TTree *OT){
     P_cum = new double[N_RandEvents];
 
     IT->GetEntry(0);
-    P_cum[0] = sqrt(x*x + y*y  )/scale;
+    P_cum[0] = weight(x, y);
     for (int i = 1; i < NIT; i++)
     {
         IT->GetEntry(i);
-        P_cum[i] = P_cum[i-1] + sqrt(x*x + y*y  )/scale;
+        P_cum[i] = P_cum[i-1] + weight(x, y);
     }
     
     //Outer Traker
@@ -220,7 +225,7 @@ void ComputeCumulative(TTree *IT, TTree *OT){
     for (int i = 0; i < NOT; i++)
     {
         OT->GetEntry(i);
-        P_cum[NIT+i] = P_cum[NIT+i-1] + sqrt(x*x + y*y  )/scale;
+        P_cum[NIT+i] = P_cum[NIT+i-1] + weight(x,y);
     }
 }
 
