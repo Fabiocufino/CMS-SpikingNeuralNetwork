@@ -29,7 +29,7 @@ a_minus_list =      [0.02656]
 CFI0_list =         [1, 0.8, 0.6] 
 CFI1_list =         [1]
 CF01_list =         [1]
-a_list =            [0.5, 0.7, 0.9]      #alfa parameter -> inhibition strength
+a_list =            [1, 5, 10, 50, 100]      #alfa parameter -> inhibition strength
 Thresh0 =           35
 Thresh1 =           35
 
