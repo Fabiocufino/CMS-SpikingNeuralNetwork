@@ -307,7 +307,7 @@ void Init_weights()
         {
           if(sumweight[in]>0)
            {
-           //Weight[in][is]=Weight[in][is]/sumweight[in];
+           Weight[in][is]=Weight[in][is]/sumweight[in];
            Weight_initial[in][is] = Weight[in][is];
            OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
            }
@@ -332,10 +332,12 @@ void Renorm(int in, float ispike)
         if (PreSpike_Stream[ispike]!=is)
     
         {
-           //Weight[in][is] = OldWeight[in][is] * (1+DeltaWeight[in][is]/(1-OldWeight[in][is]));
+           Weight[in][is] = OldWeight[in][is] * (1+DeltaWeight[in][is]/(1-OldWeight[in][is]));
+           /*
            if(Weight[in][is] > 1|| Weight[in][is] < 0){
             cout << in << " " << is << " " << Weight[in][is] << endl;
            }
+           */
         }
 
         OldWeight[in][is] = Weight[in][is];
