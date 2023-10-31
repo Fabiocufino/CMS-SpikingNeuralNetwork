@@ -15,14 +15,14 @@ static float frequency = 40e6;               // CMS tracker reading frequency [H
 static float omega = max_angle * frequency;  // reading angular velocity
 
 static const short int N_bin_r = 21;
-static const int N_bin_z = 0;
+static const int N_bin_z = 1;
 static float Left_Layers[10]  = {25, 55, 100, 140, 210, 335, 490, 655, 835, 1050}; //mm 
 static float Right_Layers[10] = {40, 75, 116, 158, 290, 400, 540, 720, 895, 1110}; //mm
 static float z_range = 1200.;                 // bin z in [-z_range/2, z_range/2]          
 static float max_R = 1200;                    // bin r in [0, max_R]
 static short int N_TrackingLayers = 10;
 
-static const int N_InputStreams = N_bin_r*N_bin_z + N_bin_r;
+static const int N_InputStreams = N_bin_r*N_bin_z;
 static float z_bin_length = z_range / N_bin_z;    
 static float r_bin_length = max_R / N_bin_r;     
 
