@@ -8,6 +8,7 @@
         "draw_gif_events.C": "cpp",
         "generate_data.C": "cpp",
         "__locale": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "SNN_Tracking.C": "cpp"
     }
 }
