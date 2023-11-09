@@ -1778,39 +1778,37 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         }
 
         // Write histograms of weights
-        //float SumofSquaresofWeight[in]=0;
         if (iepoch == N_epochs - 1)
         {
             int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
-                for (int in = 0; in < N_neurons; in++)
+            for (int in = 0; in < N_neurons; in++)
+            {
+                SumofSquaresofWeight[in]=0;
+                MaxWeight[in]=Weight[in][0];//this for the purpose of finding the maxima
+                MinWeight[in]=Weight[in][0];//for the purpose of finding the minima
+            
+                for (int is = 0; is < N_streams; is++)
                 {
-                
-                    MaxWeight[in]=Weight[in][0];//this for the purpose of finding the maxima
-                    MinWeight[in]=Weight[in][0];//for the purpose of finding the minima
-                
-                    for (int is = 0; is < N_streams; is++)
-                    {
-                        //int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
-                        if (!Void_weight[in][is]){
-                            HWeight[in * N_streams + is]->SetBinContent(bin, Weight[in][is]);
-                            SumofSquaresofWeight[in]+=Weight[in][is]*Weight[in][is];//for RMS calculation
-                            if( Weight[in][is]> MaxWeight[in]) MaxWeight[in]=Weight[in][is];   //finding maxima     
-                            else if (Weight[in][is]< MinWeight[in]) MinWeight[in]=Weight[in][is];     //finding minima
-                        } 
-                    }
-
-                //RMS Plot   
-                MeanofSquaresofWeight[in]=SumofSquaresofWeight[in]/(N_neurons);   
-                RMSWeight[in]= sqrt(MeanofSquaresofWeight[in]-1./(N_streams*N_streams));
-                HRMSWeight[in]->SetBinContent(bin,RMSWeight[in]);
-                    
-                
-                //MaxWeight plot
-                HMaxWeight[in]->SetBinContent(bin,MaxWeight[in]);
-                
-                //MinWeight Plot
-                HMinWeight[in]->SetBinContent(bin,MinWeight[in]);
+                    //int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
+                    if (!Void_weight[in][is]){
+                        HWeight[in * N_streams + is]->SetBinContent(bin, Weight[in][is]);
+                        SumofSquaresofWeight[in]+=Weight[in][is]*Weight[in][is];//for RMS calculation
+                        if( Weight[in][is]> MaxWeight[in]) MaxWeight[in]=Weight[in][is];   //finding maxima     
+                        else if (Weight[in][is]< MinWeight[in]) MinWeight[in]=Weight[in][is];     //finding minima
+                    } 
                 }
+
+            //RMS Plot   
+            MeanofSquaresofWeight[in]=SumofSquaresofWeight[in]/(N_neurons);   
+            RMSWeight[in]= sqrt(MeanofSquaresofWeight[in]-1./(N_streams*N_streams));
+            HRMSWeight[in]->SetBinContent(bin,RMSWeight[in]);
+                            
+            //MaxWeight plot
+            HMaxWeight[in]->SetBinContent(bin,MaxWeight[in]);
+            
+            //MinWeight Plot
+            HMinWeight[in]->SetBinContent(bin,MinWeight[in]);
+            }
         }
 
         // prespike_time.push_back(time) -> time associated to an hit or to a spike coming from L0
