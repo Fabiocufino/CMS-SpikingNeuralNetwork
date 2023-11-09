@@ -35,7 +35,6 @@ static bool Void_weight[MaxNeurons][MaxStreams]; // These may be used to model d
 static bool bestVoid_weight[MaxNeurons][MaxStreams];
 static float Weight_initial[MaxNeurons][MaxStreams]; // store to be able to return to initial conditions when optimizing
 static float OldWeight[MaxNeurons][MaxStreams];      //for renorm
-static float DeltaWeight[MaxNeurons][MaxStreams];
 static float Delay[MaxNeurons][MaxStreams];          // Delay in incoming signals
 static float bestDelay[MaxNeurons][MaxStreams];      // Opt delay in incoming signals
 static vector<float> History_time[MaxNeurons];       // Time of signal events per each neuron
@@ -269,14 +268,8 @@ void Init_neurons()
         History_time[in].push_back(0.);
         History_type[in].push_back(0);
         History_ID[in].push_back(0);
-        if (in < N_neuronsL[0])
-        {
-            Neuron_layer[in] = 0;
-        }
-        else
-        {
-            Neuron_layer[in] = 1;
-        }
+        if (in < N_neuronsL[0]) Neuron_layer[in] = 0;
+        else Neuron_layer[in] = 1;
     }
     return;
 }
@@ -291,13 +284,7 @@ void Init_weights()
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
             Weight[in][is] = myRNG->Uniform();
-           /// Weight_initial[infor (int is=0; is< Nsynapses (or however this is called); is++) {
- 
- 
-            sumweight[in]+=Weight[in][is];
-            
-             
-   
+            if (!Void_weight[in][is]) sumweight[in]+=Weight[in][is];
         }
     }
     
@@ -319,30 +306,17 @@ void Init_weights()
 
 }
 //Renormalization function
-void Renorm(int in, float ispike)
+void Renorm(int in, float delta_weight)
 {
- //deltaweights=newWeights[in][is]-oldWeights[in][is];
- 
- 
- for (int is=0; is < N_streams; is++)
-  {
-
-        DeltaWeight[in][is]=Weight[in][is]-OldWeight[in][is];
- 
-        if (PreSpike_Stream[ispike]!=is)
-    
-        {
-           Weight[in][is] = OldWeight[in][is] * (1+DeltaWeight[in][is]/(1-OldWeight[in][is]));
-           /*
-           if(Weight[in][is] > 1|| Weight[in][is] < 0){
-            cout << in << " " << is << " " << Weight[in][is] << endl;
-           }
-           */
+    float norm_factor = 1. + delta_weight;
+    for (int is=0; is < N_streams; is++)
+    {
+        if(!Void_weight[in][is]){
+            Weight[in][is] /= norm_factor;
+            OldWeight[in][is] = Weight[in][is];
         }
-
-        OldWeight[in][is] = Weight[in][is];
-  }
- return;     
+    }
+    return;     
 }
   
 // Reset synapse weights
@@ -352,9 +326,7 @@ void Reset_weights()
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
-        {
             Weight[in][is] = Weight_initial[in][is];
-        }
     }
     return;
 }
@@ -390,14 +362,11 @@ void Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI0)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI0) Void_weight[in][is] = true;
         }
         // input connections L0 -> L0
         for (int is = N_InputStreams; is < N_streams; is++)
-        {
             Void_weight[in][is] = false;
-        }
     }
 
     // Setting L1 input connections
@@ -407,15 +376,13 @@ void Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI1)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI1) Void_weight[in][is] = true;
         }
         // input connections L0 -> L1
         for (int is = N_InputStreams; is < N_streams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CF01)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CF01) Void_weight[in][is] = true;
         }
     }
     return;
@@ -488,7 +455,7 @@ void Encode(float t_in)
         if (row.phi > delta)
             break;
         float time = t_in + (row.phi + M_PI * 2.) / omega;
-        // uncomment when implemented:
+        
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
         PreSpike_Time.push_back(time);
@@ -564,18 +531,22 @@ void LTP(int in, int is, int this_spike, float fire_time)
     // Use nearest-spike approximation: search for closest pre-spike
     bool no_prespikes = true;
     int isp = this_spike - 1;
+    float delta_weight = 0;
     do
     {
         if (PreSpike_Stream[isp] == is)
         {
             float delta_t = PreSpike_Time[isp] - fire_time;
             Weight[in][is] += a_plus * exp(delta_t / tau_plus);
-            if (Weight[in][is] > 1.)
-                Weight[in][is] = 1.;
+            if (Weight[in][is] > 1.) Weight[in][is] = 1.;
+
             no_prespikes = false;
+            delta_weight+=Weight[in][is]-OldWeight[in][is];
+            //in this approximation we're interested only in the first spike 
+            if (nearest_spike_approx) break;
         }
         isp--;
-    } while (isp >= 0 && PreSpike_Time[isp] > fire_time - 7. * tau_plus && no_prespikes);
+    } while (isp >= 0 && PreSpike_Time[isp] > fire_time - 7. * tau_plus);
 
     // Also modify delays (experimental)
     if (learnDelays)
@@ -597,8 +568,8 @@ void LTP(int in, int is, int this_spike, float fire_time)
                 Delay[in2][is] += dt;
         }
     }
-
-    Renorm(in, is);
+    
+    if (!no_prespikes) Renorm(in, delta_weight);
     
     return;
 }
@@ -607,18 +578,20 @@ void LTP(int in, int is, int this_spike, float fire_time)
 // --------------------------------------------------------------------
 void LTD(int in, int is, float spike_time)
 {
-    // Use nearest-spike approximation: search for closest neuron spike to this input spike
     if (Fire_time[in].size() == 0)
         return;
     if (Void_weight[in][is])
         return;
     float delta_t = spike_time - Fire_time[in].back();
-    check_LTD[in][is] = false;
+    //if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
+    if (nearest_spike_approx) check_LTD[in][is] = false;
+    
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
         if (Weight[in][is] < 0.)
-            Weight[in][is] = 0.;
+            Weight[in][is] = 0.;    
+        Renorm(in, Weight[in][is] - OldWeight[in][is]);
     }
     // Also modify delay (experimental)
     if (learnDelays)
@@ -633,9 +606,6 @@ void LTD(int in, int is, float spike_time)
                 Delay[in2][is] -= dt;
         }
     }
-
-    Renorm(in, is);
-
     return;
 }
 
@@ -959,12 +929,12 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // Main routine
 // ------------
-void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 30, float Thresh1 = 30, bool batch = false, float _tau_m = 1e-09, float _tau_s = 0.25e-09,
-                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.03125, float _a_minus = 0.02656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1, float a = 0.25,
-                   float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,
+void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 7, float Thresh1 = 7, float a = 0.25, bool batch = false, float _tau_m = 1e-09, float _tau_s = 0.25e-09,
+                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.0003125, float _a_minus = 0.0002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
+                  float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,
                   float IEPC = 1, float ipspdf = 1.0, float _MaxDelay = 0.1e-9,
                   int N_cl = 6,
-                  int TrainingCode = 4, bool ReadPars = false, long int _NROOT = 100000)
+                  int TrainingCode = 0, bool ReadPars = false, long int _NROOT = 100000)
 {
     // OLD PARAMETERS:
 
@@ -1344,9 +1314,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // Initialize neuron potentials
     Init_neurons();
 
-    // Initialize synapse activation
-    Init_weights();
-
     // Initialize delays
     if (!ReadPars)
         Init_delays();
@@ -1354,6 +1321,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // Initialize connection map
     if (!ReadPars)
         Init_connection_map();
+
+    // Initialize synapse activation
+    Init_weights();
 
     // Prime the event loop - we continuously sample detector readout and feed inputs to synapses
     // ------------------------------------------------------------------------------------------
@@ -1646,6 +1616,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 if (is < N_InputStreams || Neuron_layer[in] > 0)
                 { // otherwise stream "is" does not lead to neuron "in"
                     History_time[in].push_back(t);
+                   
                     if (PreSpike_Signal[ispike] == 2)
                     { // L0 neuron-induced spike
                         History_type[in].push_back(1);
@@ -1654,6 +1625,10 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     { // IE spike in input to neurons
                         History_type[in].push_back(3);
                     }
+                    
+                    //All input spikes lead to EPSP
+
+                    //History_type[in].push_back(1);
                     History_ID[in].push_back(is);
 
                     // Model STDP: LTD. See if this spike depresses a neuron that fired earlier
@@ -1804,46 +1779,38 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
 
         // Write histograms of weights
         //float SumofSquaresofWeight[in]=0;
-if (iepoch == N_epochs - 1)
+        if (iepoch == N_epochs - 1)
         {
-        int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
-            for (int in = 0; in < N_neurons; in++)
-            {
-            
-                MaxWeight[in]=Weight[in][0];//this for the purpose of finding the maxima
-                MinWeight[in]=Weight[in][0];//for the purpose of finding the minima
-               
-                for (int is = 0; is < N_streams; is++)
+            int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
+                for (int in = 0; in < N_neurons; in++)
                 {
-                    //int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
-                    HWeight[in * N_streams + is]->SetBinContent(bin, Weight[in][is]);
-                    SumofSquaresofWeight[in]+=Weight[in][is]*Weight[in][is];//for RMS calculation
-                    
-                   
-                    if( Weight[in][is]> MaxWeight[in])
-                        MaxWeight[in]=Weight[in][is];   //finding maxima     
-                   
-                   if (Weight[in][is]< MinWeight[in])                     
-                        MinWeight[in]=Weight[in][is];     //finding minima
                 
+                    MaxWeight[in]=Weight[in][0];//this for the purpose of finding the maxima
+                    MinWeight[in]=Weight[in][0];//for the purpose of finding the minima
+                
+                    for (int is = 0; is < N_streams; is++)
+                    {
+                        //int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
+                        if (!Void_weight[in][is]){
+                            HWeight[in * N_streams + is]->SetBinContent(bin, Weight[in][is]);
+                            SumofSquaresofWeight[in]+=Weight[in][is]*Weight[in][is];//for RMS calculation
+                            if( Weight[in][is]> MaxWeight[in]) MaxWeight[in]=Weight[in][is];   //finding maxima     
+                            else if (Weight[in][is]< MinWeight[in]) MinWeight[in]=Weight[in][is];     //finding minima
+                        } 
+                    }
+
+                //RMS Plot   
+                MeanofSquaresofWeight[in]=SumofSquaresofWeight[in]/(N_neurons);   
+                RMSWeight[in]= sqrt(MeanofSquaresofWeight[in]-1./(N_streams*N_streams));
+                HRMSWeight[in]->SetBinContent(bin,RMSWeight[in]);
+                    
+                
+                //MaxWeight plot
+                HMaxWeight[in]->SetBinContent(bin,MaxWeight[in]);
+                
+                //MinWeight Plot
+                HMinWeight[in]->SetBinContent(bin,MinWeight[in]);
                 }
-              
-              
-             //RMS Plot   
-             MeanofSquaresofWeight[in]=SumofSquaresofWeight[in]/MaxNeurons;   
-             RMSWeight[in]= sqrt(MeanofSquaresofWeight[in]-1./(N_streams*N_streams));
-             HRMSWeight[in]->SetBinContent(bin,RMSWeight[in]);
-             
-           
-           //MaxWeight plot
-           HMaxWeight[in]->SetBinContent(bin,MaxWeight[in]);
-           
-           //MinWeight Plot
-           HMinWeight[in]->SetBinContent(bin,MinWeight[in]);
-           
-           
-           
-            }
         }
 
         // prespike_time.push_back(time) -> time associated to an hit or to a spike coming from L0
@@ -2790,7 +2757,7 @@ if (iepoch == N_epochs - 1)
         W->cd(in + 1);
         for (int is = 0; is < N_streams; is++)
         {
-            HWeight[in * N_streams + is]->SetMaximum(1.1);
+            //HWeight[in * N_streams + is]->SetMaximum(1.1);
             HWeight[in * N_streams + is]->SetMinimum(0.);
             int color = is + 1;
             if (color == 8)
@@ -2937,8 +2904,8 @@ if (iepoch == N_epochs - 1)
         BestEff[in]->Write();
         BestFR[in]->Write();
         BestEtot[in]->Write();
-      //  HRMSWeight[in]->Write();
-       // HMaxWeight[in]->Write();
+        //HRMSWeight[in]->Write();
+        //HMaxWeight[in]->Write();
         //HMinWeight[in]->Write();
         
     }
@@ -2973,18 +2940,19 @@ if (iepoch == N_epochs - 1)
     rootfile2->Close(); 
     gROOT->Time();
 
-
+/*
     for (int in = 0; in < N_neurons; in++)
-    {   
-        sumweight[in]=0;
-        for (int is = 0; is < N_streams; is++)
-        {
-            sumweight[in]+=Weight[in][is];
+        {   
+            sumweight[in]=0;
+            for (int is = 0; is < N_streams; is++)
+            {
+                if(!Void_weight[in][is]) sumweight[in]+=Weight[in][is];
+            }
+            
+            cout << in << " " << sumweight[in] << endl;
         }
-        
-        cout << in << " " << sumweight[in] << endl;
-    }
-    
+*/
+
 
     return;
 }
