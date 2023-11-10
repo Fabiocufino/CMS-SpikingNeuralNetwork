@@ -48,6 +48,8 @@ float MeanofSquaresofWeight[MaxNeurons]={0};                  //mean of squares 
 float MaxWeight[MaxNeurons];
 float MinWeight[MaxNeurons];
 float RMSWeight[MaxNeurons];
+float Efficiency_track[MaxNeurons][MaxClasses][10];  //to keep track of the efficiency evolution during training
+float FK_track[MaxNeurons][MaxClasses][10];       //to keep track of the FakeRate evolution during training
 static int N_neuronsL[2]; // Number of neurons in layers 0 and 1
 static int N_streams;
 static int N_neurons;
@@ -283,8 +285,12 @@ void Init_weights()
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
-            Weight[in][is] = myRNG->Uniform();
-            if (!Void_weight[in][is]) sumweight[in]+=Weight[in][is];
+            if (Void_weight[in][is]) Weight[in][is] = -1;
+            else{
+                Weight[in][is] = myRNG->Uniform();
+                sumweight[in]+=Weight[in][is];
+            }
+            
         }
     }
     
@@ -292,14 +298,13 @@ void Init_weights()
     {
         for (int is = 0; is < N_streams; is++)
         {
-          if(sumweight[in]>0)
+          if(sumweight[in]>0 && !Void_weight[in][is])
            {
            Weight[in][is]=Weight[in][is]/sumweight[in];
            Weight_initial[in][is] = Weight[in][is];
            OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
            }
         }
-    
     }
     
     return;
@@ -366,7 +371,7 @@ void Init_connection_map()
         }
         // input connections L0 -> L0
         for (int is = N_InputStreams; is < N_streams; is++)
-            Void_weight[in][is] = false;
+            Void_weight[in][is] = true;
     }
 
     // Setting L1 input connections
@@ -926,6 +931,65 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 
 }
 
+//read Weights from root file
+void ReadWeights(TFile *file){
+    vector<TH1F *> Hvec;
+    int iw = 0;
+    const char *name = "HWeight";
+    while(true){
+        TH1F *hist = nullptr;
+        char buffer[50];
+        sprintf(buffer, "%s%d", name, iw); 
+
+        hist = dynamic_cast<TH1F *>(file->Get(buffer));
+        if(hist == nullptr)
+            break;
+        Hvec.push_back(hist);
+        iw++;
+    }
+    cout << "Loaded " << Hvec.size() << " histograms" << endl;
+    cout << "Extracting last weights configuration " << endl;
+    int Nstreams = Hvec.size()/N_neurons;
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for(int is = 0; is < Nstreams; is ++){
+            // Get the number of bins in the x-axis
+            int lastBin = Hvec[in * Nstreams + is]->GetNbinsX();
+            // Get the content of the last bin
+            float lastBinValue = Hvec[in * Nstreams + is]->GetBinContent(lastBin);
+            //weight = -1 -> inexisting connection
+            Void_weight[in][is] = (lastBinValue==-1);
+            Weight[in][is] = lastBinValue;
+        }
+    }
+    cout << "Weights loaded successfull" << endl;
+}
+
+//plot neuron potentials as a function of time
+void PlotPotentials(const char *rootInput, int NL0, int NL1){
+    TFile *file = TFile::Open(rootInput, "READ");
+    if (!file || file->IsZombie())
+    {
+        cerr << "Error: Cannot open file " << rootInput << endl;
+        return;
+    }
+    N_neuronsL[0] = NL0;
+    N_neuronsL[1] = NL1;
+    N_neurons = N_neuronsL[0] + N_neuronsL[1];
+    N_streams = N_InputStreams + N_neuronsL[0];
+
+    // Initialize neuron potentials
+    Init_neurons();
+
+    // Initialize delays
+    Init_delays();
+    
+    ReadWeights(file);
+    //the network is ready
+    //we need to fecth the events and compute the plots
+    
+}
+
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // Main routine
 // ------------
@@ -936,8 +1000,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                   int N_cl = 6,
                   int TrainingCode = 0, bool ReadPars = false, long int _NROOT = 100000)
 {
-    // OLD PARAMETERS:
-
     // Pass parameters:
     // ----------------__
     // N_ev:      total number of simulated events
@@ -1726,7 +1788,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     }
                     else
                     {
-                        if (not_filled[in_first])
+                        if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * 0.9)
                         {
                             random_fire[in_first]++;
                             not_filled[in_first] = false;
@@ -1784,8 +1846,8 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             for (int in = 0; in < N_neurons; in++)
             {
                 SumofSquaresofWeight[in]=0;
-                MaxWeight[in]=Weight[in][0];//this for the purpose of finding the maxima
-                MinWeight[in]=Weight[in][0];//for the purpose of finding the minima
+                MaxWeight[in]=-0.1; //this for the purpose of finding the maxima
+                MinWeight[in]=1.1;  //for the purpose of finding the minima
             
                 for (int is = 0; is < N_streams; is++)
                 {
@@ -1796,6 +1858,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         if( Weight[in][is]> MaxWeight[in]) MaxWeight[in]=Weight[in][is];   //finding maxima     
                         else if (Weight[in][is]< MinWeight[in]) MinWeight[in]=Weight[in][is];     //finding minima
                     } 
+                    else HWeight[in * N_streams + is]->SetBinContent(bin, -1);
                 }
 
             //RMS Plot   
@@ -2717,7 +2780,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     }
     TCanvas *MW=new TCanvas("MW","",400,800);
     MW->Divide(1,N_neurons);
-    //MW->SetLogy();
+    MW->SetLogy();
     for (int in=0; in<N_neurons; in++)
     {
           MW->cd(in+1);

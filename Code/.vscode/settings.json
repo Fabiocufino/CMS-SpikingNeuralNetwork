@@ -15,6 +15,7 @@
         "__locale": "cpp",
         "ios": "cpp",
         "generate_data.C": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "SNNT13 copy.C": "cpp"
     }
 }
