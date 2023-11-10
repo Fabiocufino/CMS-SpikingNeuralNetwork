@@ -2950,6 +2950,5 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             cout << in << " " << sumweight[in] << endl;
         }
 */
-    SNN *f = new SNN();
     return;
 }
