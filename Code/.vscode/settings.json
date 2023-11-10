@@ -16,6 +16,6 @@
         "ios": "cpp",
         "generate_data.C": "cpp",
         "chrono": "cpp",
-        "SNNT13 copy.C": "cpp"
+        "test.C": "cpp"
     }
 }

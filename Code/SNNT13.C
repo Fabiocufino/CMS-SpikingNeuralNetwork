@@ -21,6 +21,9 @@
 #include <algorithm>
 #include <random>
 
+
+#include "SNN.h"
+
 using namespace std;
 
 // Constants and data used throughout the code
@@ -64,7 +67,6 @@ static vector<float> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
-static float tmax;                 // t of max value for EPSP
 static float Pmax_EPSP;            // maximum EPSP spike height
 static float K;                    // constant computed such that it sets the max of excitation spike at 1V
 static bool update9;                // controls whether to optimize 7 network parameters
@@ -993,8 +995,9 @@ void PlotPotentials(const char *rootInput, int NL0, int NL1){
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // Main routine
 // ------------
-void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 7, float Thresh1 = 7, float a = 0.25, bool batch = false, float _tau_m = 1e-09, float _tau_s = 0.25e-09,
-                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.0003125, float _a_minus = 0.0002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
+void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 10, float Thresh1 = 10, float a = 0.25, bool batch = false,
+                 float _tau_m = 1e-09, float _tau_s = 0.25e-09,
+                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
                   float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,
                   float IEPC = 1, float ipspdf = 1.0, float _MaxDelay = 0.1e-9,
                   int N_cl = 6,
@@ -1341,9 +1344,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     // float deltat_max = (tau_m*tau_s)/(tau_m-tau_s)*log(tau_m/tau_s);
     // K = 1./(exp(-deltat_max/tau_m)-exp(-deltat_max/tau_s)); // Now an optimization parameter
 
-    // Calculation of time at maximum of EPSP
-    tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
-
     // Calculation of max spike height
     Pmax_EPSP = EPS_potential(tmax);
 
@@ -1574,7 +1574,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     char csv_name[80];
     sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha);
     fout.open(csv_name);
-    fout << "Event, ID, Stream, Time, Pclass" << endl;
+    fout << "Event,ID,Stream,Time,Pclass" << endl;
 
     // Loop on events ----------------------------------------------
     do
@@ -3013,7 +3013,5 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
             cout << in << " " << sumweight[in] << endl;
         }
 */
-
-
     return;
 }

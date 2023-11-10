@@ -9,6 +9,7 @@
         "generate_data.C": "cpp",
         "__locale": "cpp",
         "random": "cpp",
-        "SNN_Tracking.C": "cpp"
+        "SNN_Tracking.C": "cpp",
+        "iosfwd": "cpp"
     }
 }
