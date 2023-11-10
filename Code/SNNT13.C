@@ -22,7 +22,7 @@
 #include <random>
 
 
-#include "SNN.h"
+//#include "SNN.h"
 
 using namespace std;
 
@@ -67,7 +67,6 @@ static vector<float> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
-static float Pmax_EPSP;            // maximum EPSP spike height
 static float K;                    // constant computed such that it sets the max of excitation spike at 1V
 static bool update9;                // controls whether to optimize 7 network parameters
 static bool updateDelays;           // controls whether to optimize neuron delays
@@ -931,9 +930,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
         hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
     }
 
-}
-
-//read Weights from root file
+}//read Weights from root file
 void ReadWeights(TFile *file){
     vector<TH1F *> Hvec;
     int iw = 0;
@@ -964,15 +961,15 @@ void ReadWeights(TFile *file){
             Weight[in][is] = lastBinValue;
         }
     }
-    cout << "Weights loaded successfull" << endl;
+    cout << "Weights loaded successfully" << endl;
 }
 
 //plot neuron potentials as a function of time
-void PlotPotentials(const char *rootInput, int NL0, int NL1){
-    TFile *file = TFile::Open(rootInput, "READ");
-    if (!file || file->IsZombie())
+void PlotPotentials(const char *rootWeight, const char *rootInput, int NL0, int NL1, int N_events){
+    TFile *file_weight = TFile::Open(rootWeight, "READ");
+    if (!file_weight || file_weight->IsZombie())
     {
-        cerr << "Error: Cannot open file " << rootInput << endl;
+        cerr << "Error: Cannot open file " << rootWeight << endl;
         return;
     }
     N_neuronsL[0] = NL0;
@@ -985,11 +982,182 @@ void PlotPotentials(const char *rootInput, int NL0, int NL1){
 
     // Initialize delays
     Init_delays();
-    
-    ReadWeights(file);
+    Init_connection_map();
+    Init_weights();
+    ReadWeights(file_weight);
     //the network is ready
     //we need to fecth the events and compute the plots
     
+    // Read the file with True Events and Generated BKG ------------------
+    TFile *file = TFile::Open(rootInput, "READ");
+    if (!file || file->IsZombie())
+    {
+        cerr << "Error: Cannot open file " << rootInput << endl;
+        return;
+    }
+
+    TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
+    TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
+
+    if (!dirIT)
+    {
+        cerr << "Error: Cannot access directory clusterValidIT" << endl;
+        file->Close();
+        return;
+    }
+
+    if (!dirOT)
+    {
+        cerr << "Error: Cannot access directory clusterValidOT" << endl;
+        file->Close();
+        return;
+    }
+
+    TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
+    TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
+
+    if (!IT)
+    {
+        cerr << "Error: Cannot access tree in clusterValidIT" << endl;
+        file->Close();
+        return;
+    }
+
+    if (!OT)
+    {
+        cerr << "Error: Cannot access tree in clusterValidOT" << endl;
+        file->Close();
+        return;
+    }
+
+    IT->SetMaxVirtualSize(250000000);
+    IT->LoadBaskets();
+
+    OT->SetMaxVirtualSize(250000000);
+    OT->LoadBaskets();
+
+    // End of reading ----------------------------------------------
+    // Create csv fout file
+    ofstream fout;
+    char csv_name[80];
+    sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha);
+    fout.open(csv_name);
+    fout << "Event,ID,Stream,Time,Pclass" << endl;
+
+    int ievent = 0;
+    // Loop on events ----------------------------------------------
+    do
+    {
+        cout << "Event " << ievent << endl;
+        ReadFromProcessed(IT, OT, ievent);
+        PreSpike_Time.clear();
+        PreSpike_Stream.clear();
+        PreSpike_Signal.clear();
+        float t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        Encode(t_in);
+
+        // Loop on spikes and modify neuron and synapse potentials
+        // -------------------------------------------------------
+        for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
+        {
+            // By looping to size(), we can insert along the way and still make it to the end
+            float t = PreSpike_Time[ispike];
+
+            // Modify neuron potentials based on synapse weights
+            // -------------------------------------------------
+            float min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
+            int in_first = -1;
+
+            // Loop on neurons, but not in order to not favor any neuron
+            // ---------------------------------------------------------
+
+            // Shuffle order
+            auto rng = default_random_engine{};
+            shuffle(neurons_index.begin(), neurons_index.end(), rng);
+
+            for (auto in : neurons_index)
+            {
+
+                //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
+                //  Add to neuron history, masking out L1 spikes for L0 neurons
+                int is = PreSpike_Stream[ispike];
+                if (is < N_InputStreams || Neuron_layer[in] > 0)
+                { // otherwise stream "is" does not lead to neuron "in"
+                    History_time[in].push_back(t);
+
+                    //All input spikes lead to EPSP
+                    History_type[in].push_back(1);
+                    //History_type[in].push_back(1);
+                    History_ID[in].push_back(is);
+
+                    // Compute future fire times of neurons and their order
+                    float fire_time = Neuron_firetime(in, t);
+                    if (fire_time < min_fire_time)
+                    {
+                        in_first = in;
+                        min_fire_time = fire_time;
+                    }
+                }
+            }
+            if (in_first == -1)
+                continue; // nothing happens, move on
+
+            cout << "Neuron " << in_first << "has fired!" << endl;
+            // Ok, neuron in_first is going to fire next.
+            // Peek at next event in list, to see if it comes before in_first fires
+            // --------------------------------------------------------------------
+            if (ispike < PreSpike_Time.size() - 1)
+            {
+                if (PreSpike_Time[ispike + 1] >= min_fire_time)
+                { // otherwise we go to next spike in list
+                    // handle firing of neuron in_first
+                    Fire_time[in_first].push_back(min_fire_time);
+
+                    // Reset history of this neuron
+                    History_time[in_first].clear();
+                    History_type[in_first].clear();
+                    History_ID[in_first].clear();
+                    History_time[in_first].push_back(min_fire_time);
+                    History_type[in_first].push_back(0);
+                    History_ID[in_first].push_back(0); // ID is not used for type 0 history events
+
+                    // IPSP for all others at relevant layer
+                    for (int in2 = 0; in2 < N_neurons; in2++)
+                    {
+                        if (in2 != in_first)
+                        {
+                            if (Neuron_layer[in2] == Neuron_layer[in_first])
+                            { // inhibitions within layer or across
+                                History_time[in2].push_back(min_fire_time);
+                                History_type[in2].push_back(2);
+                                History_ID[in2].push_back(in_first);
+                            }
+                        }
+                    }
+
+                    // Create EPS signal in L0 neuron-originated streams
+                    if (Neuron_layer[in_first] == 0)
+                    { // this is a Layer-0 neuron
+                        PreSpike_Time.insert(PreSpike_Time.begin() + ispike + 1, min_fire_time);
+                        PreSpike_Stream.insert(PreSpike_Stream.begin() + ispike + 1, N_InputStreams + in_first);
+                        PreSpike_Signal.insert(PreSpike_Signal.begin() + ispike + 1, 2);
+                    }
+                }
+            } // end if in_first fires
+        }     // end ispike loop, ready to start over
+        ievent++; // only go to next event if we did a backward pass too
+
+    } while (ievent < N_events);
+    // closing the input file
+    delete IT;
+    delete OT;
+    delete dirIT;
+    delete dirOT;
+
+    file->Close();
+    file_weight->Close();
+    delete file_weight;
+    delete file;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1340,13 +1508,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         StreamsN[i] = new TH2F(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, N_neurons, 0.5, N_neurons + 0.5);
     }
 
-    // Calculation of constant in excitation spike, to make it max at 1
-    // float deltat_max = (tau_m*tau_s)/(tau_m-tau_s)*log(tau_m/tau_s);
-    // K = 1./(exp(-deltat_max/tau_m)-exp(-deltat_max/tau_s)); // Now an optimization parameter
-
-    // Calculation of max spike height
-    Pmax_EPSP = EPS_potential(tmax);
-
     // If requested, read in parameters
     int okfile;
     if (ReadPars)
@@ -1678,7 +1839,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                 if (is < N_InputStreams || Neuron_layer[in] > 0)
                 { // otherwise stream "is" does not lead to neuron "in"
                     History_time[in].push_back(t);
-                   
+                    /*
                     if (PreSpike_Signal[ispike] == 2)
                     { // L0 neuron-induced spike
                         History_type[in].push_back(1);
@@ -1687,9 +1848,9 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                     { // IE spike in input to neurons
                         History_type[in].push_back(3);
                     }
-                    
+                    */
                     //All input spikes lead to EPSP
-
+                    History_type[in].push_back(1);
                     //History_type[in].push_back(1);
                     History_ID[in].push_back(is);
 
@@ -2796,7 +2957,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
           HMinWeight[in]->SetLineColor(kBlue);
           HMinWeight[in]->Draw("SAME");
           HRMSWeight[in]->Draw("SAME");
-}
+    }
 
     TCanvas *SE = new TCanvas("SE", "", 800, 400);
     SE->Divide(3, 1);

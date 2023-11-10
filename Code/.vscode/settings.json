@@ -16,6 +16,7 @@
         "ios": "cpp",
         "generate_data.C": "cpp",
         "chrono": "cpp",
-        "test.C": "cpp"
+        "test.C": "cpp",
+        "new": "cpp"
     }
 }
