@@ -10,6 +10,12 @@
         "__locale": "cpp",
         "random": "cpp",
         "SNN_Tracking.C": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "array": "cpp",
+        "initializer_list": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp"
     }
 }

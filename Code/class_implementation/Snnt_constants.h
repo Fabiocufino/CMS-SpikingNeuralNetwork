@@ -88,4 +88,5 @@ static float acc_target = 0.05;
 static bool learnDelays = false;
 static const int MaxStreams = MaxNeurons + N_bin_r * N_bin_z;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
+static TRandom3 *myRNG = new TRandom3(23);
 #endif // SNNT_CONSTANTS_H

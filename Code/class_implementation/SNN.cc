@@ -42,19 +42,16 @@ SNN::SNN(int NL0, int NL1): //Initializations
 
                             N_neurons(NL0 + NL1),
                             N_streams(N_InputStreams + NL0),
-                            MaxFactor(0.2)
+                            MaxFactor(0.2),
+                            tmax(tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s))),
+                            MaxDeltaT(7. * tau_m)
 {
-    Threshold[0] = 10;
-    Threshold[1] = 10;
+    Threshold[0] = 0.1;
+    Threshold[1] = 0.1;
 
 
     N_neuronsL[0] = NL0;
     N_neuronsL[1] = NL1;
-
-
-    tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
-
-    MaxDeltaT = 7. * tau_m;
 
     
     //Print all the variables
@@ -93,21 +90,13 @@ SNN::SNN(int NL0, int NL1): //Initializations
     cout << "largenumber = " << largenumber << endl;
     cout << "epsilon = " << epsilon << endl;
     cout << "MaxEvents = " << MaxEvents << endl;
-    cout << "MaxDeltaT = " << MaxDeltaT << endl;
+    cout << "-------------------------------------" << endl;
+
 
 
     Init_neurons();
-    Init_weights();
     Init_connection_map();
-
-    cout<<"--------------------------"<<endl;
-    //print the avarage weight, connection map and the initial weights
-    cout << "Average weight = " << sumweight[0] << endl;
-    cout << "Connection map = " << Void_weight[0][0] << endl;
-    cout << "Initial weights = " << Weight_initial[0][0] << endl;
-
-
-    
+    Init_weights();
 }
 
 SNN::~SNN()
@@ -118,7 +107,7 @@ SNN::~SNN()
 // ----------------------------
 void SNN::Init_neurons()
 {
-    TRandom3 *myRNG = new TRandom3(23);
+    
     for (int in = 0; in < N_neurons; in++)
     {
         // Set first event in history of this neuron
@@ -137,40 +126,40 @@ void SNN::Init_neurons()
 // --------------------------
 void SNN::Init_weights()
 {
-    TRandom3 *myRNG = new TRandom3(23);
-
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
-            Weight[in][is] = myRNG->Uniform();
-            if (!Void_weight[in][is])
-                sumweight[in] += Weight[in][is];
+            if (Void_weight[in][is]) Weight[in][is] = -1;
+            else{
+                Weight[in][is] = myRNG->Uniform();
+                sumweight[in]+=Weight[in][is];
+            }
+            
         }
     }
-
+    
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
         {
-            if (sumweight[in] > 0)
-            {
-                Weight[in][is] = Weight[in][is] / sumweight[in];
-                Weight_initial[in][is] = Weight[in][is];
-                OldWeight[in][is] = Weight[in][is]; // this will be used for the renorm
-            }
+          if(sumweight[in]>0 && !Void_weight[in][is])
+           {
+           Weight[in][is]=Weight[in][is]/sumweight[in];
+           Weight_initial[in][is] = Weight[in][is];
+           OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
+           }
         }
     }
-
+    
     return;
-}
 
+}
 // Initialize connection map
 // -------------------------
 void SNN::Init_connection_map()
 {
-    TRandom3 *myRNG = new TRandom3(23);
 
     // Setting L0 input connections
     for (int in = 0; in < N_neuronsL[0]; in++)
@@ -179,12 +168,11 @@ void SNN::Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI0)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI0) Void_weight[in][is] = true;
         }
         // input connections L0 -> L0
         for (int is = N_InputStreams; is < N_streams; is++)
-            Void_weight[in][is] = false;
+            Void_weight[in][is] = true;
     }
 
     // Setting L1 input connections
@@ -194,15 +182,13 @@ void SNN::Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI1)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI1) Void_weight[in][is] = true;
         }
         // input connections L0 -> L1
         for (int is = N_InputStreams; is < N_streams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CF01)
-                Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CF01) Void_weight[in][is] = true;
         }
     }
     return;

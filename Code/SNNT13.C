@@ -394,7 +394,7 @@ void Init_connection_map()
     return;
 }
 
-// clera hits vector
+// clear hits vector
 void Reset_hits()
 {
     hit_pos.clear();
@@ -1163,7 +1163,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, int NL0, int 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // Main routine
 // ------------
-void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 10, float Thresh1 = 10, float a = 0.25, bool batch = false,
+void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 0.1, float Thresh1 = 0.1, float a = 0.25, bool batch = false,
                  float _tau_m = 1e-09, float _tau_s = 0.25e-09,
                   float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
                   float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,

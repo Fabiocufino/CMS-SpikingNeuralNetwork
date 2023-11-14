@@ -76,9 +76,6 @@ public:
     float sumweight[MaxNeurons]; // summed weights of streams for each neurons for the purpose of normalization
     int N_neuronsL[2];           // Number of neurons in layers 0 and 1
 
-
-    TRandom3 *myRNG;
-
     SNN(int NL0, int NL1);
     ~SNN();
 
