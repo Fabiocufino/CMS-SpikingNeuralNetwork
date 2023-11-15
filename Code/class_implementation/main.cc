@@ -1,5 +1,6 @@
 #include <iostream>
 #include <random>
+#include <fstream>
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -229,8 +230,14 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     // initialization of neurons_index vector
     for (int i = 0; i < P.N_neurons; i++)
         neurons_index.push_back(i);
-    
+    //vector used to keep track of the neurons firing order
+    vector<int> Fire_ID;
     N_events = _N_events;
+    
+    //vectors to plot
+    vector<float> Time[N_events];
+    vector<float> Potential[N_events][P.N_neurons];
+
     TFile *file_weight = TFile::Open(rootWeight, "READ");
     if (!file_weight || file_weight->IsZombie())
     {
@@ -321,13 +328,8 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 
             // Shuffle order
             auto rng = default_random_engine{};
-        
-
             shuffle(neurons_index.begin(), neurons_index.end(), rng);
             
-            
-
-
             for (auto in : neurons_index)
             {
                 //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
@@ -364,6 +366,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                 { // otherwise we go to next spike in list
                     // handle firing of neuron in_first
                     P.Fire_time[in_first].push_back(min_fire_time);
+                    Fire_ID.push_back(in_first);
 
                     // Reset history of this neuron
                     P.History_time[in_first].clear();
@@ -394,13 +397,120 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                         PreSpike_Stream.insert(PreSpike_Stream.begin() + ispike + 1, N_InputStreams + in_first);
                         PreSpike_Signal.insert(PreSpike_Signal.begin() + ispike + 1, 2);
                     }
-
                 }
             } // end if in_first fires
         }     // end ispike loop, ready to start over
+
+        //Now that we've correctly computed all the history we can restart from the first spike and plot the potential
+        //first of all let's clear the neurons history
+        P.Init_neurons();
+
+        //We aren't interested in shuffle the order of neurons anymore
+        for (int i = 0; i < P.N_neurons; i++)
+            neurons_index.push_back(i);
+        
+        //to keep track  of the next neuron that has to fire
+        int next_fire = 0;
+        int fire_count[P.N_neurons];
+        for (int ic = 0; ic < P.N_neurons; ic++) fire_count[ic] = 0;
+        int in_first = Fire_ID[next_fire];
+        float min_fire_time = P.Fire_time[in_first][fire_count[in_first]];
+
+        //loop on all the past spikes
+        for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
+        {
+            float t = PreSpike_Time[ispike];
+            
+            for (auto in : neurons_index)
+            {
+                int is = PreSpike_Stream[ispike];
+                if (is < N_InputStreams || P.Neuron_layer[in] > 0)
+                { // otherwise stream "is" does not lead to neuron "in"
+                    P.History_time[in].push_back(t);
+
+                    //All input spikes lead to EPSP
+                    P.History_type[in].push_back(1);
+                    P.History_ID[in].push_back(is);
+                }
+            }
+            
+            //Handle the effect of a neuron's firing
+            if (ispike < PreSpike_Time.size() - 1)
+            {
+                if (PreSpike_Time[ispike + 1] >= min_fire_time)
+                { // otherwise we go to next spike in list
+                    // handle firing of neuron in_first
+                    // Reset history of this neuron
+                    P.History_time[in_first].clear();
+                    P.History_type[in_first].clear();
+                    P.History_ID[in_first].clear();
+                    P.History_time[in_first].push_back(min_fire_time);
+                    P.History_type[in_first].push_back(0);
+                    P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
+
+                    // IPSP for all others at relevant layer
+                    for (int in2 = 0; in2 < P.N_neurons; in2++)
+                    {
+                        if (in2 != in_first)
+                        {
+                            if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
+                            { // inhibitions within layer or across
+                                P.History_time[in2].push_back(min_fire_time);
+                                P.History_type[in2].push_back(2);
+                                P.History_ID[in2].push_back(in_first);
+                            }
+                        }
+                    }
+                    //Plot the effect of the neuron's firing
+                    Time[ievent].push_back(min_fire_time);
+                    for (auto in : neurons_index){
+                        Potential[ievent][in].push_back(P.Neuron_Potential(in, min_fire_time));
+                    }
+                }
+                fire_count[in_first]++;
+                next_fire++;
+                in_first = Fire_ID[next_fire];
+                min_fire_time = P.Fire_time[in_first][fire_count[in_first]];
+            } // end if in_first fires
+            
+            //plot the result of the incoming spike
+            Time[ievent].push_back(t);
+            for (auto in : neurons_index){
+                Potential[ievent][in].push_back(P.Neuron_Potential(in, t));
+            }
+        }     // end ispike loop, ready to start over
+        
         ievent++; // only go to next event if we did a backward pass too
 
     } while (ievent <= N_events);
+
+    //dump the potentials inside a csv file
+    ofstream outfile;
+    outfile.open("potentials.csv");
+
+    //Header
+    outfile << "Event,Time";
+    for (int in = 0; in < P.N_neurons; in++)
+    {
+        outfile << ",V(t)_"<< in;
+    }
+    outfile << endl;
+    
+    //content
+    for (int ievent = 1; ievent <= N_events; ievent++)
+    {
+        for (int it = 0; it < Time[ievent].size(); it++)
+        {   
+            outfile << ievent << "," << Time[ievent][it];
+            
+            for (int in = 0; in < P.N_neurons; in++)
+            {
+                outfile << "," << Potential[ievent][in][it];
+            }
+            outfile<<endl;
+        }
+    }
+
     // closing the input file
     delete IT;
     delete OT;
@@ -409,6 +519,8 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 
     file->Close();
     file_weight->Close();
+    outfile.close();
+    
     delete file_weight;
     delete file;
 }
@@ -419,7 +531,7 @@ int main() {
     SNN P(6,6);
     //ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
 
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/100k_100br.root ", P, 10);
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "/home/ema/Documents/DATA/100k_100br.root ", P, 10);
     
 
     // Chiamata della funzione void seno

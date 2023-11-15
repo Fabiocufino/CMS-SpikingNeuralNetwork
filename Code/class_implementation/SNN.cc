@@ -1,10 +1,6 @@
 #include "SNN.h"
 #include "Snnt_constants.h"
 
-
-#include "TRandom.h"
-#include "TRandom3.h"
-
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TAxis.h"
@@ -333,6 +329,78 @@ float SNN::Neuron_firetime(int in, float t)
             return this_t;
     }
     return largenumber;
+}
+
+// Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
+// ------------------------------------------------------------------------------------------
+float SNN::Neuron_Potential(int in, float t)
+{
+    int ilayer = Neuron_layer[in];
+    float P0 = 0.;
+    float t0 = History_time[in][0];
+    float delta_t = t - t0;
+    if (t0 > 0. && delta_t >= 0. && delta_t < MaxDeltaT)
+    {
+        int ilayer = Neuron_layer[in];
+        P0 = Spike_potential(delta_t, ilayer); // the first event in the history sequence is a spike
+    }
+    float P = P0;
+
+    // Now we extrapolate the effect of all past spikes and inhibitions to time t, to compute the potential when EPSP arrives
+    int len = History_time[in].size();
+    if (len > 1)
+    {
+        for (int ih = 1; ih < len - 1; ih++)
+        {
+            delta_t = t - History_time[in][ih];
+            if (History_type[in][ih] == 1)
+            { // EPSP
+                if (delta_t > MaxDeltaT)
+                { // Get rid of irrelevant events
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    len = len - 1;
+                }
+                else
+                {
+                    if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
+                        P += Weight[in][History_ID[in][ih]] * EPS_potential(delta_t);
+                }
+            }
+            else if (History_type[in][ih] == 2)
+            { // IPSP
+                if (delta_t > MaxDeltaT)
+                { // get rid of irrelevant events
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    len = len - 1;
+                }
+                else
+                {
+                    int ilayer = Neuron_layer[in];
+                    P += Inhibitory_potential(delta_t, ilayer);
+                }
+            }
+            else if (History_type[in][ih] == 3)
+            { // IE
+                if (delta_t > MaxDeltaT)
+                { // get rid of irrelevant events
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    len = len - 1;
+                }
+                else
+                {
+                    if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
+                        P += IE_potential(delta_t, in, History_ID[in][ih]);
+                }
+            }
+        }
+    }
+    return P;
 }
 
 // Model Inhibitory-Excitatory signal (IE) as combination of two EPSP-like shapes, a negative one followed by a positive one

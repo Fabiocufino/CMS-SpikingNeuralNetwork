@@ -4,9 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "TRandom.h"
-#include "TRandom3.h"
-
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TAxis.h"
@@ -88,6 +85,7 @@ public:
     float Spike_potential(float delta_t, int ilayer);
     float Inhibitory_potential(float delta_t, int ilayer);
     float Neuron_firetime(int in, float t);
+    float Neuron_Potential(int in, float t);
     float IE_potential(float delta_t, int in, int is);
 
     void plotSinFunction();
