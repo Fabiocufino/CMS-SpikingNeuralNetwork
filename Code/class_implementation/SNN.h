@@ -78,7 +78,6 @@ public:
 
 
     //------- Functions ---------
-    void Init_neurons(float t_in);
     void Init_neurons();
     void Init_weights();
     void Init_connection_map();
