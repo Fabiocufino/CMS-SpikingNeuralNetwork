@@ -101,13 +101,18 @@ SNN::~SNN()
 
 // Initialize neuron potentials
 // ----------------------------
-void SNN::Init_neurons()
+
+void SNN::Init_neurons(float t_in)
 {
     
     for (int in = 0; in < N_neurons; in++)
     {
         // Set first event in history of this neuron
-        History_time[in].push_back(0.);
+        History_time[in].clear();
+        History_type[in].clear();
+        History_ID[in].clear();
+
+        History_time[in].push_back(t_in);
         History_type[in].push_back(0);
         History_ID[in].push_back(0);
         if (in < N_neuronsL[0])
@@ -117,7 +122,10 @@ void SNN::Init_neurons()
     }
     return;
 }
-
+void SNN::Init_neurons()
+{
+    Init_neurons(0.);
+}
 // Initialize synapse weights
 // --------------------------
 void SNN::Init_weights()
@@ -238,6 +246,7 @@ float SNN::Neuron_firetime(int in, float t)
     float delta_t = t - t0;
     if (t0 > 0. && delta_t >= 0. && delta_t < MaxDeltaT)
     {
+        cout<<"SNN::Neuron_firetime: "<<endl;
         int ilayer = Neuron_layer[in];
         P0 = Spike_potential(delta_t, ilayer); // the first event in the history sequence is a spike
     }

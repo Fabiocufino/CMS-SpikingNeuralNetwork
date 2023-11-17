@@ -78,6 +78,7 @@ public:
 
 
     //------- Functions ---------
+    void Init_neurons(float t_in);
     void Init_neurons();
     void Init_weights();
     void Init_connection_map();
@@ -87,8 +88,6 @@ public:
     float Neuron_firetime(int in, float t);
     float Neuron_Potential(int in, float t);
     float IE_potential(float delta_t, int in, int is);
-
-    void plotSinFunction();
 
 };
 #endif
