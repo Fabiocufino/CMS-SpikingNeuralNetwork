@@ -574,7 +574,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     delete file;
 }
 
-int main(int _N_events = 10, int _NL0 = 6, int _NL1 = 6, string file_weight="../Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", string file_events="/home/ema/Documents/DATA/100k_100br.root")
+int main(int _N_events = 10, int _NL0 = 6, int _NL1 = 6)
 {
     // Creazione di un oggetto SNN con valori specificati solo per var1, var2 e var3
     SNN P(_NL0,  _NL1);
