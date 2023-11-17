@@ -105,15 +105,14 @@ SNN::~SNN()
 
 void SNN::Init_neurons()
 {
+    cout << N_neurons << endl;
     for (int in = 0; in < N_neurons; in++)
     {
         // Set first event in history of this neuron
-        cout << "Cleaning history" << endl;
         History_time[in].clear();
         History_type[in].clear();
         History_ID[in].clear();
 
-        cout << "First discharge" << endl;
         History_time[in].push_back(0);
         History_type[in].push_back(0);
         History_ID[in].push_back(0);
