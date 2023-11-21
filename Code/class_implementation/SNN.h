@@ -81,6 +81,7 @@ public:
     //------- Functions ---------
     void Init_neurons();
     void Init_weights();
+    void Set_weights();
     void Init_connection_map();
     float EPS_potential(float delta_t);
     float Spike_potential(float delta_t, int ilayer);

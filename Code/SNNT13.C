@@ -623,6 +623,7 @@ float Neuron_firetime(int in, float t)
     float P0 = 0.;
     float t0 = History_time[in][0];
     float delta_t = t - t0;
+    if(delta_t < tau_r) return largenumber;
     if (t0 > 0. && delta_t >= 0. && delta_t < MaxDeltaT)
     {
         int ilayer = Neuron_layer[in];
@@ -637,10 +638,10 @@ float Neuron_firetime(int in, float t)
         for (int ih = 1; ih < len - 1; ih++)
         {
             delta_t = t - History_time[in][ih];
-            if (History_type[in][ih] == 1)
+            if (History_type[in][ih] == 1) 
             { // EPSP
                 // turn off the neuron for tau_r after the fire (in order to prevent consecutive multiple firings)
-                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
+                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r) 
                 { // Get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -655,7 +656,7 @@ float Neuron_firetime(int in, float t)
             }
             else if (History_type[in][ih] == 2)
             { // IPSP
-                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
+                if (delta_t > MaxDeltaT)
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -670,7 +671,7 @@ float Neuron_firetime(int in, float t)
             }
             else if (History_type[in][ih] == 3)
             { // IE
-                if (delta_t > MaxDeltaT)
+                if (delta_t > MaxDeltaT  || (History_time[in][ih] - t0) < tau_r)
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -708,7 +709,7 @@ float Neuron_firetime(int in, float t)
                 else if (History_type[in][ih] == 3)
                 { // IE
                     if (!Void_weight[in][History_ID[in][ih]])
-                        P +=IE_potential(delta_t, in, History_ID[in][ih]);
+                        P += IE_potential(delta_t, in, History_ID[in][ih]);
                 }
             }
             this_t += 1 / (10000. * omega);
