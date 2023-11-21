@@ -574,6 +574,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     delete file;
 }
 
+
 int main()
 {
     // Creazione di un oggetto SNN con valori specificati solo per var1, var2 e var3
