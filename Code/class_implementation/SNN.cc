@@ -29,6 +29,7 @@ SNN::SNN(int NL0, int NL1): //Initializations
 
                             tau_m(1e-09),
                             tau_s(0.25e-09),
+                            tau_r(0.5e-09),
                             tau_plus(1.68e-09),
                             tau_minus(3.37e-09),
 
@@ -63,6 +64,7 @@ SNN::SNN(int NL0, int NL1): //Initializations
     cout << "MaxDelay = " << MaxDelay << endl;
     cout << "tau_m = " << tau_m << endl;
     cout << "tau_s = " << tau_s << endl;
+    cout << "tau_r = " << tau_r << endl;
     cout << "tau_plus = " << tau_plus << endl;
     cout << "tau_minus = " << tau_minus << endl;
     cout << "a_plus = " << a_plus << endl;
@@ -124,8 +126,41 @@ void SNN::Init_neurons()
     return;
 }
 
-// Initialize synapse weights
+// Set same synapse weights
 // --------------------------
+void SNN::Set_weights()
+{
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+        {
+            check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
+            if (Void_weight[in][is]) Weight[in][is] = -1;
+            else{
+                Weight[in][is] = 1;
+                sumweight[in]+=Weight[in][is];
+            }
+            
+        }
+    }
+    
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+        {
+          if(sumweight[in]>0 && !Void_weight[in][is])
+           {
+           Weight[in][is]=Weight[in][is]/sumweight[in];
+           Weight_initial[in][is] = Weight[in][is];
+           OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
+           }
+        }
+    }
+    
+    return;
+
+}
+
 void SNN::Init_weights()
 {
     for (int in = 0; in < N_neurons; in++)
@@ -242,6 +277,7 @@ float SNN::Neuron_firetime(int in, float t)
     float P0 = 0.;
     float t0 = History_time[in][0];
     float delta_t = t - t0;
+    if(delta_t < tau_r) return largenumber;
     if (t0 > 0. && delta_t >= 0. && delta_t < MaxDeltaT)
     {
         int ilayer = Neuron_layer[in];

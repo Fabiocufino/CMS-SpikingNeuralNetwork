@@ -492,6 +492,20 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                     {
                         Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, min_fire_time));
                     }
+                    //let's refine the plot
+                    float delta_t = 0;
+                    if(ispike < PreSpike_Time.size()-1)
+                        delta_t = (PreSpike_Time[ispike+1]-min_fire_time)/11.;
+                    else
+                        delta_t = (((ievent) * (max_angle + Empty_buffer) / omega)-min_fire_time)/11.;
+                    for(int inc = 1; inc < 11; inc++){
+                        Time[ievent-1].push_back(min_fire_time+inc*delta_t);
+                        for (auto in : neurons_index)
+                        {
+                            Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, min_fire_time+inc*delta_t));
+                        }
+                    } 
+
                     fire_count[in_first]++;
 
                     if (next_fire != Fire_ID.size() - 1 &&Fire_ID.size()!=0)
@@ -505,30 +519,29 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                         in_first = -1;
                         min_fire_time = largenumber;
                     }
-
                 } // end if in_first fires
-
-            } // end ispike loop, ready to start over
-
-            // plot the result of the incoming spike
-            Time[ievent-1].push_back(t);
-            for (auto in : neurons_index)
-            {
-                Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, t));
-            }
-            //let's refine the plot
-            float delta_t = 0;
-            if(ispike < PreSpike_Time.size()-1)
-                delta_t = (PreSpike_Time[ispike+1]-t)/11.;
-            else
-                delta_t = (((ievent) * (max_angle + Empty_buffer) / omega)-t)/11.;
-            for(int inc = 1; inc < 11; inc++){
-                Time[ievent-1].push_back(t+inc*delta_t);
-                for (auto in : neurons_index)
-                {
-                    Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, t+inc*delta_t));
+                // plot the result of the incoming spike
+                else{
+                    Time[ievent-1].push_back(t);
+                    for (auto in : neurons_index)
+                    {
+                        Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, t));
+                    }
+                    //let's refine the plot
+                    float delta_t = 0;
+                    if(ispike < PreSpike_Time.size()-1)
+                        delta_t = (PreSpike_Time[ispike+1]-t)/11.;
+                    else
+                        delta_t = (((ievent) * (max_angle + Empty_buffer) / omega)-t)/11.;
+                    for(int inc = 1; inc < 11; inc++){
+                        Time[ievent-1].push_back(t+inc*delta_t);
+                        for (auto in : neurons_index)
+                        {
+                            Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, t+inc*delta_t));
+                        }
+                    } 
                 }
-            }     
+            } // end ispike loop, ready to start over
         }
         ievent++; // only go to next event if we did a backward pass too
     } while (ievent <= N_events);
@@ -580,7 +593,7 @@ int main()
     SNN P(6,  6);
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
     cout << "SNN initialized, let's plot the potentials" << endl;
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "/home/ema/Documents/DATA/100k_100br.root", P, 10);
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12);
 
     return 0;
 }

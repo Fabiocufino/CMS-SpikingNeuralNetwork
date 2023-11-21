@@ -1,1 +1,1 @@
-/home/ema/Documents/DATA
+c++ $(root-config --cflags) -I/home/ema/root/include -o main.out main.cc SNN.cc $(root-config --libs)
