@@ -69,6 +69,7 @@ static float ProbWSwitchDown = 0.05;
 static float MaxDelay = 0.1e-9;         // Determines shape of IE signal[s]
 static float tau_m = 1e-09;             // membrane time constant[s]
 static float tau_s = 0.25e-09;          // synapse time constant[s]
+static float tau_r = tau_m/2.;          // refractory time constant[s]
 static float tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
 static float K1 = 2.;                   // constants to tune post-synaptic shape
 static float K2 = 4.;                   // see above

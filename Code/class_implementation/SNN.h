@@ -38,6 +38,7 @@ public:
 
     float tau_m;             // membrane time constant[s]
     float tau_s;          // synapse time constant[s]
+    float tau_r;          // refractory time[s]
     float tau_plus;       // [s]
     float tau_minus;      // [s]
     float a_plus;          // for model of EPSP

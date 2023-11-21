@@ -256,9 +256,10 @@ float SNN::Neuron_firetime(int in, float t)
         for (int ih = 1; ih < len - 1; ih++)
         {
             delta_t = t - History_time[in][ih];
-            if (History_type[in][ih] == 1)
+            if (History_type[in][ih] == 1) 
             { // EPSP
-                if (delta_t > MaxDeltaT)
+                // turn off the neuron for tau_r after the fire (in order to prevent consecutive multiple firings)
+                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r) 
                 { // Get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -288,7 +289,7 @@ float SNN::Neuron_firetime(int in, float t)
             }
             else if (History_type[in][ih] == 3)
             { // IE
-                if (delta_t > MaxDeltaT)
+                if (delta_t > MaxDeltaT  || (History_time[in][ih] - t0) < tau_r)
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -361,7 +362,7 @@ float SNN::Neuron_Potential(int in, float t)
             delta_t = t - History_time[in][ih];
             if (History_type[in][ih] == 1)
             { // EPSP
-                if (delta_t > MaxDeltaT)
+                if (delta_t > MaxDeltaT|| (History_time[in][ih] - t0) < tau_r)
                 { // Get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -391,7 +392,7 @@ float SNN::Neuron_Potential(int in, float t)
             }
             else if (History_type[in][ih] == 3)
             { // IE
-                if (delta_t > MaxDeltaT)
+                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);

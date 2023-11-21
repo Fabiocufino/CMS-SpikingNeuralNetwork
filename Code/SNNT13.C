@@ -617,7 +617,7 @@ void LTD(int in, int is, float spike_time)
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
-float Neuron_firetime(int in, float t)
+float Neuron_firetime(int in, float t) 
 {
     int ilayer = Neuron_layer[in];
     float P0 = 0.;
@@ -639,7 +639,8 @@ float Neuron_firetime(int in, float t)
             delta_t = t - History_time[in][ih];
             if (History_type[in][ih] == 1)
             { // EPSP
-                if (delta_t > MaxDeltaT)
+                // turn off the neuron for tau_r after the fire (in order to prevent consecutive multiple firings)
+                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
                 { // Get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -654,7 +655,7 @@ float Neuron_firetime(int in, float t)
             }
             else if (History_type[in][ih] == 2)
             { // IPSP
-                if (delta_t > MaxDeltaT)
+                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -1165,14 +1166,14 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, int NL0, int 
 // ------------
 void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 0.1, float Thresh1 = 0.1, float a = 0.25, bool batch = false,
                  float _tau_m = 1e-09, float _tau_s = 0.25e-09,
-                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
+                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _tau_r = 0.5e-09, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
                   float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,
                   float IEPC = 1, float ipspdf = 1.0, float _MaxDelay = 0.1e-9,
                   int N_cl = 6,
                   int TrainingCode = 0, bool ReadPars = false, long int _NROOT = 100000)
 {
     // Pass parameters:
-    // ----------------__
+    // ----------------
     // N_ev:      total number of simulated events
     // N_ep:      number of weight-learning cycles divido N_ev in N_ep gruppi e faccio girare il learning
     // NL0, NL1:  number of neurons performing track pattern recognition, organized in 2 layers
@@ -1253,6 +1254,7 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
     tau_s = _tau_s;
     tau_plus = _tau_plus;
     tau_minus = _tau_minus;
+    tau_r = _tau_r;
     a_plus = _a_plus;
     a_minus = _a_minus;
     MaxFactor = _MaxFactor;
