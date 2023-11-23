@@ -672,11 +672,7 @@ float Neuron_firetime(int in, float t)
             }
             else if (History_type[in][ih] == 3)
             { // IE
-<<<<<<< HEAD
-                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
-=======
                 if (delta_t > MaxDeltaT  || (History_time[in][ih] - t0) < tau_r)
->>>>>>> c6000a49330cb72527e560c5f7347391dda0940f
                 { // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -1170,11 +1166,11 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, int NL0, int 
 // -----------------------------------------------------------------------------------------------------------------------------------------
 // Main routine
 // ------------
-void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 0.6, float Thresh1 = 0.6, float a = 0.5, bool batch = false,
-                 float _tau_m = 1e-09, float _tau_s = 0.25e-09,
-                  float _tau_plus =1.68e-09, float _tau_minus = 3.37e-09, float _tau_r = 0.5e-09, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
+void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr, float Thresh0 = 0.1, float Thresh1 = 0.1, float a = 2.2, bool batch = false,
+                 float _tau_m = 1e-09/2, float _tau_s = 0.25e-09/2,
+                  float _tau_plus =1.68e-09/2, float _tau_minus = 3.37e-09/2, float _tau_r = 0.5e-09/2, float _a_plus = 0.00003125, float _a_minus = 0.00002656, float _CFI0 = 1, float _CFI1 = 1, float _CF01 = 1,
                   float _MaxFactor = 0.2, float l1if = 1., float k = 1., float k1 = 2., float k2 = 4.,
-                  float IEPC = 1, float ipspdf = 1.0, float _MaxDelay = 0.1e-9,
+                  float IEPC = 1, float ipspdf = 1.0*4, float _MaxDelay = 0.1e-9,
                   int N_cl = 6,
                   int TrainingCode = 0, bool ReadPars = false, long int _NROOT = 100000)
 {

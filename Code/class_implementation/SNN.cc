@@ -9,7 +9,7 @@ using namespace std;
 
 
 SNN::SNN(int NL0, int NL1): //Initializations
-                            alpha(0.25),
+                            alpha(2),
 
                             CFI0(1),
                             CFI1(1),
@@ -27,11 +27,11 @@ SNN::SNN(int NL0, int NL1): //Initializations
 
                             MaxDelay(0.1e-9),
 
-                            tau_m(1e-09),
-                            tau_s(0.25e-09),
-                            tau_r(0.5e-09),
-                            tau_plus(1.68e-09),
-                            tau_minus(3.37e-09),
+                            tau_m(1e-09/2), // membrane time constant (the potential will decrease ~ exp(-t/tau_m))
+                            tau_s(0.25e-09/2), // synaptic time constant
+                            tau_r(0.5e-09/2), // refractory time constant
+                            tau_plus(1.68e-09/2),
+                            tau_minus(3.37e-09/2),
 
                             a_plus(0.00003125),
                             a_minus(0.00002656),

@@ -21,7 +21,7 @@
 
 //in the future 18
 static const int NFile = 6;
-static TRandom3 * myRNG = new TRandom3(23);
+static TRandom3 * myRNG = new TRandom3(232);
 static TFile *files[NFile];
 static TDirectory *dirIT_list[NFile];
 static TDirectory *dirOT_list[NFile];
@@ -286,7 +286,7 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
     return make_pair(event_IT, event_OT);
 }
 
-void GenerateRootFromMia(int N_events = 100000, string outRoot="100k.root", float bkg_rate = 50,   bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void GenerateRootFromMia(int N_events = 6, string outRoot="6ev_6cl_100bkg.root", float bkg_rate = 100, bool random_ev = false, float bg_freq=1, string folder = "/Users/Fabio/Desktop/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
 
     //momentaneamente j = 0 per gestire solo i file a 1GeV
@@ -431,6 +431,7 @@ void GenerateRootFromMia(int N_events = 100000, string outRoot="100k.root", floa
         //cout << "Gen BKG" << endl;
         //generate only background or signal with 50% of probability
         bool signal = (myRNG->Uniform())<bg_freq;
+        //last event is of background
         if (signal && random_ev){
             //add signal to the event
             //select random an event from a random file

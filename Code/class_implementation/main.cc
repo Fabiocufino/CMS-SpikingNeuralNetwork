@@ -252,8 +252,11 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
         cerr << "Error: Cannot open file " << rootWeight << endl;
         return;
     }
+    //Uncomment to read weights
     ReadWeights(file_weight, P);
     ReadWeights(file_weight, P_plot);
+    //P.Set_weights();
+    //P_plot.Set_weights();
 
     // the network is ready
     // we need to fecth the events and compute the plots
@@ -593,7 +596,10 @@ int main()
     SNN P(6,  6);
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
     cout << "SNN initialized, let's plot the potentials" << endl;
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12);
+    //command for Ema
+    //PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12);
+    //command for Fabio
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
 
     return 0;
 }

@@ -1,4 +1,4 @@
-#include "Snnt_constants.h"
+#include "../Snnt_constants.h"
 #include <vector>
 #include <TGraph.h>
 #include <TCanvas.h>
@@ -86,7 +86,9 @@ void createPNGFrames(const char *file_name, int N_EV)
     float id_event_OT;
 
     // default value for background
-    float pclass = -10;
+    float pclass;
+    float pclass_OT;
+
     float type, type_OT;
 
     IT->SetBranchAddress("cluster_x", &x);
@@ -97,6 +99,7 @@ void createPNGFrames(const char *file_name, int N_EV)
     IT->SetBranchAddress("cluster_eta", &eta);
     IT->SetBranchAddress("eventID", &id_event);
     IT->SetBranchAddress("cluster_type", &type);
+    IT->SetBranchAddress("pclass", &pclass);
 
     OT->SetBranchAddress("cluster_x", &x_OT);
     OT->SetBranchAddress("cluster_y", &y_OT);
@@ -106,6 +109,7 @@ void createPNGFrames(const char *file_name, int N_EV)
     OT->SetBranchAddress("cluster_eta", &eta_OT);
     OT->SetBranchAddress("eventID", &id_event_OT);
     OT->SetBranchAddress("cluster_type", &type_OT);
+    OT->SetBranchAddress("pclass", &pclass_OT);
 
     for (int i = 0; i <= IT->GetEntries() - 1; i++)
     {
@@ -116,11 +120,12 @@ void createPNGFrames(const char *file_name, int N_EV)
     for (int i = 0; i <= OT->GetEntries() - 1; i++)
     {
         OT->GetEntry(i);
-        event.emplace_back(x_OT, y_OT, z_OT, r_OT, phi_OT, eta_OT, id_event_OT, type_OT, pclass);
+        event.emplace_back(x_OT, y_OT, z_OT, r_OT, phi_OT, eta_OT, id_event_OT, type_OT, pclass_OT);
     }
 
     //------------
     int frameCount = 0;
+    int classev[N_EV];
 
     for (int ev = 1; ev < N_EV; ev++)
     {
@@ -133,7 +138,6 @@ void createPNGFrames(const char *file_name, int N_EV)
         int l = 0;
         for (int j = 0; j < event.size(); j++)
         {
-
             if (event[j].id_event == ev)
             {
                 vec_x(l) = 0;
@@ -181,7 +185,12 @@ void createPNGFrames(const char *file_name, int N_EV)
 
         TText *text = new TText(750, 1100, Form("Evento: %d", ev));
         text->SetTextSize(0.03);
-        //text->Draw("SAME");
+        text->Draw("SAME");
+
+        // Plot class of the event as text
+        // TText *text2 = new TText(750, 1000, Form("Class: %d", classev[ev]));
+        // text2->SetTextSize(0.03);
+        // text2->Draw("SAME");
         // Create a transparent pad filling the full canvas
         TPad *p = new TPad("p", "p", 0, 0, 1, 1);
         p->SetFillStyle(4000);
@@ -190,10 +199,13 @@ void createPNGFrames(const char *file_name, int N_EV)
         p->cd();
 
 
+
+
         canvas->Update();
-        canvas->Print(Form("./img/frame%d.png", frameCount)); // Save the frame as an image PNG
+        canvas->Print(Form("frame%d.png", frameCount)); // Save the frame as an image PNG
         graph->Clear();
         frameCount++;
+
     }
     // if (trackId == 0)
     // {
@@ -209,10 +221,10 @@ void createPNGFrames(const char *file_name, int N_EV)
 void createAnimatedGIF()
 {
     // Utilize ImageMagick to convert the PNG images into an animated GIF
-    system("convert -delay 70 ./img/frame*.png output.gif");
+    system("convert -delay 70 frame*.png output.gif");
 
     // Remove the temporary PNG images
-    system("rm ./img/frame*.png");
+    system("rm frame*.png");
 }
 
 void plotAnimatedGIF(const char *file_name, int N_EV)
