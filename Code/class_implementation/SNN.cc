@@ -132,6 +132,7 @@ void SNN::Set_weights()
 {
     for (int in = 0; in < N_neurons; in++)
     {
+        sumweight[in]=0;
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge

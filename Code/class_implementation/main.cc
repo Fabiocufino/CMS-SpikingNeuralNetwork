@@ -225,7 +225,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _N_events)
+void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _N_events, bool read_weights=true, bool no_firing_mode=false)
 {
     vector<int>neurons_index;
     // initialization of neurons_index vector
@@ -253,10 +253,15 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
         return;
     }
     //Uncomment to read weights
-    ReadWeights(file_weight, P);
-    ReadWeights(file_weight, P_plot);
-    //P.Set_weights();
-    //P_plot.Set_weights();
+    if(read_weights){
+        ReadWeights(file_weight, P);
+        ReadWeights(file_weight, P_plot);
+    }
+    else{
+        P.Set_weights();
+        P_plot.Set_weights();
+    }
+    
 
     // the network is ready
     // we need to fecth the events and compute the plots
@@ -545,9 +550,25 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                     } 
                 }
             } // end ispike loop, ready to start over
+        }        
+        //no_firing mode allow us to investigate the evolution of the potential 
+        //when the threshold is intentionally setted high to prevent the activation of the neurons 
+        //and we are dealing only with signal spikes 
+        if(no_firing_mode){
+            for (int i = 0; i < 100; i++)
+            {
+                float t = t_in+(i/100.)*(max_angle + Empty_buffer) / omega;
+                Time[ievent-1].push_back(t);
+                for (auto in : neurons_index)
+                {
+                    Potential[ievent-1][in].push_back(P_plot.Neuron_Potential(in, t));
+                }
+            }
         }
         ievent++; // only go to next event if we did a backward pass too
+
     } while (ievent <= N_events);
+    
     cout << "Out";
     // dump the potentials inside a csv file
     ofstream outfile;
@@ -597,9 +618,9 @@ int main()
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
     cout << "SNN initialized, let's plot the potentials" << endl;
     //command for Ema
-    //PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12);
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12, true, false);
     //command for Fabio
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
+    //PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
 
     return 0;
 }
