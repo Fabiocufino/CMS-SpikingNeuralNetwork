@@ -47,8 +47,9 @@ public:
     int N_streams;
     int N_classes;
 
-    float MaxFactor;           // Initial factor of excursion of parameters for optimization
-
+    float MaxFactor;           // Initial factor of excursion of parameters for optimization.
+    float fire_granularity;    //it defines how much close we will look for neuron's activation.
+    float fire_precision;      //it defines the precision of the neuron firetime detection.
 
 
     //Variables that depend on the upper ones
@@ -86,8 +87,9 @@ public:
     float EPS_potential(float delta_t);
     float Spike_potential(float delta_t, int ilayer);
     float Inhibitory_potential(float delta_t, int ilayer);
+    float Neuron_firetime_past(int in, float t);
     float Neuron_firetime(int in, float t);
-    float Neuron_Potential(int in, float t);
+    float Neuron_Potential(int in, float t, bool delete_history);
     float IE_potential(float delta_t, int in, int is);
 
 };

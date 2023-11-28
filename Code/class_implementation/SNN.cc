@@ -7,6 +7,50 @@
 
 using namespace std;
 
+// Bisection method for root finding
+float bisectionMethod(float a, float b, int in, float epsilon, std::function<float(int, float, bool)> func) {
+    float fa = func(in, a, false);
+    float fb = func(in, b, false);
+    float c = 0;
+    //cout << "Initial values: fa = " << fa << ", fb = " << fb << endl;
+
+    if (fa * fb > 0) {
+        cerr << "Error: The function values at the endpoints have the same sign. Interval: [" << a << ", " << b << "]\n";
+        cerr << "fa: " << fa << " fb: " << fb << "in: " << in << endl;
+        return largenumber; // Indicate failure
+    }
+
+    int maxIterations = 100; // Choose an appropriate maximum number of iterations
+
+    for (int i = 0; i < maxIterations; ++i) {
+        c = (a + b) / 2;
+        if(fa*fb > 0){
+            cout << "Bisection problem" << endl;
+            return largenumber;
+        }
+
+        float fc = func(in, c, false);
+
+        //cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
+
+        // Check if the root is found within the specified tolerance
+        if (std::abs(fc) < epsilon) {
+            return c;
+        }
+
+        // Update the interval based on the sign of the function at the midpoint
+        if (fa * fc < 0) {
+            b = c;
+            fb = fc;
+        } else {
+            a = c;
+            fa = fc;
+        }
+    }
+
+    cerr << "Error: Maximum number of iterations reached without convergence.\n";
+    return c; // Indicate failure
+}
 
 SNN::SNN(int NL0, int NL1): //Initializations
                             alpha(2),
@@ -48,7 +92,8 @@ SNN::SNN(int NL0, int NL1): //Initializations
 
     N_neuronsL[0] = NL0;
     N_neuronsL[1] = NL1;
-
+    fire_granularity = tau_s/5;
+    fire_precision = 1e-11;
     
     //Print all the variables
     cout << "alpha = " << alpha << endl;
@@ -375,9 +420,70 @@ float SNN::Neuron_firetime(int in, float t)
     return largenumber;
 }
 
+float SNN::Neuron_firetime_past(int in, float t)
+{   
+    float t0 = History_time[in][0];
+    float delta_t = t - t0;
+    if(delta_t < tau_r) return largenumber;
+    
+    int ilayer = Neuron_layer[in];
+    //now we will scan the interval in between the last EPSP and this time looking for an activation according to the defined granularity
+    float last_EPSP = -1;
+    //I suppose to call the function after I receive a new EPSP
+    for (int ih = History_type[in].size()-2; ih > 1; ih--)
+    {
+        if (History_type[in][ih]==1){
+            last_EPSP = History_time[in][ih];
+            break;
+        }
+    }
+    //in that case it's impossible that the neuron is firing
+    if (last_EPSP<0) return largenumber;
+    
+    //now I want to scan the potential from the last EPSP to time t at fire_granularity steps 
+    float t_neg = last_EPSP;
+    float time = last_EPSP + fire_granularity;
+    float P_neg = Neuron_Potential(in, t_neg, true);
+    float P_t = 0;
+    bool fire = false;
+    while (time < t)
+    {
+        P_t = Neuron_Potential(in, time, false);
+        //If I a value below the threshold I save it
+        if(P_t < Threshold[ilayer]){
+            P_neg = P_t;
+            t_neg = time;
+        }
+        //if I find a value higher than the treshold a neuron is gonna fire!
+        else{
+            fire = true;
+            break;
+        }
+        time+=fire_granularity;
+    }
+    //Let's check at the time t
+    if(!fire){
+        time = t;
+        P_t = Neuron_Potential(in, time, false);
+        //if still the potential is below the threshold we know that the neuron is not activating
+        if(P_t < Threshold[ilayer]) return largenumber;
+    }
+    if (P_t<Threshold[ilayer])
+    {
+        cout << "Weird" << endl;
+    }
+    
+    //if we are here the potential has reached the threshold at some point!
+    //we need to determine when the neuron has fired given a certain confidence
+    return bisectionMethod(t_neg, time, in, fire_precision, 
+                                                                        [this](int in, float time, bool delete_history) {
+                                                                            return Neuron_Potential(in, time, delete_history)-Threshold[Neuron_layer[in]];
+                                                                        });
+}
+
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
-float SNN::Neuron_Potential(int in, float t)
+float SNN::Neuron_Potential(int in, float t, bool delete_history)
 {
     int ilayer = Neuron_layer[in];
     float P0 = 0.;
@@ -394,53 +500,55 @@ float SNN::Neuron_Potential(int in, float t)
     int len = History_time[in].size();
     if (len > 1)
     {
-        for (int ih = 1; ih < len - 1; ih++)
+        for (int ih = 1; ih < len; ih++)
         {
             delta_t = t - History_time[in][ih];
             if (History_type[in][ih] == 1)
             { // EPSP
-                if (delta_t > MaxDeltaT|| (History_time[in][ih] - t0) < tau_r)
-                { // Get rid of irrelevant events
-                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
-                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
-                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    len = len - 1;
-                }
-                else
+                if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
                 {
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += Weight[in][History_ID[in][ih]] * EPS_potential(delta_t);
                 }
+                else if (delete_history)
+                {
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    len = len - 1;
+                }
             }
             else if (History_type[in][ih] == 2)
             { // IPSP
-                if (delta_t > MaxDeltaT)
-                { // get rid of irrelevant events
-                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
-                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
-                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    len = len - 1;
-                }
-                else
-                {
+                if (delta_t < MaxDeltaT)
+                { 
                     int ilayer = Neuron_layer[in];
                     P += Inhibitory_potential(delta_t, ilayer);
                 }
-            }
-            else if (History_type[in][ih] == 3)
-            { // IE
-                if (delta_t > MaxDeltaT || (History_time[in][ih] - t0) < tau_r)
-                { // get rid of irrelevant events
+                else if(delete_history)
+                {
+                    // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
                     len = len - 1;
-                }
-                else
-                {
+                }  
+            }
+            else if (History_type[in][ih] == 3)
+            { // IE
+                if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
+                { 
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += IE_potential(delta_t, in, History_ID[in][ih]);
                 }
+                else if(delete_history)
+                {
+                    // get rid of irrelevant events
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    len = len - 1;
+                }  
             }
         }
     }
