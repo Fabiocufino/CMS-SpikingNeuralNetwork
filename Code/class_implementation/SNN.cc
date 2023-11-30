@@ -31,7 +31,7 @@ float bisectionMethod(float a, float b, int in, float epsilon, std::function<flo
 
         float fc = func(in, c, false);
 
-        //cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
+        cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
 
         // Check if the root is found within the specified tolerance
         if (std::abs(fc) < epsilon) {
