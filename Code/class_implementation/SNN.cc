@@ -20,18 +20,19 @@ float bisectionMethod(float a, float b, int in, float epsilon, std::function<flo
         return largenumber; // Indicate failure
     }
 
-    int maxIterations = 100; // Choose an appropriate maximum number of iterations
+    int maxIterations = 10; // Choose an appropriate maximum number of iterations
 
     for (int i = 0; i < maxIterations; ++i) {
         c = (a + b) / 2;
         if(fa*fb > 0){
-            cout << "Bisection problem" << endl;
+            cout << "---------- Bisection problem -------------" << endl;
+            cout << "fa: " << fa << " fb: " << fb << endl;
             return largenumber;
         }
 
         float fc = func(in, c, false);
 
-        cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
+        //cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
 
         // Check if the root is found within the specified tolerance
         if (std::abs(fc) < epsilon) {
@@ -93,7 +94,7 @@ SNN::SNN(int NL0, int NL1): //Initializations
     N_neuronsL[0] = NL0;
     N_neuronsL[1] = NL1;
     fire_granularity = tau_s/5;
-    fire_precision = 1e-11;
+    fire_precision = 1e-4;
     
     //Print all the variables
     cout << "alpha = " << alpha << endl;
@@ -430,9 +431,9 @@ float SNN::Neuron_firetime_past(int in, float t)
     //now we will scan the interval in between the last EPSP and this time looking for an activation according to the defined granularity
     float last_EPSP = -1;
     //I suppose to call the function after I receive a new EPSP
-    for (int ih = History_type[in].size()-2; ih > 1; ih--)
+    for (int ih = History_type[in].size()-1; ih > 1; ih--)
     {
-        if (History_type[in][ih]==1){
+        if (History_type[in][ih]==1 && !Void_weight[in][History_ID[in][ih]] && History_ID[in][ih] < N_InputStreams){
             last_EPSP = History_time[in][ih];
             break;
         }
@@ -444,13 +445,15 @@ float SNN::Neuron_firetime_past(int in, float t)
     float t_neg = last_EPSP;
     float time = last_EPSP + fire_granularity;
     float P_neg = Neuron_Potential(in, t_neg, true);
+    if (P_neg > Threshold[ilayer] && t_neg - t0 > tau_r) return t_neg; 
+    
     float P_t = 0;
     bool fire = false;
     while (time < t)
     {
         P_t = Neuron_Potential(in, time, false);
         //If I a value below the threshold I save it
-        if(P_t < Threshold[ilayer]){
+        if(P_t < Threshold[ilayer] || t_neg - t0 < tau_r){
             P_neg = P_t;
             t_neg = time;
         }
@@ -468,9 +471,10 @@ float SNN::Neuron_firetime_past(int in, float t)
         //if still the potential is below the threshold we know that the neuron is not activating
         if(P_t < Threshold[ilayer]) return largenumber;
     }
-    if (P_t<Threshold[ilayer])
+    if (P_neg > Threshold[ilayer] )
     {
         cout << "Weird" << endl;
+        cout << fire << ", " << time - t_neg << endl;
     }
     
     //if we are here the potential has reached the threshold at some point!

@@ -49,7 +49,7 @@ public:
 
     float MaxFactor;           // Initial factor of excursion of parameters for optimization.
     float fire_granularity;    //it defines how much close we will look for neuron's activation.
-    float fire_precision;      //it defines the precision of the neuron firetime detection.
+    float fire_precision;      // [V] it defines the precision of the neuron firetime detection.
 
 
     //Variables that depend on the upper ones
