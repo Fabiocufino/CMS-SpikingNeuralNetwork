@@ -195,12 +195,12 @@ void SNN::Set_weights()
     {
         for (int is = 0; is < N_streams; is++)
         {
-          if(sumweight[in]>0 && !Void_weight[in][is])
-           {
-           Weight[in][is]=Weight[in][is]/sumweight[in];
-           Weight_initial[in][is] = Weight[in][is];
-           OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
-           }
+            if(sumweight[in]>0 && !Void_weight[in][is])
+            {
+                Weight[in][is]=Weight[in][is]/sumweight[in];
+                Weight_initial[in][is] = Weight[in][is];
+                OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
+            }
         }
     }
     
@@ -212,6 +212,7 @@ void SNN::Init_weights()
 {
     for (int in = 0; in < N_neurons; in++)
     {
+        sumweight[in]=0;
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
@@ -226,6 +227,7 @@ void SNN::Init_weights()
     
     for (int in = 0; in < N_neurons; in++)
     {
+        cout << endl << "-------- Neuron " << in << " --------" << endl;
         for (int is = 0; is < N_streams; is++)
         {
           if(sumweight[in]>0 && !Void_weight[in][is])
@@ -233,6 +235,12 @@ void SNN::Init_weights()
            Weight[in][is]=Weight[in][is]/sumweight[in];
            Weight_initial[in][is] = Weight[in][is];
            OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
+           cout << Weight[in][is];
+           if (is%10==0)
+           {
+                cout << endl;
+           }
+           
            }
         }
     }
@@ -275,6 +283,13 @@ void SNN::Init_connection_map()
             if (myRNG->Uniform() > CF01) Void_weight[in][is] = true;
         }
     }
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+            cout << Void_weight[in][is];
+        cout << endl;   
+    }
+    
     return;
 }
 

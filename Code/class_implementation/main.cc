@@ -394,7 +394,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
             // --------------------------------------------------------------------
             else if (ispike < PreSpike_Time.size() - 1)
             {
-                if (PreSpike_Time[ispike + 1] >= min_fire_time)
+                if (PreSpike_Time[ispike + 1] > min_fire_time)
                 { // otherwise we go to next spike in list
                     float t_prime;
                     float delta_t;
