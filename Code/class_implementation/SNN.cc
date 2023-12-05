@@ -235,12 +235,6 @@ void SNN::Init_weights()
            Weight[in][is]=Weight[in][is]/sumweight[in];
            Weight_initial[in][is] = Weight[in][is];
            OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
-           cout << Weight[in][is];
-           if (is%10==0)
-           {
-                cout << endl;
-           }
-           
            }
         }
     }
@@ -283,6 +277,7 @@ void SNN::Init_connection_map()
             if (myRNG->Uniform() > CF01) Void_weight[in][is] = true;
         }
     }
+    cout << endl;
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
@@ -445,10 +440,11 @@ float SNN::Neuron_firetime_past(int in, float t)
     int ilayer = Neuron_layer[in];
     //now we will scan the interval in between the last EPSP and this time looking for an activation according to the defined granularity
     float last_EPSP = -1;
-    //I suppose to call the function after I receive a new EPSP
+    
     for (int ih = History_type[in].size()-1; ih > 1; ih--)
     {
-        if (History_type[in][ih]==1 && !Void_weight[in][History_ID[in][ih]] && History_ID[in][ih] < N_InputStreams){
+        //longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
+        if (History_type[in][ih]==1 && !Void_weight[in][History_ID[in][ih]] ){
             last_EPSP = History_time[in][ih];
             break;
         }
