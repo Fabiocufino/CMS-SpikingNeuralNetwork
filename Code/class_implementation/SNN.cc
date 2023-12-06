@@ -2,61 +2,72 @@
 
 using namespace std;
 
-// Bisection method for root finding
+SNN::SNN(int _NL0, int _NL1,
+         float _alpha,
+         float _CFI0, float _CFI1, float _CF01,
+         float _L1inhibitfactor,
+         float _K, float _K1, float _K2,
+         float _IE_Pot_const, float _IPSP_dt_dilation,
+         float _MaxDelay,
 
-SNN::SNN(int NL0, int NL1, int _N_InputStreams): //Initializations
-                            alpha(2),
+         float _tau_m, float _tau_s, float _tau_r, float _tau_plus, float _tau_minus,
+         float _a_plus, float _a_minus,
 
-                            CFI0(1),
-                            CFI1(1),
-                            CF01(1),
+         int _N_InputStreams,
+         float _Threshold0, float _Threshold1) :
+                                                 // Initializations
+                                                 alpha(_alpha),
 
-                            L1inhibitfactor(1),
+                                                 CFI0(_CFI0),
+                                                 CFI1(_CFI1),
+                                                 CF01(_CF01),
 
-                            K(1.),
-                            K1(2.),
-                            K2(4.),
+                                                 L1inhibitfactor(_L1inhibitfactor),
 
-                            IE_Pot_const(1),
+                                                 K(_K),
+                                                 K1(_K1),
+                                                 K2(_K2),
 
-                            IPSP_dt_dilation(1.),
+                                                 IE_Pot_const(_IE_Pot_const),
 
-                            MaxDelay(0.1e-9),
+                                                 IPSP_dt_dilation(_IPSP_dt_dilation),
 
-                            tau_m(1e-09/2), // membrane time constant (the potential will decrease ~ exp(-t/tau_m))
-                            tau_s(0.25e-09/2), // synaptic time constant
-                            tau_r(0.5e-09/2), // refractory time constant
-                            tau_plus(1.68e-09/2),
-                            tau_minus(3.37e-09/2),
+                                                 MaxDelay(_MaxDelay),
 
-                            a_plus(0.00003125),
-                            a_minus(0.00002656),
+                                                 tau_m(_tau_m), // membrane time constant (the potential will decrease ~ exp(-t/tau_m))
+                                                 tau_s(_tau_s), // synaptic time constant
+                                                 tau_r(_tau_r), // refractory time constant
+                                                 tau_plus(_tau_plus),
+                                                 tau_minus(_tau_minus),
 
-                            N_neurons(NL0 + NL1),
-                            N_InputStreams(_N_InputStreams),
-                            N_streams(N_InputStreams + NL0),
-                            MaxFactor(0.2),
-                            tmax(tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s))),
-                            MaxDeltaT(7. * tau_m)
+                                                 a_plus(_a_plus),
+                                                 a_minus(_a_minus),
+
+                                                 N_InputStreams(_N_InputStreams)
+
 {
-    Threshold[0] = 0.1;
-    Threshold[1] = 0.1;
+    Threshold[0] = _Threshold0;
+    Threshold[1] = _Threshold1;
 
+    N_neuronsL[0] = _NL0;
+    N_neuronsL[1] = _NL1;
+    N_neurons = N_neuronsL[0] + N_neuronsL[1];
+    N_streams = N_InputStreams + _NL0;
+    tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
+    MaxDeltaT = 7. * tau_m;
 
-    N_neuronsL[0] = NL0;
-    N_neuronsL[1] = NL1;
-    fire_granularity = tau_s/5;
-    fire_precision = 1e-4;
+    fire_granularity = tau_s / 5;
+    fire_precision = Threshold[0] / 1000;
     myRNG = new TRandom3(23);
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
-    
-    Weight = new float*[N_neurons];         // Weight of synapse-neuron strength
-    check_LTD = new bool*[N_neurons];       // checks to generate LTD after neuron discharge
-    Void_weight = new bool*[N_neurons];     // These may be used to model disconnections
-    Weight_initial = new float*[N_neurons]; // store to be able to return to initial conditions when optimizing
-    OldWeight = new float*[N_neurons];      // for renorm
-    Delay = new float*[N_neurons];          // Delay in incoming signals
+
+    Weight = new float *[N_neurons];         // Weight of synapse-neuron strength
+    check_LTD = new bool *[N_neurons];       // checks to generate LTD after neuron discharge
+    Void_weight = new bool *[N_neurons];     // These may be used to model disconnections
+    Weight_initial = new float *[N_neurons]; // store to be able to return to initial conditions when optimizing
+    OldWeight = new float *[N_neurons];      // for renorm
+    Delay = new float *[N_neurons];          // Delay in incoming signals
 
     for (int in = 0; in < N_neurons; in++)
     {
@@ -68,14 +79,14 @@ SNN::SNN(int NL0, int NL1, int _N_InputStreams): //Initializations
         Delay[in] = new float[N_streams];
     }
 
-    History_time = new vector<float>[N_neurons];       // Time of signal events per each 1neuron
-    History_type = new vector<int>[N_neurons];         // Type of signal
-    History_ID = new vector<int>[N_neurons];           // ID of generating signal stream or neuron
-    Fire_time = new vector<float>[N_neurons];          // Times of firing of each neuron
+    History_time = new vector<float>[N_neurons]; // Time of signal events per each 1neuron
+    History_type = new vector<int>[N_neurons];   // Type of signal
+    History_ID = new vector<int>[N_neurons];     // ID of generating signal stream or neuron
+    Fire_time = new vector<float>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
 
-    //Print all the variables
+    // Print all the variables
     cout << "alpha = " << alpha << endl;
     cout << "CFI0 = " << CFI0 << endl;
     cout << "CFI1 = " << CFI1 << endl;
@@ -96,7 +107,6 @@ SNN::SNN(int NL0, int NL1, int _N_InputStreams): //Initializations
     cout << "a_minus = " << a_minus << endl;
     cout << "N_neurons = " << N_neurons << endl;
     cout << "N_streams = " << N_streams << endl;
-    cout << "MaxFactor = " << MaxFactor << endl;
     cout << "Threshold[0] = " << Threshold[0] << endl;
     cout << "Threshold[1] = " << Threshold[1] << endl;
     cout << "tmax = " << tmax << endl;
@@ -121,13 +131,22 @@ SNN::~SNN()
 {
 }
 
-float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::function<float(int, float, bool)> func) {
+void SNN::Init_delays(){
+    return;
+}
+void SNN::Reset_weights(){
+    return;
+}
+
+float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::function<float(int, float, bool)> func)
+{
     float fa = func(in, a, false);
     float fb = func(in, b, false);
     float c = 0;
-    //cout << "Initial values: fa = " << fa << ", fb = " << fb << endl;
+    // cout << "Initial values: fa = " << fa << ", fb = " << fb << endl;
 
-    if (fa * fb > 0) {
+    if (fa * fb > 0)
+    {
         cerr << "Error: The function values at the endpoints have the same sign. Interval: [" << a << ", " << b << "]\n";
         cerr << "fa: " << fa << " fb: " << fb << "in: " << in << endl;
         return largenumber; // Indicate failure
@@ -135,9 +154,11 @@ float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::functio
 
     int maxIterations = 10; // Choose an appropriate maximum number of iterations
 
-    for (int i = 0; i < maxIterations; ++i) {
+    for (int i = 0; i < maxIterations; ++i)
+    {
         c = (a + b) / 2;
-        if(fa*fb > 0){
+        if (fa * fb > 0)
+        {
             cout << "---------- Bisection problem -------------" << endl;
             cout << "fa: " << fa << " fb: " << fb << endl;
             return largenumber;
@@ -145,18 +166,22 @@ float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::functio
 
         float fc = func(in, c, false);
 
-        //cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
+        // cout << "Iteration " << i << ": Interval [" << a << ", " << b << "], Root estimate: " << c << ", Function value: " << fc << endl;
 
         // Check if the root is found within the specified tolerance
-        if (std::abs(fc) < epsilon) {
+        if (std::abs(fc) < epsilon)
+        {
             return c;
         }
 
         // Update the interval based on the sign of the function at the midpoint
-        if (fa * fc < 0) {
+        if (fa * fc < 0)
+        {
             b = c;
             fb = fc;
-        } else {
+        }
+        else
+        {
             a = c;
             fa = fc;
         }
@@ -196,69 +221,89 @@ void SNN::Set_weights()
 {
     for (int in = 0; in < N_neurons; in++)
     {
-        sumweight[in]=0;
+        sumweight[in] = 0;
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
-            if (Void_weight[in][is]) Weight[in][is] = -1;
-            else{
+            if (Void_weight[in][is])
+                Weight[in][is] = -1;
+            else
+            {
                 Weight[in][is] = 1;
-                sumweight[in]+=Weight[in][is];
+                sumweight[in] += Weight[in][is];
             }
-            
         }
     }
-    
+
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
         {
-            if(sumweight[in]>0 && !Void_weight[in][is])
+            if (sumweight[in] > 0 && !Void_weight[in][is])
             {
-                Weight[in][is]=Weight[in][is]/sumweight[in];
+                Weight[in][is] = Weight[in][is] / sumweight[in];
                 Weight_initial[in][is] = Weight[in][is];
-                OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
+                OldWeight[in][is] = Weight[in][is]; // this will be used for the renorm
             }
         }
     }
-    
-    return;
 
+    return;
 }
+
+/*
+
+void SNN::Init_delays()
+{
+    // Define delays for IE signals
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+        {
+            Delay[in][is] = 0.;
+            if (learnDelays || updateDelays)
+                Delay[in][is] = MaxDelay / 2.;
+            //            if (is<N_bin_r) { // no IE delay for neuron-originated spikes into L1
+            //                Delay[in][is] = myRNG->Uniform(MaxDelay);
+            //            }
+        }
+    }
+    return;
+}
+*/
 
 void SNN::Init_weights()
 {
     for (int in = 0; in < N_neurons; in++)
     {
-        sumweight[in]=0;
+        sumweight[in] = 0;
         for (int is = 0; is < N_streams; is++)
         {
             check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
-            if (Void_weight[in][is]) Weight[in][is] = -1;
-            else{
+            if (Void_weight[in][is])
+                Weight[in][is] = -1;
+            else
+            {
                 Weight[in][is] = myRNG->Uniform();
-                sumweight[in]+=Weight[in][is];
+                sumweight[in] += Weight[in][is];
             }
-            
         }
     }
-    
+
     for (int in = 0; in < N_neurons; in++)
     {
-        cout << endl << "-------- Neuron " << in << " --------" << endl;
         for (int is = 0; is < N_streams; is++)
         {
-          if(sumweight[in]>0 && !Void_weight[in][is])
-           {
-           Weight[in][is]=Weight[in][is]/sumweight[in];
-           Weight_initial[in][is] = Weight[in][is];
-           OldWeight[in][is]=Weight[in][is];//this will be used for the renorm
-           }
+            if (sumweight[in] > 0 && !Void_weight[in][is])
+            {
+                Weight[in][is] = Weight[in][is] / sumweight[in];
+                Weight_initial[in][is] = Weight[in][is];
+                OldWeight[in][is] = Weight[in][is]; // this will be used for the renorm
+            }
         }
     }
-    
-    return;
 
+    return;
 }
 // Initialize connection map
 // -------------------------
@@ -272,7 +317,8 @@ void SNN::Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI0) Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI0)
+                Void_weight[in][is] = true;
         }
         // input connections L0 -> L0
         for (int is = N_InputStreams; is < N_streams; is++)
@@ -286,13 +332,15 @@ void SNN::Init_connection_map()
         for (int is = 0; is < N_InputStreams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CFI1) Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CFI1)
+                Void_weight[in][is] = true;
         }
         // input connections L0 -> L1
         for (int is = N_InputStreams; is < N_streams; is++)
         {
             Void_weight[in][is] = false;
-            if (myRNG->Uniform() > CF01) Void_weight[in][is] = true;
+            if (myRNG->Uniform() > CF01)
+                Void_weight[in][is] = true;
         }
     }
     cout << endl;
@@ -300,9 +348,9 @@ void SNN::Init_connection_map()
     {
         for (int is = 0; is < N_streams; is++)
             cout << Void_weight[in][is];
-        cout << endl;   
+        cout << endl;
     }
-    
+
     return;
 }
 
@@ -346,69 +394,78 @@ float SNN::Inhibitory_potential(float delta_t, int ilayer)
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
-float SNN::Neuron_firetime_past(int in, float t)
-{   
+float SNN::Neuron_firetime(int in, float t)
+{
     float t0 = History_time[in][0];
     float delta_t = t - t0;
-    if(delta_t < tau_r) return largenumber;
-    
+    if (delta_t < tau_r)
+        return largenumber;
+
     int ilayer = Neuron_layer[in];
-    //now we will scan the interval in between the last EPSP and this time looking for an activation according to the defined granularity
+    // now we will scan the interval in between the last EPSP and this time looking for an activation according to the defined granularity
     float last_EPSP = -1;
-    
-    for (int ih = History_type[in].size()-1; ih > 1; ih--)
+
+    for (int ih = History_type[in].size() - 1; ih > 1; ih--)
     {
-        //longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
-        if (History_type[in][ih]==1 && !Void_weight[in][History_ID[in][ih]] ){
+        // longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
+        if (History_type[in][ih] == 1 && !Void_weight[in][History_ID[in][ih]])
+        {
             last_EPSP = History_time[in][ih];
             break;
         }
     }
-    //in that case it's impossible that the neuron is firing
-    if (last_EPSP<0) return largenumber;
-    
-    //now I want to scan the potential from the last EPSP to time t at fire_granularity steps 
+    // in that case it's impossible that the neuron is firing
+    if (last_EPSP < 0)
+        return largenumber;
+
+    // now I want to scan the potential from the last EPSP to time t at fire_granularity steps
     float t_neg = last_EPSP;
     float time = last_EPSP + fire_granularity;
     float P_neg = Neuron_Potential(in, t_neg, true);
-    if (P_neg > Threshold[ilayer] && t_neg - t0 > tau_r) return t_neg; 
-    
+    if (P_neg > Threshold[ilayer] && t_neg - t0 > tau_r)
+        return t_neg;
+
     float P_t = 0;
     bool fire = false;
     while (time < t)
     {
         P_t = Neuron_Potential(in, time, false);
-        //If I a value below the threshold I save it
-        if(P_t < Threshold[ilayer] || t_neg - t0 < tau_r){
+        // If I a value below the threshold I save it
+        if (P_t < Threshold[ilayer] || t_neg - t0 < tau_r)
+        {
             P_neg = P_t;
             t_neg = time;
         }
-        //if I find a value higher than the treshold a neuron is gonna fire!
-        else{
+        // if I find a value higher than the treshold a neuron is gonna fire!
+        else
+        {
             fire = true;
             break;
         }
-        time+=fire_granularity;
+        time += fire_granularity;
     }
-    //Let's check at the time t
-    if(!fire){
+    // Let's check at the time t
+    if (!fire)
+    {
         time = t;
         P_t = Neuron_Potential(in, time, false);
-        //if still the potential is below the threshold we know that the neuron is not activating
-        if(P_t < Threshold[ilayer]) return largenumber;
+        // if still the potential is below the threshold we know that the neuron is not activating
+        if (P_t < Threshold[ilayer])
+            return largenumber;
     }
-    if (P_neg > Threshold[ilayer] )
+    if (P_neg > Threshold[ilayer])
     {
         cout << "Weird" << endl;
         cout << fire << ", " << time - t_neg << endl;
     }
-    
-    //if we are here the potential has reached the threshold at some point!
-    //we need to determine when the neuron has fired given a certain confidence
-    return bisectionMethod(t_neg, time, in, fire_precision, 
-                                                                        [this](int in, float time, bool delete_history) {
-                                                                            return Neuron_Potential(in, time, delete_history)-Threshold[Neuron_layer[in]];
-                                                                        });
+
+    // if we are here the potential has reached the threshold at some point!
+    // we need to determine when the neuron has fired given a certain confidence
+    return bisectionMethod(t_neg, time, in, fire_precision,
+                           [this](int in, float time, bool delete_history)
+                           {
+                               return Neuron_Potential(in, time, delete_history) - Threshold[Neuron_layer[in]];
+                           });
 }
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
@@ -451,34 +508,34 @@ float SNN::Neuron_Potential(int in, float t, bool delete_history)
             else if (History_type[in][ih] == 2)
             { // IPSP
                 if (delta_t < MaxDeltaT)
-                { 
+                {
                     int ilayer = Neuron_layer[in];
                     P += Inhibitory_potential(delta_t, ilayer);
                 }
-                else if(delete_history)
+                else if (delete_history)
                 {
                     // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
                     len = len - 1;
-                }  
+                }
             }
             else if (History_type[in][ih] == 3)
             { // IE
                 if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
-                { 
+                {
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += IE_potential(delta_t, in, History_ID[in][ih]);
                 }
-                else if(delete_history)
+                else if (delete_history)
                 {
                     // get rid of irrelevant events
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
                     len = len - 1;
-                }  
+                }
             }
         }
     }

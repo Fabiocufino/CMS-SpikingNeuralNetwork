@@ -233,8 +233,6 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     // initialization of neurons_index vector
     for (int i = 0; i < P.N_neurons; i++)
         neurons_index.push_back(i);
-    // vector used to keep track of the neurons firing order
-    vector<int> Fire_ID;
     N_events = _N_events;
 
     // vectors to plot
@@ -318,7 +316,6 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
-        Fire_ID.clear();
         
         ReadFromProcessed(IT, OT, ievent);
 
@@ -348,7 +345,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
             {
                     
                 // Compute future fire times of neurons and their order
-                float fire_time = P.Neuron_firetime_past(in, t);
+                float fire_time = P.Neuron_firetime(in, t);
 
                 if (fire_time < min_fire_time)
                 {
@@ -413,7 +410,6 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                 }
 
                 P.Fire_time[in_first].push_back(min_fire_time);
-                Fire_ID.push_back(in_first);
                 // Reset history of this neuron
                 P.History_time[in_first].clear();
                 P.History_type[in_first].clear();
@@ -518,13 +514,13 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 int main()
 {
     // Creazione di un oggetto SNN con valori specificati solo per var1, var2 e var3
-    SNN P(6,  6, 21);
+    SNN P(6,  6,0.25, 1., 1., 1., 1., 0.5, 0.5, 0.5,0.5, 1., 1., 1., 1., 1., 1., 1.,0.1, 0.1, 6, 6, 550., 550.);
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
     cout << "SNN initialized, let's plot the potentials" << endl;
     //command for Ema
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12, false, false);
+    // PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12, false, false);
     //command for Fabio
-    //PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
 
     return 0;
 }
