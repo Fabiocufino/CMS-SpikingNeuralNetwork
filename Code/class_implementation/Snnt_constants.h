@@ -1,8 +1,6 @@
 #ifndef SNNT_CONSTANTS_H
 #define SNNT_CONSTANTS_H
 #include <math.h>
-#include "TRandom3.h" 
-
 
 using namespace std;
 
@@ -25,6 +23,7 @@ static float Right_Layers[10] = {40, 75, 116, 158, 290, 400, 540, 720, 895, 1110
 static float z_range = 1200.;                 // bin z in [-z_range/2, z_range/2]          
 static float max_R = 1200;                    // bin r in [0, max_R]
 static short int N_TrackingLayers = 10;
+static const int MaxNeurons = 100;
 
 static const int N_InputStreams = N_bin_r*N_bin_z;
 static float z_bin_length = z_range / N_bin_z;    
@@ -62,9 +61,6 @@ static long int NROOT = 100000;                //number of events inside the roo
 // neural network constants
 // -------------------------------------------
 static const int MaxEvents = 10000000;
-static const float largenumber = 999999999.;
-static const float epsilon = 1. / largenumber;
-static const int MaxNeurons = 100;
 static float ProbWSwitchUp = 0.5;
 static float ProbWSwitchDown = 0.05;
 // static float MaxDelay = 0.1e-9;         // Determines shape of IE signal[s]
@@ -89,5 +85,4 @@ static float acc_target = 0.05;
 static bool learnDelays = false;
 static const int MaxStreams = MaxNeurons + N_bin_r * N_bin_z;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
-static TRandom3 *myRNG = new TRandom3(23);
 #endif // SNNT_CONSTANTS_H

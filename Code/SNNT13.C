@@ -1775,9 +1775,6 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
                         }
                     }
                 }
-                else{
-                    cout << "-------- Postposed ---------" << endl;
-                }
             } // end if in_first fires
         }     // end ispike loop, ready to start over
 
@@ -2989,4 +2986,36 @@ void SNN_Tracking(int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullpt
         }
 */
     return;
+}
+
+
+//int N_ev, int N_ep, int NL0, int NL1, char *rootInput = nullptr
+int main(int argc, char* argv[]) {
+    int N_ev, N_ep, NL0, NL1;
+    char *rootInput = nullptr;
+
+    // Loop through the command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        
+        if (arg ==  "--N_ev")
+            N_ev = stoi(argv[i + 1]);
+            
+        else if (arg ==  "--N_ep")
+            N_ep = stoi(argv[i + 1]);
+            
+        else if (arg ==  "--NL0")
+            NL0 = stoi(argv[i + 1]);
+            
+        else if (arg ==  "--NL1")
+            NL1 = stoi(argv[i + 1]);
+            
+        else if (arg ==  "--rootInput")
+            rootInput = argv[i + 1];
+        
+    }
+
+    SNN_Tracking(N_ev, N_ep, NL0, NL1, rootInput);
+    
+    return 0;
 }

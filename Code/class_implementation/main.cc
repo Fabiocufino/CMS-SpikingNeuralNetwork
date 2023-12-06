@@ -1,13 +1,12 @@
-#include <iostream>
 #include <random>
 #include <fstream>
-#include <vector>
 
 #include "TFile.h"
 #include "TH1F.h"
 #include "TTree.h"
 
 #include "SNN.h"
+#include "Snnt_constants.h"
 
 static int N_part; // Number of generated particles in an event
 static float First_angle;
@@ -20,6 +19,8 @@ static vector<int> PreSpike_Signal;
 
 static vector<int> neurons_index;
 static bool insert = true;
+static const float largenumber = 999999999.;
+static const float epsilon = 1. / largenumber;
 
 // clear hits vector
 void Reset_hits()
@@ -517,7 +518,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 int main()
 {
     // Creazione di un oggetto SNN con valori specificati solo per var1, var2 e var3
-    SNN P(6,  6);
+    SNN P(6,  6, 21);
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
     cout << "SNN initialized, let's plot the potentials" << endl;
     //command for Ema

@@ -4,18 +4,16 @@
 #include <iostream>
 #include <vector>
 
-#include "TCanvas.h"
-#include "TGraph.h"
-#include "TAxis.h"
 #include "TF1.h"
-
-#include "Snnt_constants.h"
+#include "TRandom3.h"
 
 using namespace std;
 
 class SNN
 {
 private:
+    float bisectionMethod(float a, float b, int in, float epsilon, std::function<float(int, float, bool)> func);
+
 public:
 
 
@@ -44,8 +42,8 @@ public:
     float a_plus;          // for model of EPSP
     float a_minus;       // 0.85*a_plus;
 
-    int N_streams;
-    int N_classes;
+    const int N_streams;
+    const int N_InputStreams;
 
     float MaxFactor;           // Initial factor of excursion of parameters for optimization.
     float fire_granularity;    //it defines how much close we will look for neuron's activation.
@@ -53,7 +51,7 @@ public:
 
 
     //Variables that depend on the upper ones
-    int N_neurons;
+    const int N_neurons;
     float Threshold[2];     // Neuron threshold in arbitrary units; in paper it is 550V but they have 1000 channels, 100x ours
     float tmax;
     float MaxDeltaT;    // time window wherein pre-synaptic, inhibition, and post-synaptic kernels affect neuron potential
@@ -61,21 +59,24 @@ public:
 
     /* data */
     //------- variables ---------
-    float Weight[MaxNeurons][MaxStreams];         // Weight of synapse-neuron strength
-    bool check_LTD[MaxNeurons][MaxStreams];       // checks to generate LTD after neuron discharge
-    bool Void_weight[MaxNeurons][MaxStreams];     // These may be used to model disconnections
-    float Weight_initial[MaxNeurons][MaxStreams]; // store to be able to return to initial conditions when optimizing
-    float OldWeight[MaxNeurons][MaxStreams];      // for renorm
-    float Delay[MaxNeurons][MaxStreams];          // Delay in incoming signals
-    vector<float> History_time[MaxNeurons];       // Time of signal events per each neuron
-    vector<int> History_type[MaxNeurons];         // Type of signal
-    vector<int> History_ID[MaxNeurons];           // ID of generating signal stream or neuron
-    vector<float> Fire_time[MaxNeurons];          // Times of firing of each neuron
-    int Neuron_layer[MaxNeurons];
-    float sumweight[MaxNeurons]; // summed weights of streams for each neurons for the purpose of normalization
+    float **Weight;         // Weight of synapse-neuron strength
+    bool **check_LTD;       // checks to generate LTD after neuron discharge
+    bool **Void_weight;     // These may be used to model disconnections
+    float **Weight_initial; // store to be able to return to initial conditions when optimizing
+    float **OldWeight;      // for renorm
+    float **Delay;          // Delay in incoming signals
+    vector<float> *History_time;       // Time of signal events per each 1neuron
+    vector<int> *History_type;         // Type of signal
+    vector<int> *History_ID;           // ID of generating signal stream or neuron
+    vector<float> *Fire_time;          // Times of firing of each neuron
+    int *Neuron_layer;
+    float *sumweight; // summed weights of streams for each neurons for the purpose of normalization
     int N_neuronsL[2];           // Number of neurons in layers 0 and 1
+    TRandom3 *myRNG;
+    float largenumber;
+    float epsilon;
 
-    SNN(int NL0, int NL1);
+    SNN(int NL0, int NL1, int _N_InputStreams);
     ~SNN();
 
 

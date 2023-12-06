@@ -1,1 +1,2 @@
-c++ $(root-config --cflags) -I/home/ema/root/include -o main.out main.cc SNN.cc $(root-config --libs)
+c++ $(root-config --cflags) -I /home/ema/root/include -o main.out main.cc SNN.cc $(root-config --libs)
+c++ $(root-config --cflags) -I /home/ema/anaconda3/envs/ROOT/bin -o main.out main.cc SNN.cc $(root-config --libs)
