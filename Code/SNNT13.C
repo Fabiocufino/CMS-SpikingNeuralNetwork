@@ -1209,6 +1209,7 @@ void SNN_Tracking(SNN &snn_in)
     fout << "Event,ID,Stream,Time,Pclass" << endl;
 
     // Loop on events ----------------------------------------------
+    bool insert = true;
     do
     {
         iev_thisepoch++;
@@ -1281,14 +1282,6 @@ void SNN_Tracking(SNN &snn_in)
                 {
                     StreamsB[is]->Fill(time, PreSpike_Stream[ispike] + 1);
                 }
-                else if (PreSpike_Signal[ispike] == 2)
-                {
-                    StreamsN[is]->Fill(time, PreSpike_Stream[ispike] + 1 - snn_in.N_InputStreams);
-                    if (N_part > 0)
-                    {
-                        fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 - snn_in.N_InputStreams << "," << time << "," << pclass << endl;
-                    }
-                }
             }
 
             // Modify neuron potentials based on synapse weights
@@ -1346,112 +1339,92 @@ void SNN_Tracking(SNN &snn_in)
                         }
                     }
                 }
-                //TODO IM HERE
                 // Create EPS signal in L0 neuron-originated streams
-                if (P.Neuron_layer[in_first] == 0)
+                if (snn_in.Neuron_layer[in_first] == 0)
                 { // this is a Layer-0 neuron
-                    for(int in = P.N_neuronsL[0]; in < P.N_neurons; in++){
-                        P.History_time[in].push_back(min_fire_time);
-                        P.History_type[in].push_back(1);
-                        P.History_ID[in].push_back(N_InputStreams + in_first);
+                    for(int in = snn_in.N_neuronsL[0]; in < snn_in.N_neurons; in++){
+                        snn_in.History_time[in].push_back(min_fire_time);
+                        snn_in.History_type[in].push_back(1);
+                        snn_in.History_ID[in].push_back(snn_in.N_InputStreams + in_first);
                     }
                 }
+
+                // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
+                /*
+                TODO: IMPLEMENT
+                for (int is = 0; is < snn_in.N_streams; is++)
+                {
+                    LTP(in_first, is, ispike, min_fire_time);
+                    // Reset LTD check flags
+                    check_LTD[in_first][is] = true;
+                }
+                */
+                
+                // Fill spikes train histogram
+                if (ievent >= N_events - 500.)
+                {
+                    int is = (ievent - N_events + 500) / 50;
+                    float time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    StreamsN[is]->Fill(time, in_first + 1);
+                    if (N_part > 0)
+                    {
+                        fout << ievent << ", " << 2 << ", " << in_first << "," << time << "," << pclass << endl;
+                    }
+                }
+
+                // Fill latency histogram
+                if (N_part > 0)
+                {
+                    // How long did it take the first neuron to fire with respect to the arrival time of the first hit?
+                    latency = min_fire_time - t_in - First_angle / omega;
+                    if (latency >= 0. && not_filled[in_first])
+                    {
+                        if (iepoch == N_epochs - 1)
+                            Latency[in_first * N_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
+                        Seen[pclass][in_first] = true;
+                        not_filled[in_first] = false;
+                    }
+                }
+                else
+                {
+                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * 0.9)
+                    {
+                        random_fire[in_first]++;
+                        not_filled[in_first] = false;
+                    }
+                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * 0.9)
+                    { // for Q-value calculations
+                        if (not_fired_bgr)
+                        {
+                            atleastonefired++;
+                            not_fired_bgr = false;
+                        }
+                    }
+                }
+
                 ispike-=1;
                 insert=false;
 
                 //take a step back and search for another activation
                 previous_firetime = min_fire_time;
-            } // end if in_first fires
-                
-                if (PreSpike_Time[ispike + 1] >= min_fire_time)
-                { // otherwise we go to next spike in list
-                    // handle firing of neuron in_first
-                   
 
-                    // Reset history of this neuron
-                    snn_in.History_time[in_first].clear();
-                    snn_in.History_type[in_first].clear();
-                    snn_in.History_ID[in_first].clear();
-                    snn_in.History_time[in_first].push_back(min_fire_time);
-                    snn_in.History_type[in_first].push_back(0);
-                    snn_in.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
-
-                    // IPSP for all others at relevant layer
-                    for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
-                    {
-                        if (in2 != in_first)
-                        {
-                            if (snn_in.Neuron_layer[in2] == snn_in.Neuron_layer[in_first])
-                            { // inhibitions within layer or across
-                                snn_in.History_time[in2].push_back(min_fire_time);
-                                snn_in.History_type[in2].push_back(2);
-                                snn_in.History_ID[in2].push_back(in_first);
-                            }
-                        }
+            }// end if in_first fires
+            //insert the new spike for the next iteration
+            if(insert){
+                for (auto in : neurons_index)
+                {
+                    //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
+                    //  Add to neuron history, masking out L1 spikes for L0 neurons
+                    int is = PreSpike_Stream[ispike];
+                    if (!snn_in.Void_weight[in][is])
+                    { // otherwise stream "is" does not lead to neuron "in"
+                            snn_in.History_time[in].push_back(t);
+                            // All input spikes lead to EPSP
+                            snn_in.History_type[in].push_back(1);
+                            snn_in.History_ID[in].push_back(is);
                     }
-
-                    // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                    /*
-                    TODO: IMPLEMENT
-                    for (int is = 0; is < snn_in.N_streams; is++)
-                    {
-                        LTP(in_first, is, ispike, min_fire_time);
-                        // Reset LTD check flags
-                        check_LTD[in_first][is] = true;
-                    }
-                    */
-                    // Create EPS signal in L0 neuron-originated streams
-                    if (snn_in.Neuron_layer[in_first] == 0)
-                    { // this is a Layer-0 neuron
-                        PreSpike_Time.insert(PreSpike_Time.begin() + ispike + 1, min_fire_time);
-                        PreSpike_Stream.insert(PreSpike_Stream.begin() + ispike + 1, snn_in.N_InputStreams + in_first);
-                        PreSpike_Signal.insert(PreSpike_Signal.begin() + ispike + 1, 2);
-                    }
-
-                    // Fill spikes train histogram
-                    if (ievent >= N_events - 500.)
-                    {
-                        int is = (ievent - N_events + 500) / 50;
-                        float time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
-                        if (snn_in.Neuron_layer[in_first] == 1)
-                            StreamsN[is]->Fill(time, in_first + 1);
-                        if (N_part > 0)
-                        {
-                            fout << ievent << ", " << 2 << ", " << in_first << "," << time << "," << pclass << endl;
-                        }
-                    }
-
-                    // Fill latency histogram
-                    if (N_part > 0)
-                    {
-                        // How long did it take the first neuron to fire with respect to the arrival time of the first hit?
-                        latency = min_fire_time - t_in - First_angle / omega;
-                        if (latency >= 0. && not_filled[in_first])
-                        {
-                            if (iepoch == N_epochs - 1)
-                                Latency[in_first * N_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
-                            Seen[pclass][in_first] = true;
-                            not_filled[in_first] = false;
-                        }
-                    }
-                    else
-                    {
-                        if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * 0.9)
-                        {
-                            random_fire[in_first]++;
-                            not_filled[in_first] = false;
-                        }
-                        if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * 0.9)
-                        { // for Q-value calculations
-                            if (not_fired_bgr)
-                            {
-                                atleastonefired++;
-                                not_fired_bgr = false;
-                            }
-                        }
-                    }
-                }
-            } // end if in_first fires
+                }  
+            }
         }     // end ispike loop, ready to start over
 
         // Fill info for efficiency calculations

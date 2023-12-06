@@ -57,7 +57,7 @@ SNN::SNN(int _NL0, int _NL1,
     MaxDeltaT = 7. * tau_m;
 
     fire_granularity = tau_s / 5;
-    fire_precision = Threshold[0] / 1000;
+    fire_precision = Threshold[0] / 100;
     myRNG = new TRandom3(23);
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
@@ -187,7 +187,6 @@ float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::functio
         }
     }
 
-    cerr << "Error: Maximum number of iterations reached without convergence.\n";
     return c; // Indicate failure
 }
 
