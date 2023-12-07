@@ -60,8 +60,6 @@ public:
     float **Weight;         // Weight of synapse-neuron strength
     bool **check_LTD;       // checks to generate LTD after neuron discharge
     bool **Void_weight;     // These may be used to model disconnections
-    float **Weight_initial; // store to be able to return to initial conditions when optimizing
-    float **OldWeight;      // for renorm
     float **Delay;          // Delay in incoming signals
     vector<float> *History_time;       // Time of signal events per each 1neuron
     vector<int> *History_type;         // Type of signal
@@ -106,6 +104,10 @@ public:
     float Neuron_firetime(int in, float t);
     float Neuron_Potential(int in, float t, bool delete_history);
     float IE_potential(float delta_t, int in, int is);
+    void LTP(int in, int this_spike, float fire_time, bool nearest_spike_approx, SNN &old);  
+    void LTD(int in, int is, float spike_time,bool nearest_spike_approx, SNN &old);
+    void Renorm(int in, float delta_weight, SNN &old);
+    void PrintWeights();
 
 };
 #endif

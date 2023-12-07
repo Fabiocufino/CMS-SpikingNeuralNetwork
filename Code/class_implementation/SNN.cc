@@ -65,8 +65,6 @@ SNN::SNN(int _NL0, int _NL1,
     Weight = new float *[N_neurons];         // Weight of synapse-neuron strength
     check_LTD = new bool *[N_neurons];       // checks to generate LTD after neuron discharge
     Void_weight = new bool *[N_neurons];     // These may be used to model disconnections
-    Weight_initial = new float *[N_neurons]; // store to be able to return to initial conditions when optimizing
-    OldWeight = new float *[N_neurons];      // for renorm
     Delay = new float *[N_neurons];          // Delay in incoming signals
 
     for (int in = 0; in < N_neurons; in++)
@@ -74,8 +72,6 @@ SNN::SNN(int _NL0, int _NL1,
         Weight[in] = new float[N_streams];
         check_LTD[in] = new bool[N_streams];
         Void_weight[in] = new bool[N_streams];
-        Weight_initial[in] = new float[N_streams];
-        OldWeight[in] = new float[N_streams];
         Delay[in] = new float[N_streams];
     }
 
@@ -239,11 +235,7 @@ void SNN::Set_weights()
         for (int is = 0; is < N_streams; is++)
         {
             if (sumweight[in] > 0 && !Void_weight[in][is])
-            {
                 Weight[in][is] = Weight[in][is] / sumweight[in];
-                Weight_initial[in][is] = Weight[in][is];
-                OldWeight[in][is] = Weight[in][is]; // this will be used for the renorm
-            }
         }
     }
 
@@ -294,14 +286,10 @@ void SNN::Init_weights()
         for (int is = 0; is < N_streams; is++)
         {
             if (sumweight[in] > 0 && !Void_weight[in][is])
-            {
                 Weight[in][is] = Weight[in][is] / sumweight[in];
-                Weight_initial[in][is] = Weight[in][is];
-                OldWeight[in][is] = Weight[in][is]; // this will be used for the renorm
-            }
         }
     }
-
+    PrintWeights();
     return;
 }
 // Initialize connection map
@@ -558,4 +546,87 @@ float SNN::IE_potential(float delta_t, int in, int is)
         sp = IE_Pot_const * EPS_potential(delta_t); // So for zero delay, this is an EPSP
     }
     return sp;
+}
+
+void SNN::LTP(int in, int this_spike, float fire_time, bool nearest_spike_approx, SNN &old)
+{
+    for (int is = 0; is < N_streams; is++)
+        {            
+        if (Void_weight[in][is])
+            break;
+        check_LTD[in][is] = true;
+        // Use nearest-spike approximation: search for closest pre-spike
+        bool no_prespikes = true;
+        int isp = this_spike - 1;
+        float delta_weight = 0;
+        do
+        {
+            if (History_ID[in][isp] == is && History_type[in][isp]==1)
+            {
+                float delta_t = History_time[in][isp] - fire_time;
+                Weight[in][is] += a_plus * exp(delta_t / tau_plus);
+                if (Weight[in][is] > 1.)
+                    Weight[in][is] = 1.;
+
+                no_prespikes = false;
+                delta_weight += Weight[in][is] - old.Weight[in][is];
+                // in this approximation we're interested only in the first spike
+                if (nearest_spike_approx)
+                    break;
+            }
+            isp--;
+        } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
+
+        if (!no_prespikes)
+            Renorm(in, delta_weight, old);
+        }
+    return;
+}
+
+void SNN::LTD(int in, int is, float spike_time, bool nearest_spike_approx, SNN &old)
+{
+    if(!check_LTD[in][is]) return;
+    if (Fire_time[in].size() == 0)
+        return;
+    if (Void_weight[in][is])
+        return;
+    float delta_t = spike_time - Fire_time[in].back();
+    // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
+    if (nearest_spike_approx)
+        check_LTD[in][is] = false;
+
+    if (delta_t >= 0 && delta_t < 7. * tau_minus)
+    {
+        Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
+        if (Weight[in][is] < 0.)
+            Weight[in][is] = 0.;
+        Renorm(in, Weight[in][is] - old.Weight[in][is], old);
+    }
+    return;
+}
+
+void SNN::Renorm(int in, float delta_weight, SNN &old)
+{
+    float norm_factor = 1. + delta_weight;
+    for (int is = 0; is < N_streams; is++)
+    {
+        if (!Void_weight[in][is])
+        {
+            Weight[in][is] /= norm_factor;
+            old.Weight[in][is] = Weight[in][is];
+        }
+    }
+    return;
+}
+
+void SNN::PrintWeights(){
+    for(int in = 0; in<N_neurons; in++){
+        cout << "Neuron " << in << endl;
+        for (int is = 0; is < N_streams; is++)
+        {
+            if (!Void_weight[in][is])
+            cout << Weight[in][is] << ", ";
+        }
+        cout << endl <<endl;
+    }
 }

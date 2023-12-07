@@ -74,11 +74,11 @@ static const bool nearest_spike_approx = false; // Used to turn on the nearest s
 // tracking constants
 // -------------------------------------------
 
-static int N_events = 10000;
+static int N_events = 1000;
 static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
-static char *rootInput = "100k_100br.root";
+static char *rootInput = "/home/ema/Documents/DATA/100k_100br.root";
 static int N_classes = 6;
 static int TrainingCode = 0;
 static bool ReadPars = false;

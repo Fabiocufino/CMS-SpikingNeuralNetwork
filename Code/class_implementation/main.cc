@@ -447,8 +447,6 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
                 //take a step back and search for another activation
                 previous_firetime = min_fire_time;
             } // end if in_first fires
-            
-            // end ispike loop, ready to start over 
 
             //insert the new spike for the next iteration
             if(insert){

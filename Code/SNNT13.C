@@ -228,24 +228,6 @@ void Write_Parameters()
 }
 */
 
-// Renormalization function
-/*
-
-
-void Renorm(int in, float delta_weight)
-{
-    float norm_factor = 1. + delta_weight;
-    for (int is = 0; is < N_streams; is++)
-    {
-        if (!Void_weight[in][is])
-        {
-            Weight[in][is] /= norm_factor;
-            OldWeight[in][is] = Weight[in][is];
-        }
-    }
-    return;
-}
-*/
 // Reset synapse weights
 // ---------------------
 /*
@@ -336,101 +318,6 @@ void Encode(float t_in)
         PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
     }
 }
-
-// Model Spike-Timing-Dependent Plasticity (LTP - Long-Term Potentiation) - modify weights
-// based on how close a previous synapse fired before the spike)
-// ---------------------------------------------------------------------------------------
-/*
-
-void LTP(int in, int is, int this_spike, float fire_time)
-{
-    if (Void_weight[in][is])
-        return;
-    // Use nearest-spike approximation: search for closest pre-spike
-    bool no_prespikes = true;
-    int isp = this_spike - 1;
-    float delta_weight = 0;
-    do
-    {
-        if (PreSpike_Stream[isp] == is)
-        {
-            float delta_t = PreSpike_Time[isp] - fire_time;
-            Weight[in][is] += a_plus * exp(delta_t / tau_plus);
-            if (Weight[in][is] > 1.)
-                Weight[in][is] = 1.;
-
-            no_prespikes = false;
-            delta_weight += Weight[in][is] - OldWeight[in][is];
-            // in this approximation we're interested only in the first spike
-            if (nearest_spike_approx)
-                break;
-        }
-        isp--;
-    } while (isp >= 0 && PreSpike_Time[isp] > fire_time - 7. * tau_plus);
-
-    // Also modify delays (experimental)
-    if (learnDelays)
-    {
-        float dtbig = MaxDelay / NevPerEpoch;
-        if (Delay[in][is] >= dtbig)
-            Delay[in][is] -= dtbig;
-        float dt = dtbig / N_neuronsL[Neuron_layer[in]];
-        int inmin = 0;
-        int inmax = N_neuronsL[0];
-        if (Neuron_layer[in] == 1)
-        {
-            inmin = N_neuronsL[0];
-            inmax = N_neurons;
-        }
-        for (int in2 = inmin; in2 < inmax; in2++)
-        {
-            if (in2 != in && Delay[in2][is] <= MaxDelay - dt)
-                Delay[in2][is] += dt;
-        }
-    }
-
-    if (!no_prespikes)
-        Renorm(in, delta_weight);
-
-    return;
-}
-
-// Model Spike-Timing-Dependent Plasticity (LTD - Long-Term Depression)
-// --------------------------------------------------------------------
-void LTD(int in, int is, float spike_time)
-{
-    if (Fire_time[in].size() == 0)
-        return;
-    if (Void_weight[in][is])
-        return;
-    float delta_t = spike_time - Fire_time[in].back();
-    // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
-    if (nearest_spike_approx)
-        check_LTD[in][is] = false;
-
-    if (delta_t >= 0 && delta_t < 7. * tau_minus)
-    {
-        Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
-        if (Weight[in][is] < 0.)
-            Weight[in][is] = 0.;
-        Renorm(in, Weight[in][is] - OldWeight[in][is]);
-    }
-    // Also modify delay (experimental)
-    if (learnDelays)
-    {
-        float dtbig = MaxDelay / NevPerEpoch;
-        if (Delay[in][is] < MaxDelay - dtbig)
-            Delay[in][is] += dtbig;
-        float dt = dtbig / (N_neurons - 1);
-        for (int in2 = 0; in2 < N_neurons; in2++)
-        {
-            if (in2 != in && Neuron_layer[in] == Neuron_layer[in2] && Delay[in2][is] > dt)
-                Delay[in2][is] -= dt;
-        }
-    }
-    return;
-}
-*/
 
 // Learning rate scheduler - this returns an oscillating, dampened function as a function of the epoch
 // ---------------------------------------------------------------------------------------------------
@@ -1264,26 +1151,6 @@ void SNN_Tracking(SNN &snn_in)
             // By looping to size(), we can insert along the way and still make it to the end
             float t = PreSpike_Time[ispike];
 
-            // Save information on hit-based streams for last 500 events to histograms
-            if (ievent >= N_events - 500.)
-            {
-                // dividing N_events in 10 groups
-                int is = (ievent - N_events + 500) / 50;
-                // time = tin + thit - tin(First event of the group)
-                float time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
-
-                // Histograms
-                if (PreSpike_Signal[ispike] == 1)
-                {
-                    StreamsS[is]->Fill(time, PreSpike_Stream[ispike] + 1);
-                    fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
-                }
-                else if (PreSpike_Signal[ispike] == 0)
-                {
-                    StreamsB[is]->Fill(time, PreSpike_Stream[ispike] + 1);
-                }
-            }
-
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
             float min_fire_time = snn_in.largenumber; // if no fire, neuron_firetime returns largenumber
@@ -1318,6 +1185,10 @@ void SNN_Tracking(SNN &snn_in)
                 float latency = 0.;
                 N_fires[in_first]++;
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
+
+                // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
+                snn_in.LTP(in_first, ispike, min_fire_time, nearest_spike_approx, snn_old);
+
                 // Reset history of this neuron
                 snn_in.History_time[in_first].clear();
                 snn_in.History_type[in_first].clear();
@@ -1341,24 +1212,19 @@ void SNN_Tracking(SNN &snn_in)
                 }
                 // Create EPS signal in L0 neuron-originated streams
                 if (snn_in.Neuron_layer[in_first] == 0)
-                { // this is a Layer-0 neuron
+                {   // this is a Layer-0 neuron
+                    for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
+                    {
+                        if (in2 != in_first)
+                            snn_in.LTD(in2, in_first, min_fire_time, nearest_spike_approx, snn_old); 
+                    }
+
                     for(int in = snn_in.N_neuronsL[0]; in < snn_in.N_neurons; in++){
                         snn_in.History_time[in].push_back(min_fire_time);
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(snn_in.N_InputStreams + in_first);
                     }
                 }
-
-                // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                /*
-                TODO: IMPLEMENT
-                for (int is = 0; is < snn_in.N_streams; is++)
-                {
-                    LTP(in_first, is, ispike, min_fire_time);
-                    // Reset LTD check flags
-                    check_LTD[in_first][is] = true;
-                }
-                */
                 
                 // Fill spikes train histogram
                 if (ievent >= N_events - 500.)
@@ -1411,19 +1277,41 @@ void SNN_Tracking(SNN &snn_in)
             }// end if in_first fires
             //insert the new spike for the next iteration
             if(insert){
+                // Save information on hit-based streams for last 500 events to histograms
+                if (ievent >= N_events - 500.)
+                {
+                    // dividing N_events in 10 groups
+                    int is = (ievent - N_events + 500) / 50;
+                    // time = tin + thit - tin(First event of the group)
+                    float time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+
+                    // Histograms
+                    if (PreSpike_Signal[ispike] == 1)
+                    {
+                        StreamsS[is]->Fill(time, PreSpike_Stream[ispike] + 1);
+                        fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
+                    }
+                    else if (PreSpike_Signal[ispike] == 0)
+                    {
+                        StreamsB[is]->Fill(time, PreSpike_Stream[ispike] + 1);
+                    }
+                }
+                int is = PreSpike_Stream[ispike];
                 for (auto in : neurons_index)
                 {
                     //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
-                    int is = PreSpike_Stream[ispike];
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
                             snn_in.History_time[in].push_back(t);
                             // All input spikes lead to EPSP
                             snn_in.History_type[in].push_back(1);
                             snn_in.History_ID[in].push_back(is);
+                            snn_in.LTD(in, is, t, nearest_spike_approx, snn_old); 
                     }
-                }  
+                }
+                // Model STDP: LTD. See if this spike depresses a neuron that fired earlier
+                
             }
         }     // end ispike loop, ready to start over
 
@@ -1505,6 +1393,7 @@ void SNN_Tracking(SNN &snn_in)
 
         // Fill efficiency histograms every NevPerEpoch events, compute Q value and Selectivity, modify parameters
         // ---------------------------------------------------------------------------------------------------
+        
         if (iev_thisepoch == NevPerEpoch)
         { // we did NevPerEpoch events
 
@@ -2288,7 +2177,6 @@ void SNN_Tracking(SNN &snn_in)
         } // if ievent+1%NevPerEpoch = 0
 
         ievent++; // only go to next event if we did a backward pass too
-
     } while (ievent < N_events);
 
     // closing the input file
@@ -2629,6 +2517,7 @@ void SNN_Tracking(SNN &snn_in)
     }
     rootfile2->Close();
     gROOT->Time();
+    snn_in.PrintWeights();
 
     /*
         for (int in = 0; in < N_neurons; in++)
@@ -2653,9 +2542,9 @@ int main(int argc, char *argv[])
     // Loop through the command-line arguments
     for (int i = 1; i < argc; ++i)
     {
-        string arg = argv[i];
-
-        if (arg == "--NL0")
+        const char* arg = argv[i];
+        cout << arg << endl;
+        if (strcmp(arg,"--NL0")==0)
             _NL0 = stoi(argv[i + 1]);
         else if (arg == "--NL1")
             _NL1 = stoi(argv[i + 1]);
