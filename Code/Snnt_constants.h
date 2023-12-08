@@ -74,7 +74,7 @@ static const bool nearest_spike_approx = false; // Used to turn on the nearest s
 // tracking constants
 // -------------------------------------------
 
-static int N_events = 1000;
+static int N_events = 10000;
 static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;

@@ -548,38 +548,51 @@ float SNN::IE_potential(float delta_t, int in, int is)
     return sp;
 }
 
-void SNN::LTP(int in, int this_spike, float fire_time, bool nearest_spike_approx, SNN &old)
+void SNN::LTP(int in, float fire_time, bool nearest_spike_approx, SNN &old)
 {
     for (int is = 0; is < N_streams; is++)
-        {            
+    {            
         if (Void_weight[in][is])
-            break;
+            continue;
         check_LTD[in][is] = true;
         // Use nearest-spike approximation: search for closest pre-spike
         bool no_prespikes = true;
-        int isp = this_spike - 1;
+        int isp = History_time[in].size() - 1;
         float delta_weight = 0;
         do
         {
             if (History_ID[in][isp] == is && History_type[in][isp]==1)
             {
                 float delta_t = History_time[in][isp] - fire_time;
+
+                if(isnan(delta_t)) cout << History_time[in][isp] << " deltat " << fire_time << endl;
+
+                if(isnan(Weight[in][is])) cout << Weight[in][is] << " efore " << endl;
+
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
+                if(isnan(Weight[in][is])) cout << Weight[in][is] << " after " << delta_t << endl;
+
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
 
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
+                if(isnan(delta_weight)) cout << Weight[in][is] << "   " << old.Weight[in][is] << " "<< is << endl;
+
                 // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
                     break;
             }
             isp--;
         } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
-
-        if (!no_prespikes)
+        
+        if (!no_prespikes){
+            if(isnan(delta_weight)) cout <<" LTP " << in << endl;
+            //turn down the renorm at the moment
+            delta_weight=0;
             Renorm(in, delta_weight, old);
         }
+    }
     return;
 }
 
@@ -600,7 +613,12 @@ void SNN::LTD(int in, int is, float spike_time, bool nearest_spike_approx, SNN &
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
         if (Weight[in][is] < 0.)
             Weight[in][is] = 0.;
-        Renorm(in, Weight[in][is] - old.Weight[in][is], old);
+        float delta_weight =  Weight[in][is] - old.Weight[in][is];
+        if(isnan(delta_weight)) cout <<" LTD " << in << is << endl;
+
+        //turn down the renorm at the moment
+        delta_weight=0;
+        Renorm(in,delta_weight, old);
     }
     return;
 }
@@ -613,6 +631,11 @@ void SNN::Renorm(int in, float delta_weight, SNN &old)
         if (!Void_weight[in][is])
         {
             Weight[in][is] /= norm_factor;
+            if(isnan(Weight[in][is])){
+                cout <<"Errore " << old.Weight[in][is] << " " << norm_factor<<  " "<< delta_weight <<endl;
+                cout << in <<" " << is << endl;
+                exit(1);
+            }
             old.Weight[in][is] = Weight[in][is];
         }
     }
@@ -620,12 +643,13 @@ void SNN::Renorm(int in, float delta_weight, SNN &old)
 }
 
 void SNN::PrintWeights(){
-    for(int in = 0; in<N_neurons; in++){
+    for(int in = 0; in<1; in++){
         cout << "Neuron " << in << endl;
         for (int is = 0; is < N_streams; is++)
         {
-            if (!Void_weight[in][is])
+            if (!Void_weight[in][is]){
             cout << Weight[in][is] << ", ";
+            }
         }
         cout << endl <<endl;
     }

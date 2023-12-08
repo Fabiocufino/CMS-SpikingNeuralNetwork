@@ -104,7 +104,7 @@ public:
     float Neuron_firetime(int in, float t);
     float Neuron_Potential(int in, float t, bool delete_history);
     float IE_potential(float delta_t, int in, int is);
-    void LTP(int in, int this_spike, float fire_time, bool nearest_spike_approx, SNN &old);  
+    void LTP(int in, float fire_time, bool nearest_spike_approx, SNN &old);  
     void LTD(int in, int is, float spike_time,bool nearest_spike_approx, SNN &old);
     void Renorm(int in, float delta_weight, SNN &old);
     void PrintWeights();

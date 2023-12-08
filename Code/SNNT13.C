@@ -1187,7 +1187,7 @@ void SNN_Tracking(SNN &snn_in)
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                snn_in.LTP(in_first, ispike, min_fire_time, nearest_spike_approx, snn_old);
+                snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
 
                 // Reset history of this neuron
                 snn_in.History_time[in_first].clear();
@@ -1213,16 +1213,12 @@ void SNN_Tracking(SNN &snn_in)
                 // Create EPS signal in L0 neuron-originated streams
                 if (snn_in.Neuron_layer[in_first] == 0)
                 {   // this is a Layer-0 neuron
-                    for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
-                    {
-                        if (in2 != in_first)
-                            snn_in.LTD(in2, in_first, min_fire_time, nearest_spike_approx, snn_old); 
-                    }
-
                     for(int in = snn_in.N_neuronsL[0]; in < snn_in.N_neurons; in++){
                         snn_in.History_time[in].push_back(min_fire_time);
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(snn_in.N_InputStreams + in_first);
+                        snn_in.LTD(in, in_first, min_fire_time, nearest_spike_approx, snn_old); 
+
                     }
                 }
                 
@@ -1310,8 +1306,6 @@ void SNN_Tracking(SNN &snn_in)
                             snn_in.LTD(in, is, t, nearest_spike_approx, snn_old); 
                     }
                 }
-                // Model STDP: LTD. See if this spike depresses a neuron that fired earlier
-                
             }
         }     // end ispike loop, ready to start over
 
@@ -2175,9 +2169,19 @@ void SNN_Tracking(SNN &snn_in)
             }
 
         } // if ievent+1%NevPerEpoch = 0
-
         ievent++; // only go to next event if we did a backward pass too
     } while (ievent < N_events);
+
+    for (int in = 0; in < snn_in.N_neurons; in++)
+    {
+        snn_in.sumweight[in]=0;
+        for (int is = 0; is < snn_in.N_streams; is++)
+        {
+            if(!snn_in.Void_weight[in][is]) snn_in.sumweight[in]+=snn_in.Weight[in][is];
+        }
+
+        cout << in << " " << snn_in.sumweight[in] << endl;
+    }
 
     // closing the input file
     delete IT;
@@ -2517,20 +2521,8 @@ void SNN_Tracking(SNN &snn_in)
     }
     rootfile2->Close();
     gROOT->Time();
-    snn_in.PrintWeights();
 
-    /*
-        for (int in = 0; in < N_neurons; in++)
-            {
-                sumweight[in]=0;
-                for (int is = 0; is < N_streams; is++)
-                {
-                    if(!Void_weight[in][is]) sumweight[in]+=Weight[in][is];
-                }
 
-                cout << in << " " << sumweight[in] << endl;
-            }
-    */
     return;
 }
 
