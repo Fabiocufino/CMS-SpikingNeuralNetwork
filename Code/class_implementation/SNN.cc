@@ -58,7 +58,7 @@ SNN::SNN(int _NL0, int _NL1,
 
     fire_granularity = tau_s / 5;
     fire_precision = Threshold[0] / 100;
-    myRNG = new TRandom3(23);
+    myRNG = new TRandom3(24);
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
 
@@ -82,45 +82,10 @@ SNN::SNN(int _NL0, int _NL1,
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
 
-    // Print all the variables
-    cout << "alpha = " << alpha << endl;
-    cout << "CFI0 = " << CFI0 << endl;
-    cout << "CFI1 = " << CFI1 << endl;
-    cout << "CF01 = " << CF01 << endl;
-    cout << "L1inhibitfactor = " << L1inhibitfactor << endl;
-    cout << "K = " << K << endl;
-    cout << "K1 = " << K1 << endl;
-    cout << "K2 = " << K2 << endl;
-    cout << "IE_Pot_const = " << IE_Pot_const << endl;
-    cout << "IPSP_dt_dilation = " << IPSP_dt_dilation << endl;
-    cout << "MaxDelay = " << MaxDelay << endl;
-    cout << "tau_m = " << tau_m << endl;
-    cout << "tau_s = " << tau_s << endl;
-    cout << "tau_r = " << tau_r << endl;
-    cout << "tau_plus = " << tau_plus << endl;
-    cout << "tau_minus = " << tau_minus << endl;
-    cout << "a_plus = " << a_plus << endl;
-    cout << "a_minus = " << a_minus << endl;
-    cout << "N_neurons = " << N_neurons << endl;
-    cout << "N_streams = " << N_streams << endl;
-    cout << "Threshold[0] = " << Threshold[0] << endl;
-    cout << "Threshold[1] = " << Threshold[1] << endl;
-    cout << "tmax = " << tmax << endl;
-    cout << "MaxDeltaT = " << MaxDeltaT << endl;
-    cout << "N_neuronsL[0] = " << N_neuronsL[0] << endl;
-    cout << "N_neuronsL[1] = " << N_neuronsL[1] << endl;
-    cout << "N_InputStreams = " << N_InputStreams << endl;
-    cout << "largenumber = " << largenumber << endl;
-    cout << "epsilon = " << epsilon << endl;
-    cout << "-------------------------------------" << endl;
 
-    cout << "Init_neurons" << endl;
     Init_neurons();
-    cout << "Init_connection_map" << endl;
     Init_connection_map();
-    cout << "Init_Weights" << endl;
     Init_weights();
-    cout << "Done" << endl;
 }
 
 SNN::~SNN()
@@ -130,9 +95,18 @@ SNN::~SNN()
 void SNN::Init_delays(){
     return;
 }
-void SNN::Reset_weights(){
-    return;
-}
+// template <size_t rows, size_t cols>
+// void SNN::Reset_weights(float &Weight_initial[rows][cols]){
+    // for (int in = 0; in < N_neurons; in++)
+    //{
+        // for (int is = 0; is < N_InputStreams; is++)
+        // {
+            //Weight[in][is] = Weight_initial[in][is];
+        // }
+        
+    // }
+    
+// }
 
 float SNN::bisectionMethod(float a, float b, int in, float epsilon, std::function<float(int, float, bool)> func)
 {
@@ -287,9 +261,9 @@ void SNN::Init_weights()
         {
             if (sumweight[in] > 0 && !Void_weight[in][is])
                 Weight[in][is] = Weight[in][is] / sumweight[in];
+                
         }
     }
-    PrintWeights();
     return;
 }
 // Initialize connection map
@@ -330,14 +304,6 @@ void SNN::Init_connection_map()
                 Void_weight[in][is] = true;
         }
     }
-    cout << endl;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-            cout << Void_weight[in][is];
-        cout << endl;
-    }
-
     return;
 }
 
@@ -588,9 +554,8 @@ void SNN::LTP(int in, float fire_time, bool nearest_spike_approx, SNN &old)
         
         if (!no_prespikes){
             if(isnan(delta_weight)) cout <<" LTP " << in << endl;
-            //turn down the renorm at the moment
-            delta_weight=0;
-            Renorm(in, delta_weight, old);
+
+            Renorm(in, old);
         }
     }
     return;
@@ -616,14 +581,33 @@ void SNN::LTD(int in, int is, float spike_time, bool nearest_spike_approx, SNN &
         float delta_weight =  Weight[in][is] - old.Weight[in][is];
         if(isnan(delta_weight)) cout <<" LTD " << in << is << endl;
 
-        //turn down the renorm at the moment
-        delta_weight=0;
-        Renorm(in,delta_weight, old);
+        Renorm(in, old);
     }
     return;
 }
 
-void SNN::Renorm(int in, float delta_weight, SNN &old)
+void SNN::Renorm(int in, SNN &old) {
+    float weight_sum = 0.0;
+    // Calculate the sum of weights for the 'in' neuron
+    for (int is = 0; is < N_streams; is++) {
+        if(!Void_weight[in][is]) weight_sum += Weight[in][is];
+    }
+    
+    // Check if the sum is greater than 0 to avoid division by zero
+    if (weight_sum > 0.0) {
+        // Normalize the weights for the 'in' neuron
+        for (int is = 0; is < N_streams; is++) {
+            if(!Void_weight[in][is]){
+                Weight[in][is] = Weight[in][is]/weight_sum;
+                old.Weight[in][is] = Weight[in][is];
+           }
+        }
+    }
+return;    
+}
+
+
+void SNN::Renorm_Opt(int in, float delta_weight, SNN &old)
 {
     float norm_factor = 1. + delta_weight;
     for (int is = 0; is < N_streams; is++)
@@ -643,7 +627,7 @@ void SNN::Renorm(int in, float delta_weight, SNN &old)
 }
 
 void SNN::PrintWeights(){
-    for(int in = 0; in<1; in++){
+    for(int in = 0; in<N_neurons; in++){
         cout << "Neuron " << in << endl;
         for (int is = 0; is < N_streams; is++)
         {
@@ -653,4 +637,38 @@ void SNN::PrintWeights(){
         }
         cout << endl <<endl;
     }
+}
+
+void SNN::PrintSNN(){
+    // Print all the variables
+    cout << "alpha = " << alpha << endl;
+    cout << "CFI0 = " << CFI0 << endl;
+    cout << "CFI1 = " << CFI1 << endl;
+    cout << "CF01 = " << CF01 << endl;
+    cout << "L1inhibitfactor = " << L1inhibitfactor << endl;
+    cout << "K = " << K << endl;
+    cout << "K1 = " << K1 << endl;
+    cout << "K2 = " << K2 << endl;
+    cout << "IE_Pot_const = " << IE_Pot_const << endl;
+    cout << "IPSP_dt_dilation = " << IPSP_dt_dilation << endl;
+    cout << "MaxDelay = " << MaxDelay << endl;
+    cout << "tau_m = " << tau_m << endl;
+    cout << "tau_s = " << tau_s << endl;
+    cout << "tau_r = " << tau_r << endl;
+    cout << "tau_plus = " << tau_plus << endl;
+    cout << "tau_minus = " << tau_minus << endl;
+    cout << "a_plus = " << a_plus << endl;
+    cout << "a_minus = " << a_minus << endl;
+    cout << "N_neurons = " << N_neurons << endl;
+    cout << "N_streams = " << N_streams << endl;
+    cout << "Threshold[0] = " << Threshold[0] << endl;
+    cout << "Threshold[1] = " << Threshold[1] << endl;
+    cout << "tmax = " << tmax << endl;
+    cout << "MaxDeltaT = " << MaxDeltaT << endl;
+    cout << "N_neuronsL[0] = " << N_neuronsL[0] << endl;
+    cout << "N_neuronsL[1] = " << N_neuronsL[1] << endl;
+    cout << "N_InputStreams = " << N_InputStreams << endl;
+    cout << "largenumber = " << largenumber << endl;
+    cout << "epsilon = " << epsilon << endl;
+    cout << "-------------------------------------" << endl;
 }

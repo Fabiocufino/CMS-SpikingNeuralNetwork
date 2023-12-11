@@ -230,17 +230,20 @@ void Write_Parameters()
 
 // Reset synapse weights
 // ---------------------
-/*
-void Reset_weights()
-{
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-            Weight[in][is] = Weight_initial[in][is];
-    }
-    return;
-}
-*/
+
+// void Reset_weights(SNN &snn_in, SNN &snn_old)
+// {
+//     for (int in = 0; in < snn_in.N_neurons; in++)
+//     {
+//         for (int is = 0; is < snn_in.N_streams; is++)
+//         {
+//             snn_in.Weight[in][is] = snn_old.Weight[in][is];
+//         }
+//     }
+//     return;
+// }
+
+
 
 // clear hits vector
 void Reset_hits()
@@ -913,7 +916,7 @@ void SNN_Tracking(SNN &snn_in)
     float averacctotL1 = 0.;
 
     //TODO: implement clone method
-        SNN snn_best(_NL0,  _NL1,
+    SNN snn_best(_NL0,  _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
           _L1inhibitfactor,
@@ -940,7 +943,6 @@ void SNN_Tracking(SNN &snn_in)
           _N_InputStreams,
           _Threshold0,  _Threshold1);
         
-
     // Storing parameters subjected to random search
     snn_old.Threshold[0] = snn_in.Threshold[0];
     snn_old.Threshold[1] = snn_in.Threshold[1];
@@ -951,6 +953,7 @@ void SNN_Tracking(SNN &snn_in)
     snn_old.K2 = snn_in.K2;
     snn_old.IE_Pot_const = snn_in.IE_Pot_const;
     snn_old.IPSP_dt_dilation = snn_in.IPSP_dt_dilation;
+    float Weight_initial[snn_in.N_neurons][snn_in.N_streams];
 
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
@@ -967,7 +970,12 @@ void SNN_Tracking(SNN &snn_in)
         {
             snn_old.Void_weight[in][is] = snn_in.Void_weight[in][is];
             snn_best.Void_weight[in][is] = snn_in.Void_weight[in][is];
+
+            snn_old.Weight[in][is] = snn_in.Weight[in][is];
+            snn_best.Weight[in][is] = snn_in.Weight[in][is];
+            Weight_initial[in][is] = snn_in.Weight[in][is];
         }
+
     }
     float Q = 0.;
     float Q_old = 0.;
@@ -1100,12 +1108,21 @@ void SNN_Tracking(SNN &snn_in)
     do
     {
         iev_thisepoch++;
+        // if (ievent == 19531)
+            // ievent = 19532;
+
+        // if(ievent > 19000)
+            // cout << "Event: " << ievent << endl;
+
+        if(ievent % 1000 == 0)
+            cout<<"Event: "<<ievent<<endl;
+        
         if (doprogress)
         {
             if (ievent % block == 0)
             {
-                cout << progress[currchar];
-                currchar++;
+                // cout << "." << progress[currchar];
+                // currchar++;
             }
         }
 
@@ -1116,7 +1133,7 @@ void SNN_Tracking(SNN &snn_in)
         }
 
         ReadFromProcessed(IT, OT, ievent % NROOT);
-
+        
         // See if we find with track with positive latency by at least one neuron
         for (int in = 0; in < snn_in.N_neurons; in++)
         {
@@ -1458,7 +1475,7 @@ void SNN_Tracking(SNN &snn_in)
             // Reset hits
             Reset_hits();
             // Reset weights to initial conditions before new investigation
-            snn_in.Reset_weights();
+            // snn_in.Reset_weights(Weight_initial);
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
                 snn_in.Init_delays(); // This unlike void connections, because we can opt to learn these at each cycle too

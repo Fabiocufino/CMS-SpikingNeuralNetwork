@@ -95,7 +95,7 @@ public:
     void Set_weights();
 
     void Init_delays();
-    void Reset_weights();
+    //void Reset_weights(float &Weight_initial);
 
     void Init_connection_map();
     float EPS_potential(float delta_t);
@@ -106,8 +106,10 @@ public:
     float IE_potential(float delta_t, int in, int is);
     void LTP(int in, float fire_time, bool nearest_spike_approx, SNN &old);  
     void LTD(int in, int is, float spike_time,bool nearest_spike_approx, SNN &old);
-    void Renorm(int in, float delta_weight, SNN &old);
+    void Renorm(int in, SNN &old);
+    void Renorm_Opt(int in, float delta_weight, SNN &old);
     void PrintWeights();
+    void PrintSNN();
 
 };
 #endif
