@@ -2553,103 +2553,103 @@ int main(int argc, char *argv[])
     {
         const char* arg = argv[i];
         cout << arg << endl;
+        cout << strcmp(arg,"--NL0") << endl;
+        cout << strcmp(arg,"--N_ev") << endl;
+        
+   
         if (strcmp(arg,"--NL0")==0)
             _NL0 = stoi(argv[i + 1]);
-        else if (arg == "--NL1")
+        else if (strcmp(arg, "--NL1")==0)
             _NL1 = stoi(argv[i + 1]);
 
 
-        else if (arg == "--alpha")
+        else if (strcmp(arg, "--alpha")==0)
             _alpha = stof(argv[i + 1]);
 
 
-        else if (arg == "--CF01")
+        else if (strcmp(arg, "--CF01")==0)
             _CF01 = stof(argv[i + 1]);
-        else if (arg == "--CFI0")
+        else if (strcmp(arg, "--CFI0")==0)
             _CFI0 = stof(argv[i + 1]);
-        else if (arg == "--CFI1")
+        else if (strcmp(arg, "--CFI1")==0)
             _CFI1 = stof(argv[i + 1]);
 
 
-        else if (arg == "--L1inhibitfactor")
+        else if (strcmp(arg, "--L1inhibitfactor")==0)
             _L1inhibitfactor = stof(argv[i + 1]);
 
 
-        else if (arg == "--K")
+        else if (strcmp(arg, "--K")==0)
             _K = stof(argv[i + 1]);
-        else if (arg == "--K1")
+        else if (strcmp(arg, "--K1")==0)
             _K1 = stof(argv[i + 1]);
-        else if (arg == "--K2")
+        else if (strcmp(arg, "--K2")==0)
             _K2 = stof(argv[i + 1]);
 
 
-        else if (arg == "--IE_Pot_const")
+        else if (strcmp(arg, "--IE_Pot_const")==0)
             _IE_Pot_const = stof(argv[i + 1]);
-        else if (arg == "--IPSP_dt_dilation")
+        else if (strcmp(arg, "--IPSP_dt_dilation")==0)
             _IPSP_dt_dilation = stof(argv[i + 1]);
         
 
-        else if (arg == "--MaxDelay")
+        else if (strcmp(arg, "--MaxDelay")==0)
             _MaxDelay = stof(argv[i + 1]);
 
 
-        else if (arg == "--tau_m")
+        else if (strcmp(arg, "--tau_m")==0)
             _tau_m = stof(argv[i + 1]);
-        else if (arg == "--tau_s")
+        else if (strcmp(arg, "--tau_s")==0)
             _tau_s = stof(argv[i + 1]);
-        else if (arg == "--tau_r")
+        else if (strcmp(arg, "--tau_r")==0)
             _tau_r = stof(argv[i + 1]);
-        else if (arg == "--tau_plus")
+        else if (strcmp(arg, "--tau_plus")==0)
             _tau_plus = stof(argv[i + 1]);
-        else if (arg == "--tau_minus")
+        else if (strcmp(arg, "--tau_minus")==0)
             _tau_minus = stof(argv[i + 1]);
 
 
-        else if (arg == "--a_plus")
+        else if (strcmp(arg, "--a_plus")==0)
             _a_plus = stof(argv[i + 1]);
-        else if (arg == "--a_minus")
+        else if (strcmp(arg, "--a_minus")==0)
             _a_minus = stof(argv[i + 1]);
 
 
-        else if (arg == "--N_InputStreams")
+        else if (strcmp(arg, "--N_InputStreams")==0)
             _N_InputStreams = stoi(argv[i + 1]);
 
 
 
-        else if (arg == "--Threshold")
+        else if (strcmp(arg, "--Threshold")==0)
             _Threshold0 = stof(argv[i + 1]);
-        else if (arg == "--ThresholdL1")
+        else if (strcmp(arg, "--ThresholdL1")==0)
             _Threshold1 = stof(argv[i + 1]);
 
 
 
         // Main's parameters 
-        else if (arg == "--N_ev")
+        else if (strcmp(arg, "--N_ev")==0)
             N_events = stoi(argv[i + 1]);
-        else if (arg == "--N_ep")
+        else if (strcmp(arg, "--N_ep")==0)
             N_epochs = stoi(argv[i + 1]);
-        else if (arg == "--batch")
+        else if (strcmp(arg, "--batch")==0)
             batch = stoi(argv[i + 1]);
-        else if (arg == "--rootInput"){
+        else if (strcmp(arg, "--rootInput")==0){
             cout << argv[i+1] <<endl;
             rootInput = argv[i + 1];              
         }
-        else if(arg == "--N_classes")
+        else if(strcmp(arg, "--N_classes")==0)
             N_classes = stoi(argv[i + 1]);
-        else if(arg == "--TrainingCode")
+        else if(strcmp(arg, "--TrainingCode")==0)
             TrainingCode = stoi(argv[i + 1]);
-        else if(arg == "--ReadPars")
+        else if(strcmp(arg, "--ReadPars")==0)
             ReadPars = stoi(argv[i + 1]);
-        else if(arg == "--NROOT")
+        else if(strcmp(arg, "--NROOT")==0)
             NROOT = stoi(argv[i + 1]);
-        else
-        {
-            cerr << "Invalid flag" << endl;
-            exit(1);
-        }
-        
-        
+        break;
     }
+    cout << _NL0 << endl;
+
     SNN S(_NL0,  _NL1,
     _alpha,
           _CFI0, _CFI1, _CF01,
