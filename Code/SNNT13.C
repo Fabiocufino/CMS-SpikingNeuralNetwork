@@ -29,17 +29,9 @@ using namespace std;
 // Constants and data used throughout the code
 // -------------------------------------------
 static int N_part; // Number of generated particles in an event
-static float First_angle;
-static float Eff[MaxNeurons * MaxClasses];       // Efficiency of each neuron to signals of different classes
-static float Efftot[MaxClasses];                 // Global efficiency to a different class
-float SumofSquaresofWeight[MaxNeurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
-float MeanofSquaresofWeight[MaxNeurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
-float MaxWeight[MaxNeurons];
-float MinWeight[MaxNeurons];
-float RMSWeight[MaxNeurons];
-float Efficiency_track[MaxNeurons][MaxClasses][10]; // to keep track of the efficiency evolution during training
-float FK_track[MaxNeurons][MaxClasses][10];         // to keep track of the FakeRate evolution during training
-static vector<float> PreSpike_Time;
+static double First_angle;
+static float *Eff;       // Efficiency of each neuron to signals of different classes
+static vector<double> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
@@ -253,7 +245,7 @@ void Reset_hits()
 }
 
 // Start binning r-z plane ---------------
-int GetBinR(float r_hit)
+int GetBinR(double r_hit)
 {
     if (r_hit < 0)
         r_hit = 0;
@@ -272,9 +264,9 @@ int GetBinR(float r_hit)
     return N_bin_r - 1;
 }
 
-int GetBinZ(float z)
+int GetBinZ(double z)
 {
-    float tmp = (z + z_range / 2.);
+    double tmp = (z + z_range / 2.);
     if (tmp < 0)
         tmp = 0;
     else if (tmp > z_range)
@@ -291,7 +283,7 @@ int GetStreamID(int r, int z)
 // End binning r-z plane -----------------
 
 // Transforms hits into spikes streams by scanning the event
-void Encode(float t_in)
+void Encode(double t_in)
 {
     // sort by phi angle
     sort(hit_pos.begin(), hit_pos.end(), [](const Hit &h1, const Hit &h2)
@@ -299,7 +291,7 @@ void Encode(float t_in)
 
     for (auto &&row : hit_pos)
     {
-        float time = t_in + row.phi / omega;
+        double time = t_in + row.phi / omega;
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
         PreSpike_Time.push_back(time);
@@ -312,7 +304,7 @@ void Encode(float t_in)
     {
         if (row.phi > delta)
             break;
-        float time = t_in + (row.phi + M_PI * 2.) / omega;
+        double time = t_in + (row.phi + M_PI * 2.) / omega;
 
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
@@ -397,8 +389,8 @@ float Compute_Selectivity(int level, int mode)
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
         // average efficiency on class j over neurons
         S = 0.;
-        float Effn[MaxNeurons];
-        float Effc[MaxClasses];
+        float Effn[N_classes];
+        float Effc[N_classes];
         float sumeff = 0.;
         for (int in = inmin; in < inmax; in++)
         {
@@ -751,7 +743,7 @@ void SNN_Tracking(SNN &snn_in)
     HIEPC->SetMinimum(0.);
     HIPSPdf->SetMinimum(0.);
     HL1IF->SetMinimum(0.);
-    TH1F *HDelays = new TH1F("HDelays", "", 50, 0., snn_in.MaxDelay);
+    TH1D *HDelays = new TH1D("HDelays", "", 50, 0., snn_in.MaxDelay);
     TH2F *HVoidWs = new TH2F("HVoidWs", "", snn_in.N_neurons, -0.5, -0.5 + snn_in.N_neurons, snn_in.N_streams, -0.5, -0.5 + snn_in.N_streams);
     TH2F *Q_12 = new TH2F("Q_12", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
     TH2F *Q_34 = new TH2F("Q_34", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
@@ -767,27 +759,27 @@ void SNN_Tracking(SNN &snn_in)
     TH2F *N_MV = new TH2F("N_MV", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
 
     int N_bins = 100;
-    TH2F *Latency[MaxNeurons * MaxClasses];
+    TH2D *Latency[snn_in.N_neurons * N_classes];
     char name[50];
     for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
     {
         sprintf(name, "Latency%d", i);
-        Latency[i] = new TH2F(name, name, N_bins, 0., (float)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
+        Latency[i] = new TH2D(name, name, N_bins, 0., (double)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
     }
-    TH1F *HWeight[MaxNeurons * MaxStreams];
-    TH1F *HRMSWeight[MaxNeurons];
-    TH1F *HMaxWeight[MaxNeurons];
-    TH1F *HMinWeight[MaxNeurons];
-    TH1F *Efficiency[MaxNeurons * MaxClasses];
-    TH1F *FakeRate[MaxNeurons];
-    TH1F *Eff_totL0[MaxClasses];
-    TH1F *Eff_totL1[MaxClasses];
-    TH2F *StreamsS[10];
-    TH2F *StreamsB[10];
-    TH2F *StreamsN[10];
-    TH1F *BestEff[MaxNeurons];
-    TH1F *BestFR[MaxNeurons];
-    TH1F *BestEtot[MaxNeurons];
+    TH1F *HWeight[snn_in.N_neurons * snn_in.N_streams];
+    TH1F *HRMSWeight[snn_in.N_neurons];
+    TH1F *HMaxWeight[snn_in.N_neurons];
+    TH1F *HMinWeight[snn_in.N_neurons];
+    TH1F *Efficiency[snn_in.N_neurons * N_classes];
+    TH1F *FakeRate[snn_in.N_neurons];
+    TH1F *Eff_totL0[N_classes];
+    TH1F *Eff_totL1[N_classes];
+    TH2D *StreamsS[10];
+    TH2D *StreamsB[10];
+    TH2D *StreamsN[10];
+    TH1F *BestEff[snn_in.N_neurons];
+    TH1F *BestFR[snn_in.N_neurons];
+    TH1F *BestEtot[snn_in.N_neurons];
 
     for (int i = 0; i < snn_in.N_neurons * snn_in.N_streams; i++)
     {
@@ -839,11 +831,11 @@ void SNN_Tracking(SNN &snn_in)
     for (int i = 0; i < 10; i++)
     {
         sprintf(name, "StreamsS%d", i);
-        StreamsS[i] = new TH2F(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
+        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
         sprintf(name, "StreamsB%d", i);
-        StreamsB[i] = new TH2F(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
+        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
         sprintf(name, "StreamsN%d", i);
-        StreamsN[i] = new TH2F(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
+        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
 
     // If requested, read in parameters
@@ -878,16 +870,15 @@ void SNN_Tracking(SNN &snn_in)
 
     // Prime the event loop - we continuously sample detector readout and feed inputs to synapses
     // ------------------------------------------------------------------------------------------
-    // TODO: MaxNeurons -> snn_in.N_neurons
-    int N_fires[MaxNeurons];
-    float LastP[MaxNeurons];
+    int N_fires[snn_in.N_neurons];
+    double LastP[snn_in.N_neurons];
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         N_fires[in] = 0.;
         LastP[in] = 0.;
     }
-    int fired_sum[MaxClasses][MaxNeurons];
-    int random_fire[MaxNeurons];
+    int fired_sum[N_classes][snn_in.N_neurons];
+    int random_fire[snn_in.N_neurons];
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         random_fire[in] = 0;
@@ -898,22 +889,28 @@ void SNN_Tracking(SNN &snn_in)
     }
     bool not_fired_bgr = true;
     int atleastonefired = 0;
-    int gen_sum[MaxClasses];
-    int fired_anyL0[MaxClasses];
-    int fired_anyL1[MaxClasses];
+    int gen_sum[N_classes];
+    int fired_anyL0[N_classes];
+    int fired_anyL1[N_classes];
     for (int ic = 0; ic < N_classes; ic++)
     {
         gen_sum[ic] = 0;
         fired_anyL0[ic] = 0;
         fired_anyL1[ic] = 0;
     }
-    bool doneL0[MaxClasses];
-    bool doneL1[MaxClasses];
-    bool Seen[MaxClasses][MaxNeurons];
+    bool doneL0[N_classes];
+    bool doneL1[N_classes];
+    bool Seen[N_classes][snn_in.N_neurons];
     float selectivityL0 = 0.;
     float selectivityL1 = 0.;
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
+    Eff = new float[snn_in.N_neurons * N_classes];
+    float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
+    float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
+    float MaxWeight[snn_in.N_neurons];
+    float MinWeight[snn_in.N_neurons];
+    float RMSWeight[snn_in.N_neurons];
 
     //TODO: implement clone method
     SNN snn_best(_NL0,  _NL1,
@@ -1011,9 +1008,9 @@ void SNN_Tracking(SNN &snn_in)
         aver_dQ[i] = 0.;
         max_dx[i] = MaxFactor; // max factor of change in parameter values during optimization
     }
-    float OptvarD[MaxNeurons * MaxStreams];
-    float max_dxD[MaxNeurons * MaxStreams];
-    float aver_dQD[MaxNeurons * MaxStreams];
+    float OptvarD[snn_in.N_neurons * snn_in.N_streams];
+    float max_dxD[snn_in.N_neurons * snn_in.N_streams];
+    float aver_dQD[snn_in.N_neurons * snn_in.N_streams];
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         for (int is = 0; is < snn_in.N_streams; is++)
@@ -1027,7 +1024,7 @@ void SNN_Tracking(SNN &snn_in)
     int MaxdQHist = 50; // we do not want the full history, because we are moving in the par space; only last 10 points.
     vector<float> dQHist;
     vector<float> OptvarHist[9];
-    vector<float> OptvarDHist[MaxNeurons * MaxStreams];
+    vector<float> OptvarDHist[snn_in.N_neurons * snn_in.N_streams];
     int ibad = 0;
     float LR = MaxFactor;
 
@@ -1108,11 +1105,6 @@ void SNN_Tracking(SNN &snn_in)
     do
     {
         iev_thisepoch++;
-        // if (ievent == 19531)
-            // ievent = 19532;
-
-        // if(ievent > 19000)
-            // cout << "Event: " << ievent << endl;
 
         if(ievent % 1000 == 0)
             cout<<"Event: "<<ievent<<endl;
@@ -1121,8 +1113,8 @@ void SNN_Tracking(SNN &snn_in)
         {
             if (ievent % block == 0)
             {
-                // cout << "." << progress[currchar];
-                // currchar++;
+                //cout << "." << progress[currchar];
+                //currchar++;
             }
         }
 
@@ -1146,16 +1138,16 @@ void SNN_Tracking(SNN &snn_in)
         // Encode hits in spike streams
         // Here we encode the position of hits through the timing of a spike,
         // In the future we might think at how the analog charge readout in the hits could also be added
-        float previous_firetime = 0;
+        double previous_firetime = 0;
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
         
-        float t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        double t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
 
         // Keep track of latency calc for each neuron in this event
-        bool not_filled[MaxNeurons];
+        bool not_filled[snn_in.N_neurons];
         for (int in = 0; in < snn_in.N_neurons; in++)
         {
             not_filled[in] = true;
@@ -1166,11 +1158,11 @@ void SNN_Tracking(SNN &snn_in)
         for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
         {
             // By looping to size(), we can insert along the way and still make it to the end
-            float t = PreSpike_Time[ispike];
+            double t = PreSpike_Time[ispike];
 
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
-            float min_fire_time = snn_in.largenumber; // if no fire, neuron_firetime returns largenumber
+            double min_fire_time = snn_in.largenumber; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
 
             // Loop on neurons, but not in order to not favor any neuron
@@ -1183,7 +1175,7 @@ void SNN_Tracking(SNN &snn_in)
             for (auto in : neurons_index)
             {
                 // Compute future fire times of neurons and their order
-                float fire_time = snn_in.Neuron_firetime(in, t);
+                double fire_time = snn_in.Neuron_firetime(in, t);
 
                 if (fire_time < min_fire_time)
                 {
@@ -1199,7 +1191,7 @@ void SNN_Tracking(SNN &snn_in)
             // --------------------------------------------------------------------
             else
             {
-                float latency = 0.;
+                double latency = 0.;
                 N_fires[in_first]++;
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
@@ -1227,6 +1219,7 @@ void SNN_Tracking(SNN &snn_in)
                         }
                     }
                 }
+
                 // Create EPS signal in L0 neuron-originated streams
                 if (snn_in.Neuron_layer[in_first] == 0)
                 {   // this is a Layer-0 neuron
@@ -1235,7 +1228,6 @@ void SNN_Tracking(SNN &snn_in)
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(snn_in.N_InputStreams + in_first);
                         snn_in.LTD(in, in_first, min_fire_time, nearest_spike_approx, snn_old); 
-
                     }
                 }
                 
@@ -1243,7 +1235,7 @@ void SNN_Tracking(SNN &snn_in)
                 if (ievent >= N_events - 500.)
                 {
                     int is = (ievent - N_events + 500) / 50;
-                    float time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
                     StreamsN[is]->Fill(time, in_first + 1);
                     if (N_part > 0)
                     {
@@ -1296,7 +1288,7 @@ void SNN_Tracking(SNN &snn_in)
                     // dividing N_events in 10 groups
                     int is = (ievent - N_events + 500) / 50;
                     // time = tin + thit - tin(First event of the group)
-                    float time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
 
                     // Histograms
                     if (PreSpike_Signal[ispike] == 1)
@@ -1320,6 +1312,7 @@ void SNN_Tracking(SNN &snn_in)
                             // All input spikes lead to EPSP
                             snn_in.History_type[in].push_back(1);
                             snn_in.History_ID[in].push_back(is);
+
                             snn_in.LTD(in, is, t, nearest_spike_approx, snn_old); 
                     }
                 }
@@ -1428,7 +1421,7 @@ void SNN_Tracking(SNN &snn_in)
                 float fakerate = random_fire[in] * 2. / NevPerEpoch; // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
             }
-            float Efftot[MaxClasses];
+            float Efftot[N_classes];
             for (int ic = 0; ic < N_classes; ic++)
             {
                 float etl0 = fired_anyL0[ic];
@@ -1606,10 +1599,10 @@ void SNN_Tracking(SNN &snn_in)
                     N_93->SetBinContent(ibin, jbin, n + 1);
                 }
                 // Now graph of mean vs sqm of Delay distribution
-                float meanDelay = 0.;
-                float sqmDelay = 0.;
-                float meanOldDelay = 0.;
-                float sqmOldDelay = 0.;
+                double meanDelay = 0.;
+                double sqmDelay = 0.;
+                double meanOldDelay = 0.;
+                double sqmOldDelay = 0.;
                 for (int in = 0; in < snn_in.N_neurons; in++)
                 {
                     for (int is = 0; is < snn_in.N_streams; is++)
@@ -2354,7 +2347,7 @@ void SNN_Tracking(SNN &snn_in)
         W->cd(in + 1);
         for (int is = 0; is < snn_in.N_streams; is++)
         {
-            // HWeight[in * N_streams + is]->SetMaximum(1.1);
+            HWeight[in * snn_in.N_streams + is]->SetMaximum((HMaxWeight[in]->GetMaximum())*1.1);
             HWeight[in * snn_in.N_streams + is]->SetMinimum(0.);
             int color = is + 1;
             if (color == 8)
@@ -2539,8 +2532,56 @@ void SNN_Tracking(SNN &snn_in)
     rootfile2->Close();
     gROOT->Time();
 
-
     return;
+}
+
+void PrintHelp(){
+    cout << "This is the list of the available parameters that you can pass to the program:" << endl << endl;
+
+    cout << "SNN parameters" << endl;
+    cout << "   --NL0" << endl;
+    cout << "   --NL1" << endl;
+    cout << "   --CF01" << endl;
+    cout << "   --CFI0" << endl;
+    cout << "   --CFI1" << endl;
+
+    cout << endl;
+
+    cout << "Neuron related parameters" << endl;
+    cout << "   --alpha" << endl;
+    cout << "   --L1inhibitfactor" << endl;
+    cout << "   --K" << endl;
+    cout << "   --K1" << endl;
+    cout << "   --K2" << endl;
+    cout << "   --IE_Pot_const" << endl;
+    cout << "   --IPSP_dt_dilation" << endl;
+    cout << "   --MaxDelay" << endl;
+    cout << "   --tau_m" << endl;
+    cout << "   --tau_s" << endl;
+    cout << "   --tau_r" << endl;
+    cout << "   --N_InputStreams" << endl;
+    cout << "   --TH0" << endl;
+    cout << "   --TH1" << endl;
+    
+    cout << endl;
+
+    cout << "Learning related parameters" << endl;
+    cout << "   --a_plus" << endl;
+    cout << "   --a_minus" << endl;
+    cout << "   --tau_plus" << endl;
+    cout << "   --tau_minus" << endl;
+
+    cout << endl;
+
+    cout << "Main program parameters" <<endl;
+    cout << "   --N_ev" << endl;
+    cout << "   --N_ep" << endl;
+    cout << "   --batch" << endl;
+    cout << "   --rootInput" << endl;
+    cout << "   --N_classes" << endl;
+    cout << "   --TrainingCode" << endl;
+    cout << "   --ReadPars" << endl;
+    cout << "   --NROOT" << endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -2549,14 +2590,10 @@ void SNN_Tracking(SNN &snn_in)
 int main(int argc, char *argv[])
 {
     // Loop through the command-line arguments
-    for (int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; i++)
     {
         const char* arg = argv[i];
-        cout << arg << endl;
-        cout << strcmp(arg,"--NL0") << endl;
-        cout << strcmp(arg,"--N_ev") << endl;
-        
-   
+
         if (strcmp(arg,"--NL0")==0)
             _NL0 = stoi(argv[i + 1]);
         else if (strcmp(arg, "--NL1")==0)
@@ -2620,9 +2657,9 @@ int main(int argc, char *argv[])
 
 
 
-        else if (strcmp(arg, "--Threshold")==0)
+        else if (strcmp(arg, "--TH0")==0)
             _Threshold0 = stof(argv[i + 1]);
-        else if (strcmp(arg, "--ThresholdL1")==0)
+        else if (strcmp(arg, "--TH1")==0)
             _Threshold1 = stof(argv[i + 1]);
 
 
@@ -2634,10 +2671,9 @@ int main(int argc, char *argv[])
             N_epochs = stoi(argv[i + 1]);
         else if (strcmp(arg, "--batch")==0)
             batch = stoi(argv[i + 1]);
-        else if (strcmp(arg, "--rootInput")==0){
-            cout << argv[i+1] <<endl;
+        else if (strcmp(arg, "--rootInput")==0)
             rootInput = argv[i + 1];              
-        }
+        
         else if(strcmp(arg, "--N_classes")==0)
             N_classes = stoi(argv[i + 1]);
         else if(strcmp(arg, "--TrainingCode")==0)
@@ -2646,9 +2682,12 @@ int main(int argc, char *argv[])
             ReadPars = stoi(argv[i + 1]);
         else if(strcmp(arg, "--NROOT")==0)
             NROOT = stoi(argv[i + 1]);
-        break;
+        else if(strcmp(arg, "--help")==0){
+            PrintHelp();
+            return 0;
+        }
+            
     }
-    cout << _NL0 << endl;
 
     SNN S(_NL0,  _NL1,
     _alpha,

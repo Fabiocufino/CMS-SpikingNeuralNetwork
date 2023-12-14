@@ -12,10 +12,10 @@ using namespace std;
 // -------------------------------------------
 
 static int Empty_buffer = 0;                  // (old) We process events every 300 TimeSteps, leaving time for L0 neurons to pass delayed signal to L1 ones
-static float delta = 0.7;                    // max delta for 1Gev is 0.66rad
-static float max_angle = 2.0 * M_PI + delta; // max angle to scan
-static float frequency = 40e6;               // CMS tracker reading frequency [Hz]
-static float omega = max_angle * frequency;  // reading angular velocity
+static double delta = 0.7;                    // max delta for 1Gev is 0.66rad
+static double max_angle = 2.0 * M_PI + delta; // max angle to scan
+static double frequency = 40e6;               // CMS tracker reading frequency [Hz]
+static double omega = max_angle * frequency;  // reading angular velocity
 
 static const short int N_bin_r = 21;
 static const int N_bin_z = 1;
@@ -58,8 +58,8 @@ static const short int SIG = 2;
 // neural network constants
 // -------------------------------------------
 static const int MaxEvents = 10000000;
-static const float largenumber = 999999999.;
-static const float epsilon = 1. / largenumber;
+static const double largenumber = 999999999.;
+static const double epsilon = 1. / largenumber;
 static const int MaxNeurons = 100;
 static float ProbWSwitchUp = 0.5;
 static float ProbWSwitchDown = 0.05;
@@ -67,7 +67,6 @@ static float MaxFactor = 0.2;           // Initial factor of excursion of parame
 static float eff_target = 0.9;
 static float acc_target = 0.05;
 static bool learnDelays = false;
-static const int MaxStreams = MaxNeurons + N_bin_r * N_bin_z;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
 
 // -------------------------------------------
@@ -103,19 +102,19 @@ static float _K = 1;
 static float _K1 = 2; 
 static float _K2 = 4;
 static float _IE_Pot_const = 1; 
-static float _IPSP_dt_dilation = 1;
-static float _MaxDelay =  0.1e-9;
+static double _IPSP_dt_dilation = 1;
+static double _MaxDelay =  0.1e-9;
 
-static float _tau_m = 1e-09 / 2;
-static float _tau_s =  0.25e-09 / 2;
-static float _tau_r = 0.5e-09 / 2;
-static float _tau_plus = 1.68e-09 / 2;
-static float _tau_minus = 3.37e-09 / 2;
-static float _a_plus = 0.00003125;
-static float _a_minus = 0.00002656*2.5;
+static double _tau_m = 1e-09 / 2;
+static double _tau_s =  0.25e-09 / 2;
+static double _tau_r = 0.5e-09 / 2;
+static double _tau_plus = 1.68e-09 / 2;
+static double _tau_minus = 3.37e-09 / 2;
+static double _a_plus = 0.00003125;
+static double _a_minus = 0.00002656;
 
-static float _Threshold0 = 0.3;
-static float _Threshold1 = 0.3;
+static float _Threshold0 = 0.4;
+static float _Threshold1 = 0.4;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 
