@@ -268,7 +268,7 @@ void SNN::Init_weights()
                 Weight[in][is] = -1;
             else
             {
-                Weight[in][is] = myRNG->Gaus(1, 1/sqrt(N_streams));
+                Weight[in][is] = myRNG->Gaus(1, 2/sqrt(N_streams));
                 if(Weight[in][is]<0) Weight[in][is]=0;
                 sumweight[in] += Weight[in][is];
             }

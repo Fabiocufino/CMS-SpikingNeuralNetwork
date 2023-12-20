@@ -257,9 +257,9 @@ int GetBinR(double r_hit)
     for (int i = 0; i < N_TrackingLayers; i++)
     {
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
-            return 2 * i + 1;
+            return i;
         else if (r_hit < Left_Layers[i])
-            return 2 * i;
+            return N_bin_r - 1;
     }
     return N_bin_r - 1;
 }
@@ -414,7 +414,7 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
             {
                 if (Effc[ic] * Effn[in] > 0.)
                     S += Eff[ic + N_classes * in] *
-                         (log2(Eff[ic + N_classes * in] + epsilon) - log2(Effc[ic] * Effn[in]));
+                         (log2(Eff[ic + N_classes * in] + epsilon) - log2(Effc[ic] * Effn[in] + epsilon));
             }
         }
     }
@@ -2698,7 +2698,7 @@ int main(int argc, char *argv[])
 
           _N_InputStreams,
           _Threshold0,  _Threshold1);
-    
+    S.PrintSNN();
     SNN_Tracking(S);
     return 0;
 }
