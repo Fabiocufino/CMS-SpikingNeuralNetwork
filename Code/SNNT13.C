@@ -323,26 +323,22 @@ float LR_Scheduler(float LR0, int epoch, int Nepochs)
     return LR0 * exp(par[0] * x) * (par[1] + (1. - par[1]) * pow(cos(par[2] * x), 2));
 }
 
-float Compute_Selectivity(int level, int mode)
-{return 0;}
-
 // Calculate selectivity of set of neurons
 // ---------------------------------------
-/*
 
-float Compute_Selectivity(int level, int mode)
+float Compute_Selectivity(int level, int mode, SNN &snn)
 {
     float S = 0.;
     int inmin, inmax;
     if (level == 0)
     {
         inmin = 0;
-        inmax = N_neuronsL[0];
+        inmax = snn.N_neuronsL[0];
     }
     else if (level == 1)
     {
-        inmin = N_neuronsL[0];
-        inmax = N_neurons;
+        inmin = snn.N_neuronsL[0];
+        inmax = snn.N_neurons;
     }
     if (mode == 0)
     { // Use additive rule
@@ -426,7 +422,7 @@ float Compute_Selectivity(int level, int mode)
         S /= N_classes * (inmax - inmin);
     return S;
 }
-*/
+
 // Compute Q-value
 // ---------------
 float Compute_Q(float eff, float acc, float sel)
@@ -1435,9 +1431,9 @@ void SNN_Tracking(SNN &snn_in)
                 Efftot[ic] = etl1;
             }
 
-            selectivityL0 = Compute_Selectivity(0, 2);
+            selectivityL0 = Compute_Selectivity(0, 2, snn_in);
             SelectivityL0->Fill(iepoch, selectivityL0);
-            selectivityL1 = Compute_Selectivity(1, 2);
+            selectivityL1 = Compute_Selectivity(1, 2, snn_in);
             SelectivityL1->Fill(iepoch, selectivityL1);
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)

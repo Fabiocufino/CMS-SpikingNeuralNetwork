@@ -92,6 +92,7 @@ public:
     //------- Functions ---------
     void Init_neurons();
     void Init_weights();
+    void Init_weights_uniform();
     void Set_weights();
 
     void Init_delays();

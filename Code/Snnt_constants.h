@@ -73,13 +73,13 @@ static const bool nearest_spike_approx = false; // Used to turn on the nearest s
 // tracking constants
 // -------------------------------------------
 
-static int N_events = 20000;
+static int N_events = 10000;
 static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
-// static char *rootInput = "/home/ema/Documents/DATA/100k_100br.root";
+static char *rootInput = "/home/ema/Documents/DATA/100k_100br.root";
 //static char *rootInput = "100k_100br.root";
-static char *rootInput = "/home/ema/Desktop/GitHub/DATA_UNIFORM/100k_100br.root";
+//static char *rootInput = "/home/ema/Desktop/GitHub/DATA_UNIFORM/100k_100br.root";
 static int N_classes = 6;
 static int TrainingCode = 0;
 static bool ReadPars = false;
@@ -110,8 +110,8 @@ static double _tau_s =  0.25e-09 / 2;
 static double _tau_r = 0.5e-09 / 2;
 static double _tau_plus = 1.68e-09 / 2;
 static double _tau_minus = 3.37e-09 / 2;
-static double _a_plus = 0.00003125;
-static double _a_minus = 0.00002656;
+static double _a_plus = 0.0003125;
+static double _a_minus = 0.0002656*2.0;
 
 static float _Threshold0 = 0.4;
 static float _Threshold1 = 0.4;
