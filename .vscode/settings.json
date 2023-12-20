@@ -18,5 +18,6 @@
         "string_view": "cpp",
         "unordered_map": "cpp",
         "algorithm": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <random>
 #include <fstream>
 
@@ -7,6 +6,7 @@
 #include "TTree.h"
 
 #include "SNN.h"
+#include "Snnt_constants.h"
 
 static int N_part; // Number of generated particles in an event
 static float First_angle;
@@ -18,6 +18,9 @@ static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal;
 
 static vector<int> neurons_index;
+static bool insert = true;
+static const float largenumber = 999999999.;
+static const float epsilon = 1. / largenumber;
 
 // clear hits vector
 void Reset_hits()
@@ -224,26 +227,33 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _N_events)
+void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _N_events, bool read_weights=true, bool no_firing_mode=false)
 {
+    vector<int>neurons_index;
     // initialization of neurons_index vector
     for (int i = 0; i < P.N_neurons; i++)
         neurons_index.push_back(i);
-    // vector used to keep track of the neurons firing order
-    vector<int> Fire_ID;
     N_events = _N_events;
 
     // vectors to plot
     vector<float> Time[N_events];
     vector<float> Potential[N_events][P.N_neurons];
+    int fire_count[P.N_neurons];
+    for (int ic = 0; ic < P.N_neurons; ic++)
+        fire_count[ic] = 0;
 
+    cout << "Initializaing the plot SNN" << endl;
+    
+    cout << "Opening the weight file" << endl;
     TFile *file_weight = TFile::Open(rootWeight, "READ");
     if (!file_weight || file_weight->IsZombie())
     {
         cerr << "Error: Cannot open file " << rootWeight << endl;
         return;
     }
-    ReadWeights(file_weight, P);
+    //Uncomment to read weights
+    if(read_weights) ReadWeights(file_weight, P);
+
     // the network is ready
     // we need to fecth the events and compute the plots
 
@@ -301,10 +311,12 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     // Loop on events ----------------------------------------------
     do
     {
+        float previous_firetime = 0;
         cout << "Event " << ievent << endl;
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
+        
         ReadFromProcessed(IT, OT, ievent);
 
         float t_in = (ievent-1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
@@ -331,176 +343,131 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 
             for (auto in : neurons_index)
             {
-                //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
-                //  Add to neuron history, masking out L1 spikes for L0 neurons
-                int is = PreSpike_Stream[ispike];
-                if (is < N_InputStreams || P.Neuron_layer[in] > 0)
-                { // otherwise stream "is" does not lead to neuron "in"
-                    P.History_time[in].push_back(t);
+                    
+                // Compute future fire times of neurons and their order
+                float fire_time = P.Neuron_firetime(in, t);
 
-                    // All input spikes lead to EPSP
-                    P.History_type[in].push_back(1);
-                    // P.History_type[in].push_back(1);
-                    P.History_ID[in].push_back(is);
-
-                    // Compute future fire times of neurons and their order
-                    float fire_time = P.Neuron_firetime(in, t);
-                    cout << "Fire Time\t" << in << "\t" << fire_time << endl;
-                    cout << "Problema Trovato" << endl;
-                    if (fire_time < min_fire_time)
-                    {
-                        in_first = in;
-                        min_fire_time = fire_time;
-                    }
+                if (fire_time < min_fire_time)
+                {
+                    in_first = in;
+                    min_fire_time = fire_time;
                 }
             }
-            if (in_first == -1)
-                continue; // nothing happens, move on
-            cout << "TESTtttttTTtTTttTttTTTtttTtTtTtt" << in_first << endl;
+            
+            //no neuron is firing
+            if (in_first == -1){
+                //finish the plot for the previous spike
+                float t_prime;
+                float delta_t;
+                if(!insert){
+                    t_prime = previous_firetime;
+                    delta_t = (t - t_prime)/11;    
+                    
+                    for(int inc = 0; inc < 11; inc++){
+                        Time[ievent-1].push_back(t_prime+inc*delta_t);
+                        for (auto in : neurons_index)
+                            Potential[ievent-1][in].push_back(P.Neuron_Potential(in, t_prime+inc*delta_t, false));
+                    }
+                }
+                // plot the result of the incoming spike
+                else
+                {
+                    if (ispike==0) t_prime=t_in;
+                    else t_prime = PreSpike_Time[ispike-1];
+                    
+                    delta_t =(t - t_prime)/11;
+                    for(int inc = 0; inc < 11; inc++){
+                        Time[ievent-1].push_back(t_prime+inc*delta_t);
+                        for (auto in : neurons_index)
+                            Potential[ievent-1][in].push_back(P.Neuron_Potential(in, t_prime+inc*delta_t, false));
+                    } 
+                }
+
+                insert = true;
+            }
 
             // Ok, neuron in_first is going to fire next.
             // Peek at next event in list, to see if it comes before in_first fires
             // --------------------------------------------------------------------
-
-            if (ispike < PreSpike_Time.size() - 1)
+            else
             {
-                cout << "TRUEEEEEE" << endl;
-                if (PreSpike_Time[ispike + 1] >= min_fire_time)
-                { // otherwise we go to next spike in list
-                    // handle firing of neuron in_first
-                    P.Fire_time[in_first].push_back(min_fire_time);
-                    Fire_ID.push_back(in_first);
-                    // Reset history of this neuron
-                    P.History_time[in_first].clear();
-                    P.History_type[in_first].clear();
-                    P.History_ID[in_first].clear();
-                    P.History_time[in_first].push_back(min_fire_time);
-                    P.History_type[in_first].push_back(0);
-                    P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
-
-                    // IPSP for all others at relevant layer
-                    for (int in2 = 0; in2 < P.N_neurons; in2++)
-                    {
-                        if (in2 != in_first)
-                        {
-                            if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
-                            { // inhibitions within layer or across
-                                P.History_time[in2].push_back(min_fire_time);
-                                P.History_type[in2].push_back(2);
-                                P.History_ID[in2].push_back(in_first);
-                            }
-                        }
-                    }
-
-                    // Create EPS signal in L0 neuron-originated streams
-                    if (P.Neuron_layer[in_first] == 0)
-                    { // this is a Layer-0 neuron
-                        PreSpike_Time.insert(PreSpike_Time.begin() + ispike + 1, min_fire_time);
-                        PreSpike_Stream.insert(PreSpike_Stream.begin() + ispike + 1, N_InputStreams + in_first);
-                        PreSpike_Signal.insert(PreSpike_Signal.begin() + ispike + 1, 2);
-                    }
+                float t_prime;
+                float delta_t;
+                // handle firing of neuron in_first
+                //That means that we are handling the first neruon activation bewtween two EPSP spike
+                
+                if(insert){
+                    if(ispike==0) t_prime = min(t_in, min_fire_time);
+                    else t_prime =  PreSpike_Time[ispike-1];
                 }
-
-            } // end if in_first fires
-        }     // end ispike loop, ready to start over
-
-        // Now that we've correctly computed all the history we can restart from the first spike and plot the potential
-        // first of all let's clear the neurons history
-        P.Init_neurons(t_in);
-
-        // We aren't interested in shuffle the order of neurons anymore
-        neurons_index.clear();
-        for (int i = 0; i < P.N_neurons; i++)
-            neurons_index.push_back(i);
-
-        // to keep track  of the next neuron that has to fire
-
-        int next_fire = 0;
-        int fire_count[P.N_neurons];
-        for (int ic = 0; ic < P.N_neurons; ic++)
-            fire_count[ic] = 0;
-        int in_first = -1;
-        float min_fire_time = largenumber;
-
-        if (Fire_ID.size() != 0)
-        {
-            in_first = in_first = Fire_ID[next_fire];
-            min_fire_time = P.Fire_time[in_first][fire_count[in_first]];
-        }
-        // loop on all the past spikes
-        for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
-        {
-            float t = PreSpike_Time[ispike];
-
-            for (auto in : neurons_index)
-            {
-                int is = PreSpike_Stream[ispike];
-                if (is < N_InputStreams || P.Neuron_layer[in] > 0)
-                { // otherwise stream "is" does not lead to neuron "in"
-                    P.History_time[in].push_back(t);
-
-                    // All input spikes lead to EPSP
-                    P.History_type[in].push_back(1);
-                    P.History_ID[in].push_back(is);
-                }
-            }
-
-            // Handle the effect of a neuron's firing
-            if (ispike < PreSpike_Time.size() - 1)
-            {
-                if (PreSpike_Time[ispike + 1] >= min_fire_time)
-                { // otherwise we go to next spike in list
-                    // handle firing of neuron in_first
-                    // Reset history of this neuron
-                    P.History_time[in_first].clear();
-                    P.History_type[in_first].clear();
-                    P.History_ID[in_first].clear();
-                    P.History_time[in_first].push_back(min_fire_time);
-                    P.History_type[in_first].push_back(0);
-                    P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
-
-                    // IPSP for all others at relevant layer
-                    for (int in2 = 0; in2 < P.N_neurons; in2++)
-                    {
-                        if (in2 != in_first)
-                        {
-                            if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
-                            { // inhibitions within layer or across
-                                P.History_time[in2].push_back(min_fire_time);
-                                P.History_type[in2].push_back(2);
-                                P.History_ID[in2].push_back(in_first);
-                            }
-                        }
-                    }
-                    // Plot the effect of the neuron's firing
-                    Time[ievent-1].push_back(min_fire_time);
+                else t_prime = previous_firetime;
+                delta_t = (min_fire_time - t_prime)/11;    
+                
+                for(int inc = 0; inc < 11; inc++){
+                    Time[ievent-1].push_back(t_prime+inc*delta_t);
                     for (auto in : neurons_index)
+                        Potential[ievent-1][in].push_back(P.Neuron_Potential(in, t_prime+inc*delta_t, false));
+                }
+
+                P.Fire_time[in_first].push_back(min_fire_time);
+                // Reset history of this neuron
+                P.History_time[in_first].clear();
+                P.History_type[in_first].clear();
+                P.History_ID[in_first].clear();
+                P.History_time[in_first].push_back(min_fire_time);
+                P.History_type[in_first].push_back(0);
+                P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
+
+                // IPSP for all others at relevant layer
+                for (int in2 = 0; in2 < P.N_neurons; in2++)
+                {
+                    if (in2 != in_first)
                     {
-                        Potential[ievent-1][in].push_back(P.Neuron_Potential(in, min_fire_time));
+                        if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
+                        { // inhibitions within layer or across
+                            P.History_time[in2].push_back(min_fire_time);
+                            P.History_type[in2].push_back(2);
+                            P.History_ID[in2].push_back(in_first);
+                        }
                     }
-                    fire_count[in_first]++;
+                }
 
-                    if (next_fire != Fire_ID.size() - 1)
-                        next_fire++;
-                    in_first = Fire_ID[next_fire];
-                    cout << "------------------------------------------------- " << endl;
-                    min_fire_time = P.Fire_time[in_first][fire_count[in_first]];
-                }   
+                // Create EPS signal in L0 neuron-originated streams
+                if (P.Neuron_layer[in_first] == 0)
+                { // this is a Layer-0 neuron
+                    for(int in = P.N_neuronsL[0]; in < P.N_neurons; in++){
+                        P.History_time[in].push_back(min_fire_time);
+                        P.History_type[in].push_back(1);
+                        P.History_ID[in].push_back(N_InputStreams + in_first);
+                    }
+                }
+                ispike-=1;
+                insert=false;
 
+                //take a step back and search for another activation
+                previous_firetime = min_fire_time;
             } // end if in_first fires
 
-            // plot the result of the incoming spike
-            Time[ievent-1].push_back(t);
-            for (auto in : neurons_index)
-            {
-                Potential[ievent-1][in].push_back(P.Neuron_Potential(in, t));
+            //insert the new spike for the next iteration
+            if(insert){
+                for (auto in : neurons_index)
+                {
+                    //  We implement a scheme where input streams produce an IE signal into L0, an EPS into L1, and L0 neurons EPS into L1
+                    //  Add to neuron history, masking out L1 spikes for L0 neurons
+                    int is = PreSpike_Stream[ispike];
+                    if (!P.Void_weight[in][is])
+                    { // otherwise stream "is" does not lead to neuron "in"
+                            P.History_time[in].push_back(t);
+                            // All input spikes lead to EPSP
+                            P.History_type[in].push_back(1);
+                            P.History_ID[in].push_back(is);
+                    }
+                }  
             }
-        } // end ispike loop, ready to start over
-
+        }     
         ievent++; // only go to next event if we did a backward pass too
-
     } while (ievent <= N_events);
-    cout << "Out";
+    
     // dump the potentials inside a csv file
     ofstream outfile;
     outfile.open("potentials.csv");
@@ -545,11 +512,13 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 int main()
 {
     // Creazione di un oggetto SNN con valori specificati solo per var1, var2 e var3
-    SNN P(6, 6);
+    SNN P(6,  6,0.25, 1., 1., 1., 1., 0.5, 0.5, 0.5,0.5, 1., 1., 1., 1., 1., 1., 1.,0.1, 0.1, 6, 6, 550., 550.);
     // ReadWeights(TFile::Open("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "READ"), P);
+    cout << "SNN initialized, let's plot the potentials" << endl;
+    //command for Ema
+    // PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "./ordered.root", P, 12, false, false);
+    //command for Fabio
+    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=2.00_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/6ev_6cl_100bkg.root", P, 7);
 
-    PlotPotentials("../MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=1.00_CFI0=1.00_CFI1=1.00_alfa=0.25_0.root", "/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/100k_100br.root", P, 10);
-
-    // Chiamata della funzione void seno
     return 0;
 }

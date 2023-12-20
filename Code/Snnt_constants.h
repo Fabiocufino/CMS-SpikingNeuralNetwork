@@ -12,10 +12,10 @@ using namespace std;
 // -------------------------------------------
 
 static int Empty_buffer = 0;                  // (old) We process events every 300 TimeSteps, leaving time for L0 neurons to pass delayed signal to L1 ones
-static float delta = 0.7;                    // max delta for 1Gev is 0.66rad
-static float max_angle = 2.0 * M_PI + delta; // max angle to scan
-static float frequency = 40e6;               // CMS tracker reading frequency [Hz]
-static float omega = max_angle * frequency;  // reading angular velocity
+static double delta = 0.7;                    // max delta for 1Gev is 0.66rad
+static double max_angle = 2.0 * M_PI + delta; // max angle to scan
+static double frequency = 40e6;               // CMS tracker reading frequency [Hz]
+static double omega = max_angle * frequency;  // reading angular velocity
 
 static const short int N_bin_r = 21;
 static const int N_bin_z = 1;
@@ -25,7 +25,6 @@ static float z_range = 1200.;                 // bin z in [-z_range/2, z_range/2
 static float max_R = 1200;                    // bin r in [0, max_R]
 static short int N_TrackingLayers = 10;
 
-static const int N_InputStreams = N_bin_r*N_bin_z;
 static float z_bin_length = z_range / N_bin_z;    
 static float r_bin_length = max_R / N_bin_r;     
 
@@ -55,37 +54,68 @@ static int pclass;
 static const short int BGR = 1;
 static const short int SIG = 2;
 
-static long int NROOT = 100000;                //number of events inside the root file
-
 // -------------------------------------------
 // neural network constants
 // -------------------------------------------
 static const int MaxEvents = 10000000;
-static const float largenumber = 999999999.;
-static const float epsilon = 1. / largenumber;
+static const double largenumber = 999999999.;
+static const double epsilon = 1. / largenumber;
 static const int MaxNeurons = 100;
 static float ProbWSwitchUp = 0.5;
 static float ProbWSwitchDown = 0.05;
-static float MaxDelay = 0.1e-9;         // Determines shape of IE signal[s]
-static float tau_m = 1e-09;             // membrane time constant[s]
-static float tau_s = 0.25e-09;          // synapse time constant[s]
-static float tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
-static float K1 = 2.;                   // constants to tune post-synaptic shape
-static float K2 = 4.;                   // see above
-static float IE_Pot_const = 1;        // Constant for IE modeling
-static float Threshold[2] = {.1, .1}; // Neuron threshold in arbitrary units; in paper it is 550V but they have 1000 channels, 100x ours
-static float alpha = 1;              // 0.25; // factor tuning inhibition strength
-static float L1inhibitfactor = 1.;      // multiplier for L1 inhibits
-static float MaxDeltaT = 7. * tau_m;    // time window wherein pre-synaptic, inhibition, and post-synaptic kernels affect neuron potential
-static float tau_plus = 1.68e-09;       // [s]
-static float tau_minus = 3.37e-09;      // [s]
-static float IPSP_dt_dilation = 1.;     // shape factor of exponential IPSP signal
-static float a_plus = 0.00003125;          // for model of EPSP
-static float a_minus = 0.0000265625;       // 0.85*a_plus;
 static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
 static float eff_target = 0.9;
 static float acc_target = 0.05;
 static bool learnDelays = false;
-static const int MaxStreams = MaxNeurons + N_bin_r * N_bin_z;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
+
+// -------------------------------------------
+// tracking constants
+// -------------------------------------------
+
+static int N_events = 20000;
+static int N_epochs = 1;
+static int NevPerEpoch = N_events / N_epochs;
+static bool batch = false;
+// static char *rootInput = "/home/ema/Documents/DATA/100k_100br.root";
+//static char *rootInput = "100k_100br.root";
+static char *rootInput = "/home/ema/Desktop/GitHub/DATA_UNIFORM/100k_100br.root";
+static int N_classes = 6;
+static int TrainingCode = 0;
+static bool ReadPars = false;
+static long int NROOT = 100000;                //number of events inside the root file
+static bool update9 = false;                // controls whether to optimize 7 network parameters
+static bool updateDelays = false;           // controls whether to optimize neuron delays
+static bool updateConnections = false;      // controls whether to optimize connections between streams and neurons
+// -------------------------------------------
+// class constants
+// -------------------------------------------
+
+static int _NL0 = 6;
+static int _NL1 = 6;
+static float _alpha = 0.5;
+static float _CFI0 = 1; 
+static float _CFI1 = 1; 
+static float _CF01 = 1;
+static float _L1inhibitfactor = 1;
+static float _K = 1; 
+static float _K1 = 2; 
+static float _K2 = 4;
+static float _IE_Pot_const = 1; 
+static double _IPSP_dt_dilation = 1;
+static double _MaxDelay =  0.1e-9;
+
+static double _tau_m = 1e-09 / 2;
+static double _tau_s =  0.25e-09 / 2;
+static double _tau_r = 0.5e-09 / 2;
+static double _tau_plus = 1.68e-09 / 2;
+static double _tau_minus = 3.37e-09 / 2;
+static double _a_plus = 0.00003125;
+static double _a_minus = 0.00002656;
+
+static float _Threshold0 = 0.4;
+static float _Threshold1 = 0.4;
+
+static int _N_InputStreams = N_bin_r*N_bin_z;
+
 #endif // SNNT_CONSTANTS_H
