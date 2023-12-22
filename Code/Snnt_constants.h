@@ -78,8 +78,8 @@ static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
 // static char *rootInput = "/home/ema/Documents/DATA/100k_100br.root";
-//static char *rootInput = "100k_100br.root";
-static char *rootInput = "/home/ema/Desktop/GitHub/DATA_UNIFORM/100k_100br.root";
+static char *rootInput = "100k_100br.root";
+// static char *rootInput = "/home/ema/Desktop/GitHub/DATA_UNIFORM/100k_100br.root";
 static int N_classes = 6;
 static int TrainingCode = 0;
 static bool ReadPars = false;
@@ -94,9 +94,9 @@ static bool updateConnections = false;      // controls whether to optimize conn
 static int _NL0 = 6;
 static int _NL1 = 6;
 static float _alpha = 0.5;
-static float _CFI0 = 1; 
-static float _CFI1 = 1; 
-static float _CF01 = 1;
+static float _CFI0 = 0.6; 
+static float _CFI1 = 0.6; 
+static float _CF01 = 0.6;
 static float _L1inhibitfactor = 1;
 static float _K = 1; 
 static float _K1 = 2; 
@@ -111,10 +111,10 @@ static double _tau_r = 0.5e-09 / 2;
 static double _tau_plus = 1.68e-09 / 2;
 static double _tau_minus = 3.37e-09 / 2;
 static double _a_plus = 0.00003125;
-static double _a_minus = 0.00002656;
+static double _a_minus = 0.00002656/2; 
 
-static float _Threshold0 = 0.4;
-static float _Threshold1 = 0.4;
+static float _Threshold0 = 0.45;
+static float _Threshold1 = 0.45;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 
