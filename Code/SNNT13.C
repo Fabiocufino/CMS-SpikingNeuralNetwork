@@ -22,7 +22,7 @@
 #include <random>
 #include <string>
 
-#include "class_implementation/SNN.h"
+#include "Class/SNN.h"
 
 using namespace std;
 
@@ -2956,12 +2956,6 @@ void SNN_Tracking(SNN &snn_in)
     }
     EffMap->Write();
 
-    rootfile->Write();
-
-    // End of program
-    rootfile->Close();
-
-    TFile *rootfile2 = new TFile("output.root", "RECREATE");
     MW->Write();
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
@@ -2970,7 +2964,10 @@ void SNN_Tracking(SNN &snn_in)
         HMaxWeight[in]->Write();
         HMinWeight[in]->Write();
     }
-    rootfile2->Close();
+    rootfile->Write();
+    
+    // End of program
+    rootfile->Close();
     gROOT->Time();
 
     return;
@@ -3149,7 +3146,7 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1);
 
-    PlotPotentials("/Users/Fabio/Desktop/CMS-SpikingNeuralNetwork/Code/MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root", "100k_100br.root", P, 12);
+    PlotPotentials("MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root", "Data/100k_100br.root", P, 12);
 
     return 0;
 }

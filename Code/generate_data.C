@@ -286,7 +286,7 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
     return make_pair(event_IT, event_OT);
 }
 
-void GenerateRootFromMia(int N_events = 6, string outRoot="6ev_6cl_100bkg.root", float bkg_rate = 100, bool random_ev = false, float bg_freq=1, string folder = "/Users/Fabio/Desktop/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.root", float bkg_rate = 100, bool random_ev = false, float bg_freq=1, string folder = "/Users/Fabio/Desktop/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
 
     //momentaneamente j = 0 per gestire solo i file a 1GeV
