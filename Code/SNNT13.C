@@ -51,8 +51,6 @@ static TRandom3 *myRNG = new TRandom3(23);
 // Function that reads parameters from file, if you want to start from a previous optimization
 // ----------------------------------------
 /*
-
-
 int Read_Parameters()
 {
     string Path = "./MODE/SNNT/";
@@ -247,19 +245,17 @@ void Reset_hits()
 // Start binning r-z plane ---------------
 int GetBinR(double r_hit)
 {
-    if (r_hit < 0)
-        r_hit = 0;
-    if (r_hit > max_R)
-        r_hit = max_R - epsilon;
+    if (r_hit < 0 || r_hit > max_R)
+        return N_bin_r-1;
 
-    // 10 bins in even positions are associated to a tracking layer
-    // 11 bins in odd positions are associated to empty space among the former
+    // 10 bins are associated to a tracking layer
+    // The last bin is collecting hits outside the layers
     for (int i = 0; i < N_TrackingLayers; i++)
     {
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
-            return 2 * i + 1;
+            return i;
         else if (r_hit < Left_Layers[i])
-            return 2 * i;
+            return N_bin_r-1;
     }
     return N_bin_r - 1;
 }
@@ -1273,9 +1269,9 @@ void SNN_Tracking(SNN &snn_in)
     for (int i = 0; i < 10; i++)
     {
         sprintf(name, "StreamsS%d", i);
-        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
+        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsB%d", i);
-        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams + snn_in.N_neurons, 0.5, snn_in.N_InputStreams + snn_in.N_neurons + 0.5);
+        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsN%d", i);
         StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
@@ -1545,15 +1541,12 @@ void SNN_Tracking(SNN &snn_in)
     {
         iev_thisepoch++;
 
-        if (ievent % 1000 == 0)
-            cout << "Event: " << ievent << endl;
-
         if (doprogress)
         {
-            if (ievent % block == 0)
+            if (iev_thisepoch % block == 0)
             {
-                // cout << "." << progress[currchar];
-                // currchar++;
+                cout << progress[currchar]<<flush;;
+                currchar++;
             }
         }
 
@@ -2107,7 +2100,7 @@ void SNN_Tracking(SNN &snn_in)
             }
 
             // Is this Q factor not larger than before?
-            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best << " ib = " << ibad;
+            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best << " ib = " << ibad << endl;
 
             // Update histograms with current parameter values and optimization metrics
             Qvalue->SetBinContent(iepoch, Q);
@@ -2623,18 +2616,6 @@ void SNN_Tracking(SNN &snn_in)
         ievent++; // only go to next event if we did a backward pass too
     } while (ievent < N_events);
 
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-        snn_in.sumweight[in] = 0;
-        for (int is = 0; is < snn_in.N_streams; is++)
-        {
-            if (!snn_in.Void_weight[in][is])
-                snn_in.sumweight[in] += snn_in.Weight[in][is];
-        }
-
-        cout << in << " " << snn_in.sumweight[in] << endl;
-    }
-
     // closing the input file
     delete IT;
     delete OT;
@@ -2646,27 +2627,23 @@ void SNN_Tracking(SNN &snn_in)
     delete file;
 
     // Draw histograms
-
     cout << "Drawing histos" << endl;
     TCanvas *S = new TCanvas("S", "", 3000, 600);
-    S->Divide(5, 2);
-    for (int i = 0; i < 10; i++)
-    {
-        // if i is even, drow B and S
-        if (i < 5)
-        {
-            S->cd(i + 1);
-            StreamsB[i]->SetLineColor(kRed);
-            StreamsB[i]->Draw("BOX");
-            StreamsS[i]->SetLineColor(kBlue);
-            StreamsS[i]->Draw("BOXSAME");
-        }
-        // if i is odd, draw B and N
-        else
-        {
-            S->cd(i + 1);
-            StreamsN[i - 5]->SetLineColor(kGreen);
-            StreamsN[i - 5]->Draw("BOXSAME");
+    S->Divide(5, 4);
+    
+    for(int irow = 0; irow<4; irow++){
+        for(int icol=0; icol<5; icol++){
+            S->cd(icol+irow*5+1);
+            if(irow%2==0){
+                StreamsB[icol+(irow)*5/2]->SetLineColor(kRed);
+                StreamsB[icol+(irow)*5/2]->Draw("BOX");
+                StreamsS[icol+(irow)*5/2]->SetLineColor(kBlue);
+                StreamsS[icol+(irow)*5/2]->Draw("BOXSAME");
+            }
+            else{
+                StreamsN[icol+(irow-1)*5/2]->SetLineColor(kGreen);
+                StreamsN[icol+(irow-1)*5/2]->Draw("BOX");
+            }
         }
     }
 
@@ -2755,8 +2732,6 @@ void SNN_Tracking(SNN &snn_in)
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         MW->cd(in + 1);
-        // HRMSWeight[in]->SetMaximum(1.1);
-        // HRMSWeight[in]->SetMinimum(0);
         HRMSWeight[in]->SetMarkerColor(kGreen);
         HRMSWeight[in]->SetLineColor(kGreen);
         HRMSWeight[in]->Draw("");
@@ -2939,9 +2914,9 @@ void SNN_Tracking(SNN &snn_in)
         BestEff[in]->Write();
         BestFR[in]->Write();
         BestEtot[in]->Write();
-        // HRMSWeight[in]->Write();
-        // HMaxWeight[in]->Write();
-        // HMinWeight[in]->Write();
+        HRMSWeight[in]->Write();
+        HMaxWeight[in]->Write();
+        HMinWeight[in]->Write();
     }
     for (int ic = 0; ic < N_classes; ic++)
     {
@@ -2957,13 +2932,6 @@ void SNN_Tracking(SNN &snn_in)
     EffMap->Write();
 
     MW->Write();
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-
-        HRMSWeight[in]->Write();
-        HMaxWeight[in]->Write();
-        HMinWeight[in]->Write();
-    }
     rootfile->Write();
     
     // End of program

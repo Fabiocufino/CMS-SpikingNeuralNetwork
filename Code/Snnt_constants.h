@@ -17,7 +17,7 @@ static double max_angle = 2.0 * M_PI + delta; // max angle to scan
 static double frequency = 40e6;               // CMS tracker reading frequency [Hz]
 static double omega = max_angle * frequency;  // reading angular velocity
 
-static const short int N_bin_r = 21;
+static const short int N_bin_r = 11;
 static const int N_bin_z = 1;
 static float Left_Layers[10]  = {25, 55, 100, 140, 210, 335, 490, 655, 835, 1050}; //mm 
 static float Right_Layers[10] = {40, 75, 116, 158, 290, 400, 540, 720, 895, 1110}; //mm

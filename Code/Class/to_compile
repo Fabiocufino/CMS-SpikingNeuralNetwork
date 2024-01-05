@@ -1,4 +1,5 @@
-c++ $(root-config --cflags) -I /home/ema/root/include -o main.out main.cc SNN.cc $(root-config --libs)
-c++ $(root-config --cflags) -I /home/ema/anaconda3/envs/ROOT/bin -o main.out main.cc SNN.cc $(root-config --libs)
+Laptop:
+c++ $(root-config --cflags) -I /home/ema/root/include -o SNNT13.out SNNT13.C ./Class/SNN.cc $(root-config --libs)
 
-c++ $(root-config --cflags) -I /home/ema/root/include -o test.out SNNT13.C ./class_implementation/SNN.cc $(root-config --libs)
+Home:
+c++ $(root-config --cflags) -I /home/ema/anaconda3/envs/ROOT/bin -o SNNT13.out SNNT13.C ./Class/SNN.cc $(root-config --libs)
