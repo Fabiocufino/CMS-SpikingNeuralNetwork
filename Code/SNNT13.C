@@ -552,7 +552,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _N_events, bool read_weights = true, bool no_firing_mode = false)
+void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight=nullptr, bool no_firing_mode = false)
 {
     vector<int> neurons_index;
     // initialization of neurons_index vector
@@ -569,16 +569,19 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 
     cout << "Initializaing the plot SNN" << endl;
 
-    cout << "Opening the weight file" << endl;
-    TFile *file_weight = TFile::Open(rootWeight, "READ");
-    if (!file_weight || file_weight->IsZombie())
-    {
-        cerr << "Error: Cannot open file " << rootWeight << endl;
-        return;
-    }
-    // Uncomment to read weights
-    if (read_weights)
+    
+    if (read_weights){
+        cout << "Opening the weight file" << endl;
+        TFile *file_weight = TFile::Open(rootWeight, "READ");
+        if (!file_weight || file_weight->IsZombie())
+        {
+            cerr << "Error: Cannot open file " << rootWeight << endl;
+            return;
+        }
         ReadWeights(file_weight, P);
+        file_weight->Close();
+        delete file_weight;
+    }
 
     // the network is ready
     // we need to fecth the events and compute the plots
@@ -638,7 +641,6 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     do
     {
         float previous_firetime = 0;
-        cout << "Event " << ievent << endl;
 
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
@@ -911,7 +913,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
 
     // dump the potentials inside a csv file
     ofstream outfile;
-    outfile.open("potentials.csv");
+    outfile.open("MODE/potentials.csv");
 
     // Header
     outfile << "Event,Time";
@@ -943,10 +945,7 @@ void PlotPotentials(const char *rootWeight, const char *rootInput, SNN &P, int _
     delete dirOT;
 
     file->Close();
-    file_weight->Close();
     outfile.close();
-
-    delete file_weight;
     delete file;
 }
 
@@ -2914,6 +2913,25 @@ void SNN_Tracking(SNN &snn_in)
     rootfile->Close();
     gROOT->Time();
 
+    //copy the best parameters inside snn_in
+    snn_in.Threshold[0] = snn_best.Threshold[0];
+    snn_in.Threshold[1] = snn_best.Threshold[1];
+    snn_in.alpha = snn_best.alpha;
+    snn_in.L1inhibitfactor = snn_best.L1inhibitfactor;
+    snn_in.K = snn_best.K;
+    snn_in.K1 = snn_best.K1;
+    snn_in.K2 = snn_best.K2;
+    snn_in.IE_Pot_const = snn_best.IE_Pot_const;
+    snn_in.IPSP_dt_dilation = snn_best.IPSP_dt_dilation;
+    for (int in = 0; in < snn_best.N_neurons; in++)
+    {
+        for (int is = 0; is < snn_best.N_streams; is++)
+        {
+            snn_in.Delay[in][is] = snn_best.Delay[in][is];
+            snn_in.Void_weight[in][is] = snn_best.Void_weight[in][is];
+        }
+    }
+
     return;
 }
 
@@ -3056,7 +3074,7 @@ int main(int argc, char *argv[])
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
-            return 0;
+            exit(0);
         }
     }
 
@@ -3076,7 +3094,12 @@ int main(int argc, char *argv[])
 
     SNN_Tracking(S);
 
-    SNN P(_NL0, _NL1,
+    //preparing the file to plot the neuron potentials of the best configurations
+    cout << "Creating the file for the potentials plot" << endl;
+    PlotPotentials("Data/ordered.root", S, 12);
+
+    //to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
+    /* SNN P(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
           _L1inhibitfactor,
@@ -3089,8 +3112,7 @@ int main(int argc, char *argv[])
 
           _N_InputStreams,
           _Threshold0, _Threshold1);
-
-    PlotPotentials("MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root", "Data/100k_100br.root", P, 12);
-
+    PlotPotentials("Data/ordered.root", P, 12, true, "MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root");
+    */
     return 0;
 }
