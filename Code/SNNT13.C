@@ -2961,7 +2961,6 @@ void PrintHelp()
     cout << "   --tau_m" << endl;
     cout << "   --tau_s" << endl;
     cout << "   --tau_r" << endl;
-    cout << "   --N_InputStreams" << endl;
     cout << "   --TH0" << endl;
     cout << "   --TH1" << endl;
 
@@ -3044,9 +3043,6 @@ int main(int argc, char *argv[])
             _a_plus = stof(argv[i + 1]);
         else if (strcmp(arg, "--a_minus") == 0)
             _a_minus = stof(argv[i + 1]);
-
-        else if (strcmp(arg, "--N_InputStreams") == 0)
-            _N_InputStreams = stoi(argv[i + 1]);
 
         else if (strcmp(arg, "--TH0") == 0)
             _Threshold0 = stof(argv[i + 1]);
