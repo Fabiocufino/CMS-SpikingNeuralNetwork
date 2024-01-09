@@ -58,6 +58,7 @@ public:
     /* data */
     //------- variables ---------
     float **Weight;         // Weight of synapse-neuron strength
+    float **Weight_initial; // Initial configuration of the weights
     bool **check_LTD;       // checks to generate LTD after neuron discharge
     bool **Void_weight;     // These may be used to model disconnections
     double **Delay;          // Delay in incoming signals
@@ -91,11 +92,12 @@ public:
 
     //------- Functions ---------
     void Init_neurons();
+    void Init_weights_uniform();
     void Init_weights();
     void Set_weights();
+    void Reset_weights();
 
     void Init_delays();
-    //void Reset_weights(float &Weight_initial);
 
     void Init_connection_map();
     float EPS_potential(double delta_t);

@@ -63,6 +63,7 @@ SNN::SNN(int _NL0, int _NL1,
     epsilon = 1. / largenumber;
 
     Weight = new float *[N_neurons];         // Weight of synapse-neuron strength
+    Weight_initial = new float *[N_neurons];
     check_LTD = new bool *[N_neurons];       // checks to generate LTD after neuron discharge
     Void_weight = new bool *[N_neurons];     // These may be used to model disconnections
     Delay = new double *[N_neurons];          // Delay in incoming signals
@@ -70,6 +71,7 @@ SNN::SNN(int _NL0, int _NL1,
     for (int in = 0; in < N_neurons; in++)
     {
         Weight[in] = new float[N_streams];
+        Weight_initial[in] = new float[N_streams];
         check_LTD[in] = new bool[N_streams];
         Void_weight[in] = new bool[N_streams];
         Delay[in] = new double[N_streams];
@@ -95,18 +97,14 @@ SNN::~SNN()
 void SNN::Init_delays(){
     return;
 }
-// template <size_t rows, size_t cols>
-// void SNN::Reset_weights(float &Weight_initial[rows][cols]){
-    // for (int in = 0; in < N_neurons; in++)
-    //{
-        // for (int is = 0; is < N_InputStreams; is++)
-        // {
-            //Weight[in][is] = Weight_initial[in][is];
-        // }
-        
-    // }
-    
-// }
+
+void SNN::Reset_weights(){
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_InputStreams; is++)
+            Weight[in][is] = Weight_initial[in][is];
+    }
+}
 
 double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::function<float(int, double, bool)> func)
 {
@@ -197,6 +195,7 @@ void SNN::Set_weights()
         {
             if (sumweight[in] > 0 && !Void_weight[in][is])
                 Weight[in][is] = Weight[in][is] / sumweight[in];
+            Weight_initial[in][is] = Weight[in][is];
         }
     }
 
@@ -236,6 +235,38 @@ void SNN::Init_weights()
                 Weight[in][is] = -1;
             else
             {
+                Weight[in][is] = myRNG->Gaus(1, 1/sqrt(N_streams));
+                if(Weight[in][is]<0) Weight[in][is]=0;
+                sumweight[in] += Weight[in][is];
+            }
+        }
+    }
+
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+        {
+            if (sumweight[in] > 0 && !Void_weight[in][is])
+                Weight[in][is] = Weight[in][is] / sumweight[in];
+            Weight_initial[in][is] = Weight[in][is];    
+        }
+    }
+    return;
+}
+
+
+void SNN::Init_weights_uniform()
+{
+    for (int in = 0; in < N_neurons; in++)
+    {
+        sumweight[in] = 0;
+        for (int is = 0; is < N_streams; is++)
+        {
+            check_LTD[in][is] = true; // flags used to see if we need to create a LTD signal after a neuron discharge
+            if (Void_weight[in][is])
+                Weight[in][is] = -1;
+            else
+            {
                 Weight[in][is] = myRNG->Uniform();
                 sumweight[in] += Weight[in][is];
             }
@@ -248,11 +279,12 @@ void SNN::Init_weights()
         {
             if (sumweight[in] > 0 && !Void_weight[in][is])
                 Weight[in][is] = Weight[in][is] / sumweight[in];
-                
+            Weight_initial[in][is] = Weight[in][is];    
         }
     }
     return;
 }
+
 // Initialize connection map
 // -------------------------
 void SNN::Init_connection_map()

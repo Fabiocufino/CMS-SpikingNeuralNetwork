@@ -220,21 +220,6 @@ void Write_Parameters()
 }
 */
 
-// Reset synapse weights
-// ---------------------
-
-// void Reset_weights(SNN &snn_in, SNN &snn_old)
-// {
-//     for (int in = 0; in < snn_in.N_neurons; in++)
-//     {
-//         for (int is = 0; is < snn_in.N_streams; is++)
-//         {
-//             snn_in.Weight[in][is] = snn_old.Weight[in][is];
-//         }
-//     }
-//     return;
-// }
-
 // clear hits vector
 void Reset_hits()
 {
@@ -319,28 +304,21 @@ float LR_Scheduler(float LR0, int epoch, int Nepochs)
     return LR0 * exp(par[0] * x) * (par[1] + (1. - par[1]) * pow(cos(par[2] * x), 2));
 }
 
-float Compute_Selectivity(int level, int mode)
-{
-    return 0;
-}
-
 // Calculate selectivity of set of neurons
 // ---------------------------------------
-/*
-
-float Compute_Selectivity(int level, int mode)
+float Compute_Selectivity(int level, int mode, SNN &snn)
 {
     float S = 0.;
     int inmin, inmax;
     if (level == 0)
     {
         inmin = 0;
-        inmax = N_neuronsL[0];
+        inmax = snn.N_neuronsL[0];
     }
     else if (level == 1)
     {
-        inmin = N_neuronsL[0];
-        inmax = N_neurons;
+        inmin = snn.N_neuronsL[0];
+        inmax = snn.N_neurons;
     }
     if (mode == 0)
     { // Use additive rule
@@ -423,8 +401,8 @@ float Compute_Selectivity(int level, int mode)
     if (inmax > inmin)
         S /= N_classes * (inmax - inmin);
     return S;
-}
-*/
+} 
+
 // Compute Q-value
 // ---------------
 float Compute_Q(float eff, float acc, float sel)
@@ -1387,7 +1365,6 @@ void SNN_Tracking(SNN &snn_in)
     snn_old.K2 = snn_in.K2;
     snn_old.IE_Pot_const = snn_in.IE_Pot_const;
     snn_old.IPSP_dt_dilation = snn_in.IPSP_dt_dilation;
-    float Weight_initial[snn_in.N_neurons][snn_in.N_streams];
 
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
@@ -1407,7 +1384,6 @@ void SNN_Tracking(SNN &snn_in)
 
             snn_old.Weight[in][is] = snn_in.Weight[in][is];
             snn_best.Weight[in][is] = snn_in.Weight[in][is];
-            Weight_initial[in][is] = snn_in.Weight[in][is];
         }
     }
     float Q = 0.;
@@ -1869,9 +1845,9 @@ void SNN_Tracking(SNN &snn_in)
                 Efftot[ic] = etl1;
             }
 
-            selectivityL0 = Compute_Selectivity(0, 2);
+            selectivityL0 = Compute_Selectivity(0, 2, snn_in);
             SelectivityL0->Fill(iepoch, selectivityL0);
-            selectivityL1 = Compute_Selectivity(1, 2);
+            selectivityL1 = Compute_Selectivity(1, 2, snn_in);
             SelectivityL1->Fill(iepoch, selectivityL1);
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
@@ -1902,7 +1878,7 @@ void SNN_Tracking(SNN &snn_in)
             // Reset hits
             Reset_hits();
             // Reset weights to initial conditions before new investigation
-            // snn_in.Reset_weights(Weight_initial);
+            snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
                 snn_in.Init_delays(); // This unlike void connections, because we can opt to learn these at each cycle too
