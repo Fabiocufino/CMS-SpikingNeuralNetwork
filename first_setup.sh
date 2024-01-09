@@ -9,7 +9,7 @@ if ! [[ -e "Code/MODE/SNNT" ]];then
     mkdir Code/MODE/SNNT
 fi
 if ! [[ -e "Code/MODE/CSV" ]];then
-    mkdir Code/MODE/SNNT
+    mkdir Code/MODE/CSV
 fi
 if ! [[ -e "Code/Data" ]];then
     mkdir Code/Data
