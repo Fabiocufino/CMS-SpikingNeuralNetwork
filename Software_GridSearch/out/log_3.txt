@@ -1,0 +1,49 @@
+
+
+                                 ------------------------------------
+
+                                    S   N   N      T r a c k i n g
+
+                                 ------------------------------------
+
+
+
+
+         ------------------------------------------------------------------------------------    
+         Unsupervised search for tracks in 8-layer strip detector with spiking neural network    
+                                                                             T.Dorigo, 3/2023    
+         ------------------------------------------------------------------------------------    
+
+         Run parameters: 
+         -----------------------------------
+                       L0 neurons: 6
+                       L1 neurons: 6
+            Connected L0-L1 frac.: 1
+            Connected IN-L0 frac.: 1
+            Connected IN-L1 frac.: 1
+                    Track classes: 6
+                     Total events: 20000
+               Optimization loops: 1
+             Optimize SNN params.: False
+                  Optimize delays: False
+             Optimize connections: False
+                  Max mod. factor: 0.2
+         -----------------------------------
+
+         Starting values of parameters:
+         -----------------------------------
+                     L0 threshold: 0.45
+                     L1 threshold: 0.45
+                            alpha: 0.5
+                        L1inhibit: 1
+                                K: 1
+                               K1: 2
+                               K2: 4
+                 IE pot. constant: 1
+                 IPSP dt dilation: 1
+         -----------------------------------
+
+         [Error: Cannot open file Data/100k_100br.root
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Error: Cannot open file Data/ordered.root
