@@ -9,15 +9,12 @@ import itertools
 #edit and launch run.sh script
 #----------------------------------------------------------------
 
-#path of the main folder
-macro_path = "/lustre/cmswork/SNN_group/neuron_search/100br/Code"
-
 #------------------------- PARAMETERS --------------------------
 #edit with the parameters value you're interested in
 N_ev = 100000                     
 N_ep = 1                        #1 to turn off the parameters optimization
-rootInput = "/lustre/cmsdata/SNN_group/100k_100br.root"   #name of the root file
-batch = 1                       #True -> Batch mode
+# rootInput = "/lustre/cmsdata/SNN_group/100k_100br.root"   #name of the root file
+# batch = 1                       #True -> Batch mode
 NL0_list =          [10, 15, 20, 25, 30]       
 NL1_list =          [10]
 tau_m_list =        [1e-09]
@@ -49,32 +46,11 @@ all_combinations = itertools.product(*parameters_list)
 
 for i, combination in enumerate(all_combinations):
     NL0, NL1, tau_m, tau_s, tau_plus, tau_minus, a_plus, a_minus, CFI0, CFI1, CF01, a = combination
-    file_content = f'''
-TROOT::SetMacroPath("{macro_path}");
-.L SNNT13.C
-SNN_Tracking({N_ev}, {N_ep}, {NL0}, {NL0}, "{rootInput}", {batch}, {tau_m}, {tau_s}, {tau_plus}, {tau_minus}, {a_plus}, {a_minus}, {CFI0}, {CFI0}, {CFI0}, {a}, {Thresh0}, {Thresh1});
-.q
-'''
+    file_content = f''' --N_ev {N_ev} --N_ep {N_ep} --NL0 {NL0} --NL1 {NL0} --tau_m {tau_m} --tau_s {tau_s} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CFI0} --CFI1 {CFI0} --alpha {a} --TH0 {Thresh0} --TH1 {Thresh1} --file_id_GS {i}'''
+
     print("File creation")
     filename = f"starting_parameters/start_{i}.cmd"
     i+=1
     with open(filename, "w") as file:
         file.write(file_content)
-    print(f"File {filename} creato con successo.")
-
-#Add combinations whith CFI1 = 0
-all_combinations = itertools.product(*parameters_list)
-for i, combination in enumerate(all_combinations):
-    id = i + tot_comb
-    NL0, NL1, tau_m, tau_s, tau_plus, tau_minus, a_plus, a_minus, CFI0, CFI1, CF01, a = combination
-    file_content = f'''
-TROOT::SetMacroPath("{macro_path}");
-.L SNNT13.C
-SNN_Tracking({N_ev}, {N_ep}, {NL0}, {NL0}, "{rootInput}", {batch}, {tau_m}, {tau_s}, {tau_plus}, {tau_minus}, {a_plus}, {a_minus}, {CFI0}, 0, {CFI0}, {a}, {Thresh0}, {Thresh1});
-.q
-'''
-    print("File creation")
-    filename = f"starting_parameters/start_{id}.cmd"
-    with open(filename, "w") as file:
-        file.write(file_content)
-    print(f"File {filename} creato con successo.")
+    print(f"File {filename} successfully created.")

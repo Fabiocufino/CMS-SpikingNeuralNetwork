@@ -1,5 +1,1 @@
-
-TROOT::SetMacroPath("/lustre/cmswork/SNN_group/neuron_search/100br/Code");
-.L SNNT13.C
-SNN_Tracking(100000, 1, 20, 20, "/lustre/cmsdata/SNN_group/100k_100br.root", 1, 1e-09, 2.5e-10, 1.68e-09, 1.68e-09, 0.03125, 0.02656, 0.6, 0.6, 0.6, 1, 35, 35);
-.q
+ --N_ev 100000 --N_ep 1 --NL0 20 --NL1 20 --tau_m 1e-09 --tau_s 2.5e-10 --tau_plus 1.68e-09 --tau_minus 1.68e-09 --a_plus 0.03125 --a_minus 0.02656 --CFI0 0.6 --CF01 0.6 --CFI1 0.6 --alpha 1 --TH0 35 --TH1 35 --file_id_GS 40

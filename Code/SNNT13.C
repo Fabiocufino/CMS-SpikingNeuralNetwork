@@ -231,7 +231,7 @@ void Reset_hits()
 int GetBinR(double r_hit)
 {
     if (r_hit < 0 || r_hit > max_R)
-        return N_bin_r-1;
+        return N_bin_r - 1;
 
     // 10 bins are associated to a tracking layer
     // The last bin is collecting hits outside the layers
@@ -240,7 +240,7 @@ int GetBinR(double r_hit)
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
             return i;
         else if (r_hit < Left_Layers[i])
-            return N_bin_r-1;
+            return N_bin_r - 1;
     }
     return N_bin_r - 1;
 }
@@ -401,7 +401,7 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
     if (inmax > inmin)
         S /= N_classes * (inmax - inmin);
     return S;
-} 
+}
 
 // Compute Q-value
 // ---------------
@@ -552,7 +552,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight=nullptr, bool no_firing_mode = false)
+void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr, bool no_firing_mode = false)
 {
     vector<int> neurons_index;
     // initialization of neurons_index vector
@@ -569,8 +569,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
 
     cout << "Initializaing the plot SNN" << endl;
 
-    
-    if (read_weights){
+    if (read_weights)
+    {
         cout << "Opening the weight file" << endl;
         TFile *file_weight = TFile::Open(rootWeight, "READ");
         if (!file_weight || file_weight->IsZombie())
@@ -949,7 +949,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     delete file;
 }
 
-void SNN_Tracking(SNN &snn_in)
+void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 {
     // Pass parameters:
     // ----------------
@@ -1506,7 +1506,12 @@ void SNN_Tracking(SNN &snn_in)
     // Create csv fout file
     ofstream fout;
     char csv_name[80];
-    sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
+    if (file_id_GS == -1)
+        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
+    else
+    {
+        sprintf(csv_name, "%i.csv", file_id_GS);
+    }
     fout.open(csv_name);
     fout << "Event,ID,Stream,Time,Pclass" << endl;
 
@@ -1520,7 +1525,8 @@ void SNN_Tracking(SNN &snn_in)
         {
             if (iev_thisepoch % block == 0)
             {
-                cout << progress[currchar]<<flush;;
+                cout << progress[currchar] << flush;
+                ;
                 currchar++;
             }
         }
@@ -2605,19 +2611,23 @@ void SNN_Tracking(SNN &snn_in)
     cout << "Drawing histos" << endl;
     TCanvas *S = new TCanvas("S", "", 3000, 600);
     S->Divide(5, 4);
-    
-    for(int irow = 0; irow<4; irow++){
-        for(int icol=0; icol<5; icol++){
-            S->cd(icol+irow*5+1);
-            if(irow%2==0){
-                StreamsB[icol+(irow)*5/2]->SetLineColor(kRed);
-                StreamsB[icol+(irow)*5/2]->Draw("BOX");
-                StreamsS[icol+(irow)*5/2]->SetLineColor(kBlue);
-                StreamsS[icol+(irow)*5/2]->Draw("BOXSAME");
+
+    for (int irow = 0; irow < 4; irow++)
+    {
+        for (int icol = 0; icol < 5; icol++)
+        {
+            S->cd(icol + irow * 5 + 1);
+            if (irow % 2 == 0)
+            {
+                StreamsB[icol + (irow) * 5 / 2]->SetLineColor(kRed);
+                StreamsB[icol + (irow) * 5 / 2]->Draw("BOX");
+                StreamsS[icol + (irow) * 5 / 2]->SetLineColor(kBlue);
+                StreamsS[icol + (irow) * 5 / 2]->Draw("BOXSAME");
             }
-            else{
-                StreamsN[icol+(irow-1)*5/2]->SetLineColor(kGreen);
-                StreamsN[icol+(irow-1)*5/2]->Draw("BOX");
+            else
+            {
+                StreamsN[icol + (irow - 1) * 5 / 2]->SetLineColor(kGreen);
+                StreamsN[icol + (irow - 1) * 5 / 2]->Draw("BOX");
             }
         }
     }
@@ -2816,7 +2826,16 @@ void SNN_Tracking(SNN &snn_in)
     string Path = "./MODE/SNNT/";
     std::stringstream sstr;
     char num[80];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
+
+    if (file_id_GS == -1)
+    {
+        sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
+    }
+    else
+    {
+        sprintf(num, "%i", file_id_GS);
+    }
+
     sstr << "Histos13_";
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");
@@ -2908,12 +2927,12 @@ void SNN_Tracking(SNN &snn_in)
 
     MW->Write();
     rootfile->Write();
-    
+
     // End of program
     rootfile->Close();
     gROOT->Time();
 
-    //copy the best parameters inside snn_in
+    // copy the best parameters inside snn_in
     snn_in.Threshold[0] = snn_best.Threshold[0];
     snn_in.Threshold[1] = snn_best.Threshold[1];
     snn_in.alpha = snn_best.alpha;
@@ -2990,6 +3009,7 @@ void PrintHelp()
 // ------------
 int main(int argc, char *argv[])
 {
+    int file_id_GS = -1;
     // Loop through the command-line arguments
     for (int i = 1; i < argc; i++)
     {
@@ -3067,6 +3087,8 @@ int main(int argc, char *argv[])
             ReadPars = stoi(argv[i + 1]);
         else if (strcmp(arg, "--NROOT") == 0)
             NROOT = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--file_id_GS") == 0)
+            file_id_GS = stoi(argv[i + 1]);
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
@@ -3088,13 +3110,13 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1);
 
-    SNN_Tracking(S);
+    SNN_Tracking(S,file_id_GS);
 
-    //preparing the file to plot the neuron potentials of the best configurations
+    // preparing the file to plot the neuron potentials of the best configurations
     cout << "Creating the file for the potentials plot" << endl;
     PlotPotentials("Data/ordered.root", S, 12);
 
-    //to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
+    // to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
     /* SNN P(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
