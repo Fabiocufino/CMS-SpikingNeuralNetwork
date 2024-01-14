@@ -18,11 +18,11 @@
          -----------------------------------
                        L0 neurons: 6
                        L1 neurons: 6
-            Connected L0-L1 frac.: 0.6
+            Connected L0-L1 frac.: 1
             Connected IN-L0 frac.: 1
-            Connected IN-L1 frac.: 0.6
+            Connected IN-L1 frac.: 1
                     Track classes: 6
-                     Total events: 100000
+                     Total events: 20000
                Optimization loops: 1
              Optimize SNN params.: False
                   Optimize delays: False
@@ -32,9 +32,9 @@
 
          Starting values of parameters:
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
-                            alpha: 10
+                     L0 threshold: 0.45
+                     L1 threshold: 0.45
+                            alpha: 0.5
                         L1inhibit: 1
                                 K: 1
                                K1: 2
@@ -44,8 +44,8 @@
          -----------------------------------
 
          [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-         Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.421368 L1 = 0.155487; Eff = 1 Acc = 0.9966; Firings: 575741 637461 16416 200991 376139 4138 242349 357940 446723 1728 482303 32536 
-         Q = 1.0521 Old = 0 Best = 0 ib = 0
+         Ev. # 20000 - LR = 0.0245173; Selectivity L0 = 0.0760256 L1 = nan; Eff = 1 Acc = 0.796; Firings: 69397 39550 5213 19075 44044 20526 14571 1553 3155 6410 10391 9810 
+         Q = nan Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -53,29 +53,29 @@ Drawing histos
          -----------------------------------
                        L0 neurons: 6
                        L1 neurons: 6
-            Connected L0-L1 frac.: 0.6
+            Connected L0-L1 frac.: 1
             Connected IN-L0 frac.: 1
-            Connected IN-L1 frac.: 0.6
+            Connected IN-L1 frac.: 1
                     Track classes: 6
 
          Optimization results
          -----------------------------------
-               Average efficiency: 1
-                Average fake rate: 0.9966
-                  Maximum Q value: 1.0521
-                   L1 selectivity: 0.155487
+               Average efficiency: 0
+                Average fake rate: 0
+                  Maximum Q value: 0
+                   L1 selectivity: 0
 
          Optimized parameter values
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
-                            alpha: 10
-                        L1inhibit: 1
-                                K: 1
-                               K1: 2
-                               K2: 4
-                 IE pot. constant: 1
-                 IPSP dt dilation: 1
+                     L0 threshold: 0
+                     L1 threshold: 0
+                            alpha: 0
+                        L1inhibit: 0
+                                K: 0
+                               K1: 0
+                               K2: 0
+                 IE pot. constant: 0
+                 IPSP dt dilation: 0
          -----------------------------------
 
 Writing canvas

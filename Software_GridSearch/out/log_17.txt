@@ -32,8 +32,8 @@
 
          Starting values of parameters:
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
+                     L0 threshold: 0.7
+                     L1 threshold: 0.7
                             alpha: 10
                         L1inhibit: 1
                                 K: 1
@@ -44,8 +44,8 @@
          -----------------------------------
 
          [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-         Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.421368 L1 = 0.155487; Eff = 1 Acc = 0.9966; Firings: 575741 637461 16416 200991 376139 4138 242349 357940 446723 1728 482303 32536 
-         Q = 1.0521 Old = 0 Best = 0 ib = 0
+         Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.52776 L1 = nan; Eff = 0.99185 Acc = 0.9936; Firings: 160848 164548 215 235 298 107 72 93111 35664 18 87140 274 
+         Q = nan Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -60,22 +60,22 @@ Drawing histos
 
          Optimization results
          -----------------------------------
-               Average efficiency: 1
-                Average fake rate: 0.9966
-                  Maximum Q value: 1.0521
-                   L1 selectivity: 0.155487
+               Average efficiency: 0
+                Average fake rate: 0
+                  Maximum Q value: 0
+                   L1 selectivity: 0
 
          Optimized parameter values
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
-                            alpha: 10
-                        L1inhibit: 1
-                                K: 1
-                               K1: 2
-                               K2: 4
-                 IE pot. constant: 1
-                 IPSP dt dilation: 1
+                     L0 threshold: 0
+                     L1 threshold: 0
+                            alpha: 0
+                        L1inhibit: 0
+                                K: 0
+                               K1: 0
+                               K2: 0
+                 IE pot. constant: 0
+                 IPSP dt dilation: 0
          -----------------------------------
 
 Writing canvas

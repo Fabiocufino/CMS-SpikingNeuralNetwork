@@ -32,9 +32,9 @@
 
          Starting values of parameters:
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
-                            alpha: 10
+                     L0 threshold: 0.5
+                     L1 threshold: 0.5
+                            alpha: 0.5
                         L1inhibit: 1
                                 K: 1
                                K1: 2
@@ -44,8 +44,8 @@
          -----------------------------------
 
          [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-         Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.421368 L1 = 0.155487; Eff = 1 Acc = 0.9966; Firings: 575741 637461 16416 200991 376139 4138 242349 357940 446723 1728 482303 32536 
-         Q = 1.0521 Old = 0 Best = 0 ib = 0
+         Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.0236925 L1 = -0.0364271; Eff = 1 Acc = 0.9966; Firings: 461163 375766 250136 379682 380493 291066 192028 261835 224920 84803 352180 87499 
+         Q = 0.905358 Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -62,14 +62,14 @@ Drawing histos
          -----------------------------------
                Average efficiency: 1
                 Average fake rate: 0.9966
-                  Maximum Q value: 1.0521
-                   L1 selectivity: 0.155487
+                  Maximum Q value: 0.905358
+                   L1 selectivity: -0.0364271
 
          Optimized parameter values
          -----------------------------------
-                     L0 threshold: 0.3
-                     L1 threshold: 0.3
-                            alpha: 10
+                     L0 threshold: 0.5
+                     L1 threshold: 0.5
+                            alpha: 0.5
                         L1inhibit: 1
                                 K: 1
                                K1: 2
