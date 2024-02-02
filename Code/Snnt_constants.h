@@ -101,18 +101,20 @@ static float _K1 = 2;
 static float _K2 = 4;
 static float _IE_Pot_const = 1; 
 static double _IPSP_dt_dilation = 1;
-static double _MaxDelay =  0.1e-9;
 
-static double _tau_m = 1e-09 / 2;
-static double _tau_s =  0.25e-09 / 2;
-static double _tau_r = 0.5e-09 / 2;
-static double _tau_plus = 1.68e-09 / 2;
-static double _tau_minus = 3.37e-09 / 2;
+static double _tau_m = 1e-09 / 3;
+static double _tau_s =  0.25e-09 / 3;
+static double _tau_r = 0.5e-09 / 3;
+static double _tau_plus = 1.68e-09 /3;
+static double _tau_minus = 3.37e-09 /3;
+static double _MaxDelay =  _tau_m;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
 
 static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
+
+static float _sparsity = 2;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 

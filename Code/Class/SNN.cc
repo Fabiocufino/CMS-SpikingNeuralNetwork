@@ -1,6 +1,12 @@
 #include "SNN.h"
+#include <boost/random.hpp>
+#include <boost/random/beta_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
 
+using namespace boost::random;
 using namespace std;
+
+mt19937 rng;
 
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
@@ -14,7 +20,7 @@ SNN::SNN(int _NL0, int _NL1,
          double _a_plus, double _a_minus,
 
          int _N_InputStreams,
-         float _Threshold0, float _Threshold1) :
+         float _Threshold0, float _Threshold1, float _sparsity) :
                                                  // Initializations
                                                  alpha(_alpha),
 
@@ -43,12 +49,14 @@ SNN::SNN(int _NL0, int _NL1,
                                                  a_plus(_a_plus),
                                                  a_minus(_a_minus),
 
-                                                 N_InputStreams(_N_InputStreams)
+                                                 N_InputStreams(_N_InputStreams),
+                                                 sparsity(_sparsity)
 
 {
+    rng.seed(static_cast<unsigned int>(std::time(0)));
     Threshold[0] = _Threshold0;
     Threshold[1] = _Threshold1;
-
+    
     N_neuronsL[0] = _NL0;
     N_neuronsL[1] = _NL1;
     N_neurons = N_neuronsL[0] + N_neuronsL[1];
@@ -58,7 +66,7 @@ SNN::SNN(int _NL0, int _NL1,
 
     fire_granularity = tau_s / 5;
     fire_precision = Threshold[0] / 100;
-    myRNG = new TRandom3(24);
+    myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
 
@@ -88,14 +96,11 @@ SNN::SNN(int _NL0, int _NL1,
     Init_neurons();
     Init_connection_map();
     Init_weights();
+    Init_delays();
 }
 
 SNN::~SNN()
 {
-}
-
-void SNN::Init_delays(){
-    return;
 }
 
 void SNN::Reset_weights(){
@@ -202,26 +207,39 @@ void SNN::Set_weights()
     return;
 }
 
-/*
 
 void SNN::Init_delays()
 {
-    // Define delays for IE signals
+    // Define delays
     for (int in = 0; in < N_neurons; in++)
     {
+        float type = myRNG->Uniform();
+        float factor =  myRNG->Uniform();
+        cout << endl << "Neuron " << in << " TYPE " << type << endl;
         for (int is = 0; is < N_streams; is++)
-        {
+        { 
             Delay[in][is] = 0.;
-            if (learnDelays || updateDelays)
-                Delay[in][is] = MaxDelay / 2.;
-            //            if (is<N_bin_r) { // no IE delay for neuron-originated spikes into L1
-            //                Delay[in][is] = myRNG->Uniform(MaxDelay);
-            //            }
+            if (is<N_InputStreams) { // no delay for neuron-originated spikes into L1
+                float most_likely = 0;
+                if (type < 0.5) 
+                    most_likely = (is + 1.)/(N_InputStreams+1.) ;
+                else            
+                    most_likely = (N_InputStreams - is)/(N_InputStreams+1.);
+                float alpha_val = (4. * most_likely  + 1.);
+                float beta_val = (5. - 4. * most_likely);
+                
+                beta_distribution<> betaDistribution(alpha_val, beta_val);
+                variate_generator<mt19937&, beta_distribution<> > betaGenerator(rng, betaDistribution);
+
+                Delay[in][is] = pow(betaGenerator(), 1.)* MaxDelay*factor;
+                cout << "("<< most_likely << ", " << Delay[in][is] << ")  ";
+            }
         }
     }
+    cout << endl;
     return;
 }
-*/
+
 
 void SNN::Init_weights()
 {
@@ -235,7 +253,7 @@ void SNN::Init_weights()
                 Weight[in][is] = -1;
             else
             {
-                Weight[in][is] = myRNG->Gaus(1, 1/sqrt(N_streams));
+                Weight[in][is] = myRNG->Gaus(1, sparsity/sqrt(N_InputStreams));
                 if(Weight[in][is]<0) Weight[in][is]=0;
                 sumweight[in] += Weight[in][is];
             }
@@ -380,7 +398,7 @@ float SNN::Neuron_firetime(int in, double t)
     for (int ih = History_type[in].size() - 1; ih > 1; ih--)
     {
         // longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
-        if (History_type[in][ih] == 1 && !Void_weight[in][History_ID[in][ih]])
+        if (History_type[in][ih] == 1 && !Void_weight[in][History_ID[in][ih]] && History_time[in][ih]<t)
         {
             last_EPSP = History_time[in][ih];
             break;

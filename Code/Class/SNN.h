@@ -41,6 +41,8 @@ public:
     double a_plus;          // for model of EPSP
     double a_minus;       // 0.85*a_plus;
 
+    float sparsity;
+
     int N_InputStreams;
     int N_streams;
 
@@ -85,7 +87,7 @@ public:
          double _a_plus, double _a_minus,
 
          int _N_InputStreams,
-         float _Threshold0, float _Threshold1);
+         float _Threshold0, float _Threshold1, float _sparsity);
          
     ~SNN();
 

@@ -24,11 +24,11 @@ fi
 echo "Collecting the data files if missing... the process could take some minutes"
 
 if ! [[ -e "Code/Data/100k_100br.root" ]];then
-    wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1B6d3bxFBziWGIMmCp8uxxSF2As3k89m7' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1B6d3bxFBziWGIMmCp8uxxSF2As3k89m7" -O Code/Data/100k_100br.root && rm -rf /tmp/cookies.txt
+    wget -o - -O Code/Data/100k_100br.root "https://www.dropbox.com/scl/fi/dlauefynunvznx06kfol7/100k_100br.root?rlkey=qhmh2og38flpzo7spwmlsjm6w&dl=0"
 fi
 
 if ! [[ -e "Code/Data/ordered.root" ]];then
-    wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=17YxLI8qBCfBDKPHVCa-fAKVGeLocOf09' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=17YxLI8qBCfBDKPHVCa-fAKVGeLocOf09" -O Code/Data/ordered.root && rm -rf /tmp/cookies.txt
+    wget -o - -O Code/Data/ordered.root "https://www.dropbox.com/scl/fi/2ipkrkxud5k9j7hglh64c/ordered.root?rlkey=8qrtubtqdedszypb6wd6o7d77&dl=0"
 fi
 
 echo "Execution terminated"
