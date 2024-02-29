@@ -57,6 +57,7 @@ static const short int SIG = 2;
 // -------------------------------------------
 // neural network constants
 // -------------------------------------------
+
 static const int MaxEvents = 10000000;
 static const double largenumber = 999999999.;
 static const double epsilon = 1. / largenumber;
@@ -68,6 +69,7 @@ static float eff_target = 0.9;
 static float acc_target = 0.05;
 static bool learnDelays = false;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
+static int N_test = 500;
 
 // -------------------------------------------
 // tracking constants
@@ -85,12 +87,13 @@ static long int NROOT = 100000;                //number of events inside the roo
 static bool update9 = false;                // controls whether to optimize 7 network parameters
 static bool updateDelays = false;           // controls whether to optimize neuron delays
 static bool updateConnections = false;      // controls whether to optimize connections between streams and neurons
+
 // -------------------------------------------
 // class constants
 // -------------------------------------------
 
-static int _NL0 = 6;
-static int _NL1 = 6;
+static int _NL0 = 20;
+static int _NL1 = 10;
 static float _alpha = 0.5;
 static float _CFI0 = 1; 
 static float _CFI1 = 1; 
@@ -107,7 +110,7 @@ static double _tau_s =  0.25e-09 / 3;
 static double _tau_r = 0.5e-09 / 3;
 static double _tau_plus = 1.68e-09 /3;
 static double _tau_minus = 3.37e-09 /3;
-static double _MaxDelay =  _tau_m;
+static double _MaxDelay =  2.5e-09;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
 
@@ -115,7 +118,8 @@ static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
 
 static float _sparsity = 2;
+static bool _split_layer0 = true;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
-
+static string SNN_PATH = "";
 #endif // SNNT_CONSTANTS_H

@@ -20,7 +20,7 @@
 #include <string>
 
 //in the future 18
-static const int NFile = 6;
+static const int NFile = 2;
 static TRandom3 * myRNG = new TRandom3(232);
 static TFile *files[NFile];
 static TDirectory *dirIT_list[NFile];

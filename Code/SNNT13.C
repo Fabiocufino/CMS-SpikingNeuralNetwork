@@ -53,7 +53,7 @@ static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
 /*
 int Read_Parameters()
 {
-    string Path = "./MODE/SNNT/";
+    string Path = SNN_PATH+"/Code/MODE/SNNT/";
     ifstream tmpfile;
     indfile = -1;
     // Determine last available file number to read from, by attempting to open all files with same name and previous numbering
@@ -134,7 +134,7 @@ int Read_Parameters()
 void Write_Parameters()
 {
 
-    string Path = "./MODE/SNNT/";
+    string Path = SNN_PATH+"/Code/MODE/SNNT/";
     ifstream tmpfile;
     indfile = -1;
     // Determine first available file number to write, by attempting to open all files with same name and previous numbering
@@ -275,6 +275,9 @@ void Encode(double t_in)
         double time = t_in + row.phi / omega;
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
+        if(row.id == 2){
+        //    cout << itl << " " << time << endl;
+        }
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
         PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
@@ -751,6 +754,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         }
 
         float t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        //cout <<  "Event: " << ievent << endl;
         Encode(t_in);
 
         // Loop on spikes and modify neuron and synapse potentials
@@ -1251,11 +1255,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     for (int i = 0; i < 10; i++)
     {
         sprintf(name, "StreamsS%d", i);
-        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsB%d", i);
-        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsN%d", i);
-        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
+        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
 
     // If requested, read in parameters
@@ -1324,8 +1328,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     float selectivityL1 = 0.;
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
+
     Eff = new float[snn_in.N_neurons * N_classes];
-    float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
+    float SumofSquaresofWeight[snn_in.N_neurons]  = {0};  // sum of squares synaptic weights for each neuron for RMS calc
     float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
     float MinWeight[snn_in.N_neurons];
@@ -1344,7 +1349,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                  _a_plus, _a_minus,
 
                  _N_InputStreams,
-                 _Threshold0, _Threshold1, _sparsity);
+                 _Threshold0, _Threshold1, _sparsity, _split_layer0);
     SNN snn_old(_NL0, _NL1,
                 _alpha,
                 _CFI0, _CFI1, _CF01,
@@ -1357,7 +1362,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 _a_plus, _a_minus,
 
                 _N_InputStreams,
-                _Threshold0, _Threshold1, _sparsity);
+                _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
     // Storing parameters subjected to random search
     snn_old.Threshold[0] = snn_in.Threshold[0];
@@ -1447,7 +1452,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // Big loop on events
     // ------------------
     bool doprogress = true;
-    int block = N_events / N_epochs / 50;
+    int block = N_events / N_epochs / 10;
     if (block < 1)
         doprogress = false;
     if (doprogress)
@@ -1531,7 +1536,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             if (iev_thisepoch % block == 0)
             {
                 cout << progress[currchar] << flush;
-                ;
                 currchar++;
             }
         }
@@ -1614,7 +1618,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                if(ievent < N_events - N_test) snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
 
                 // Reset history of this neuron
                 snn_in.History_time[in_first].clear();
@@ -1648,16 +1652,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
                             snn_in.History_type[in].push_back(1);
                             snn_in.History_ID[in].push_back(is);
-                            snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
+                            if(ievent < N_events - N_test) snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
                         }
                     }
                 }
 
                 // Fill spikes train histogram
-                if (ievent >= N_events - 500.)
+                if (ievent >= N_events - N_test)
                 {
-                    int is = (ievent - N_events + 500) / 50;
-                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    int is = (ievent - N_events + N_test) / (N_test/10);
+                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / N_test/10) * N_test/10;
                     StreamsN[is]->Fill(time, in_first + 1);
                     if (N_part > 0)
                     {
@@ -1705,13 +1709,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             // insert the new spike for the next iteration
             if (insert)
             {
-                // Save information on hit-based streams for last 500 events to histograms
-                if (ievent >= N_events - 500.)
+                // Save information on hit-based streams for last N_test events to histograms
+                if (ievent >= N_events - N_test)
                 {
                     // dividing N_events in 10 groups
-                    int is = (ievent - N_events + 500) / 50;
+                    int is = (ievent - N_events + N_test) / (N_test/10);
                     // time = tin + thit - tin(First event of the group)
-                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / N_test/10.) * N_test/10.;
 
                     // Histograms
                     if (PreSpike_Signal[ispike] == 1)
@@ -1736,7 +1740,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(is);
 
-                        snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
+                        if(ievent < N_events - N_test) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
             }
@@ -1894,7 +1898,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
-                snn_in.Init_delays(); // This unlike void connections, because we can opt to learn these at each cycle too
+                snn_in.Init_delays_man(); // This unlike void connections, because we can opt to learn these at each cycle too
 
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
                  << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
@@ -2831,7 +2835,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     */
 
     // Dump histograms to root file
-    string Path = "./MODE/SNNT/";
+    string Path = SNN_PATH + "/Code/MODE/SNNT/";
     std::stringstream sstr;
     char num[80];
 
@@ -2859,15 +2863,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     MW->Write();
 
     cout << "Saving pdf" << endl;
-    S->SaveAs("./pdf/S.pdf", "pdf");
-    C->SaveAs("./pdf/C.pdf", "pdf");
-    E0->SaveAs("./pdf/E0.pdf", "pdf");
-    E1->SaveAs("./pdf/E1.pdf", "pdf");
-    BE->SaveAs("./pdf/BE.pdf", "pdf");
-    SE->SaveAs("./pdf/SE.pdf", "pdf");
-    W->SaveAs("./pdf/W.pdf", "pdf");
-    Y->SaveAs("./pdf/Y.pdf", "pdf");
-    MW->SaveAs("./pdf/MWlog.pdf", "pdf");
+    S->SaveAs((SNN_PATH + "/Code/pdf/S.pdf").c_str(), "pdf");
+    C->SaveAs((SNN_PATH + "/Code/pdf/C.pdf").c_str(), "pdf");
+    E0->SaveAs((SNN_PATH + "/Code/pdf/E0.pdf").c_str(), "pdf");
+    E1->SaveAs((SNN_PATH + "/Code/pdf/E1.pdf").c_str(), "pdf");
+    BE->SaveAs((SNN_PATH + "/Code/pdf/BE.pdf").c_str(), "pdf");
+    SE->SaveAs((SNN_PATH + "/Code/pdf/SE.pdf").c_str(), "pdf");
+    W->SaveAs((SNN_PATH + "/Code/pdf/W.pdf").c_str(), "pdf");
+    Y->SaveAs((SNN_PATH + "/Code/pdf/Y.pdf").c_str(), "pdf");
+    MW->SaveAs((SNN_PATH + "/Code/pdf/MWlog.pdf").c_str(), "pdf");
 
     // Then histograms
     SelectivityL0->Write();
@@ -2970,6 +2974,7 @@ void PrintHelp()
     cout << "   --CF01" << endl;
     cout << "   --CFI0" << endl;
     cout << "   --CFI1" << endl;
+    cout << "   --split_layer0" << endl;
 
     cout << endl;
 
@@ -2987,6 +2992,7 @@ void PrintHelp()
     cout << "   --tau_r" << endl;
     cout << "   --TH0" << endl;
     cout << "   --TH1" << endl;
+    cout << "   --sparsity" << endl;
 
     cout << endl;
 
@@ -3014,6 +3020,7 @@ void PrintHelp()
 // ------------
 int main(int argc, char *argv[])
 {
+    SNN_PATH = string(getenv("SNN_PATH"));
     int file_id_GS = -1;
     // Loop through the command-line arguments
     for (int i = 1; i < argc; i++)
@@ -3079,6 +3086,8 @@ int main(int argc, char *argv[])
             N_events = stoi(argv[i + 1]);
         else if (strcmp(arg, "--N_ep") == 0)
             N_epochs = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--N_test") == 0)
+            N_test = stoi(argv[i + 1]);
         else if (strcmp(arg, "--batch") == 0)
             batch = stoi(argv[i + 1]);
         else if (strcmp(arg, "--rootInput") == 0)
@@ -3096,6 +3105,8 @@ int main(int argc, char *argv[])
             file_id_GS = stoi(argv[i + 1]);
         else if (strcmp(arg, "--sparsity") == 0)
             _sparsity = stof(argv[i + 1]);
+        else if (strcmp(arg, "--split_layer0") == 0)
+            _split_layer0 = stoi(argv[i + 1]);
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
@@ -3115,7 +3126,7 @@ int main(int argc, char *argv[])
           _a_plus, _a_minus,
 
           _N_InputStreams,
-          _Threshold0, _Threshold1, _sparsity);
+          _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
     SNN_Tracking(S,file_id_GS);
 

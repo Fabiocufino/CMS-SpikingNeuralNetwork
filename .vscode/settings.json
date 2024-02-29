@@ -17,7 +17,9 @@
         "initializer_list": "cpp",
         "string_view": "cpp",
         "unordered_map": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "draw_histrograms.C": "cpp",
+        "env.C": "cpp"
     },
     "cmake.configureOnOpen": true
 }

@@ -2,7 +2,12 @@
 #define SNN_H
 
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+
 #include <vector>
+#include <stdexcept>
 
 #include "TF1.h"
 #include "TRandom3.h"
@@ -16,7 +21,7 @@ private:
 
 public:
     float alpha;              // 0.25; // factor tuning inhibition strength
-
+    
     float CFI0;
     float CFI1;
     float CF01;
@@ -32,7 +37,7 @@ public:
 
     double MaxDelay;         // Determines shape of IE signal[s]
 
-    double tau_m;             // membrane time constant[s]
+    double tau_m;          // membrane time constant[s]
     double tau_s;          // synapse time constant[s]
     double tau_r;          // refractory time[s]
     double tau_plus;       // [s]
@@ -42,6 +47,7 @@ public:
     double a_minus;       // 0.85*a_plus;
 
     float sparsity;
+    bool split_layer0;      //decide if you want to split layer 0 in two.
 
     int N_InputStreams;
     int N_streams;
@@ -64,6 +70,8 @@ public:
     bool **check_LTD;       // checks to generate LTD after neuron discharge
     bool **Void_weight;     // These may be used to model disconnections
     double **Delay;          // Delay in incoming signals
+    bool **EnableIPSP;      // N_Neurons * N_Neurons matrix to turn off IPSP inside layers, "splitting" them in more sectors.
+
     vector<double> *History_time;       // Time of signal events per each 1neuron
     vector<int> *History_type;         // Type of signal
     vector<int> *History_ID;           // ID of generating signal stream or neuron
@@ -87,7 +95,7 @@ public:
          double _a_plus, double _a_minus,
 
          int _N_InputStreams,
-         float _Threshold0, float _Threshold1, float _sparsity);
+         float _Threshold0, float _Threshold1, float _sparsity, bool _split_layer0);
          
     ~SNN();
 
@@ -99,7 +107,8 @@ public:
     void Set_weights();
     void Reset_weights();
 
-    void Init_delays();
+    void Init_delays_PERT();
+    void Init_delays_man();
 
     void Init_connection_map();
     float EPS_potential(double delta_t);

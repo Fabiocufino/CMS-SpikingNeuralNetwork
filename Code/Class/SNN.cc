@@ -20,7 +20,7 @@ SNN::SNN(int _NL0, int _NL1,
          double _a_plus, double _a_minus,
 
          int _N_InputStreams,
-         float _Threshold0, float _Threshold1, float _sparsity) :
+         float _Threshold0, float _Threshold1, float _sparsity, bool _split_layer0) :
                                                  // Initializations
                                                  alpha(_alpha),
 
@@ -50,7 +50,8 @@ SNN::SNN(int _NL0, int _NL1,
                                                  a_minus(_a_minus),
 
                                                  N_InputStreams(_N_InputStreams),
-                                                 sparsity(_sparsity)
+                                                 sparsity(_sparsity),
+                                                 split_layer0(_split_layer0)
 
 {
     rng.seed(static_cast<unsigned int>(std::time(0)));
@@ -75,6 +76,7 @@ SNN::SNN(int _NL0, int _NL1,
     check_LTD = new bool *[N_neurons];       // checks to generate LTD after neuron discharge
     Void_weight = new bool *[N_neurons];     // These may be used to model disconnections
     Delay = new double *[N_neurons];          // Delay in incoming signals
+    EnableIPSP = new bool *[N_neurons];
 
     for (int in = 0; in < N_neurons; in++)
     {
@@ -83,6 +85,7 @@ SNN::SNN(int _NL0, int _NL1,
         check_LTD[in] = new bool[N_streams];
         Void_weight[in] = new bool[N_streams];
         Delay[in] = new double[N_streams];
+        EnableIPSP[in] = new bool[N_neurons];
     }
 
     History_time = new vector<double>[N_neurons]; // Time of signal events per each 1neuron
@@ -96,7 +99,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_neurons();
     Init_connection_map();
     Init_weights();
-    Init_delays();
+    Init_delays_man();
 }
 
 SNN::~SNN()
@@ -207,8 +210,42 @@ void SNN::Set_weights()
     return;
 }
 
+void SNN::Init_delays_man(){
+    //we assume to read a specific file
+    string filename = string(getenv("SNN_PATH"))+"/Code/Data/delays.txt";
 
-void SNN::Init_delays()
+    // Open the file
+    ifstream file(filename);
+
+    if (!file.is_open()) throw runtime_error("Error: Unable to open the file " + filename); 
+
+    //set them by default to MaxDelay for connections involving the input stream
+    for (int in = 0; in < N_neuronsL[0]; in++){
+        for (int is = 0; is < N_InputStreams; is++){
+            if (!(file >> Delay[in][is])) {
+                file.close(); // Close the file before throwing exception
+                throw runtime_error("Error: Unable to read delay value at position (" + to_string(in) + ", " + to_string(is) + ").");    
+            }
+            Delay[in][is] = MaxDelay-Delay[in][is];
+        }
+    }
+    for (int in = N_neuronsL[0]; in < N_neurons; in++){
+        for (int is = 0; is < N_InputStreams; is++)
+            Delay[in][is] = MaxDelay;
+    }
+    // Close the file
+    file.close();
+
+    //set them by default to 0 for connections involving layers
+    for (int in = 0; in < N_neurons; in++){
+        for (int is = N_InputStreams; is < N_streams; is++){
+            Delay[in][is] = 0;
+        }
+    }
+    return;
+}
+
+void SNN::Init_delays_PERT()
 {
     // Define delays
     for (int in = 0; in < N_neurons; in++)
@@ -341,6 +378,37 @@ void SNN::Init_connection_map()
                 Void_weight[in][is] = true;
         }
     }
+
+    //initialize IPSP matrix
+    for (int in=0; in < N_neurons; in++){
+        for (int jn=0; jn < N_neurons; jn++){
+            EnableIPSP[in][jn] = false;
+        }
+    }
+
+    //enabFle IPSP in layer 1
+    for(int in=N_neuronsL[0]; in<N_neurons; in++){
+        for(int jn=N_neuronsL[0]; jn<N_neurons; jn++)
+            EnableIPSP[in][jn] = false;
+    }
+
+    //enable IPSP in layer 0
+    for (int in=0; in < N_neuronsL[0]; in++){
+        //in this case we create 2 sublayers out of layer 0
+        if(split_layer0){
+            for (int jn=0; jn < N_neuronsL[0]; jn++){
+                if((jn-N_neuronsL[0]/2)*(in-N_neuronsL[0]/2)>0)
+                    EnableIPSP[in][jn] = true;
+            }   
+        }
+
+        //otherwise we enable IPSP across all the layer
+        else{
+            for (int jn=0; jn < N_neuronsL[0]; jn++)
+                EnableIPSP[in][jn] = true;
+        }
+    }
+    
     return;
 }
 
@@ -493,7 +561,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
             }
             else if (History_type[in][ih] == 2)
             { // IPSP
-                if (delta_t < MaxDeltaT)
+                if (delta_t < MaxDeltaT && EnableIPSP[in][History_ID[in][ih] - N_InputStreams])
                 {
                     int ilayer = Neuron_layer[in];
                     P += Inhibitory_potential(delta_t, ilayer);

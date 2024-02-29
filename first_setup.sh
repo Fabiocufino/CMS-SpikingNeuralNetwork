@@ -14,6 +14,11 @@ fi
 if ! [[ -e "Code/Data" ]];then
     mkdir Code/Data
 fi
+
+if ! [[ -e "Code/Data/delays.txt" ]];then
+    touch Code/Data/delays.txt
+fi
+
 if ! [[ -e "Code/pdf" ]];then
     mkdir Code/pdf
 fi
@@ -29,6 +34,16 @@ fi
 
 if ! [[ -e "Code/Data/ordered.root" ]];then
     wget -o - -O Code/Data/ordered.root "https://www.dropbox.com/scl/fi/2ipkrkxud5k9j7hglh64c/ordered.root?rlkey=8qrtubtqdedszypb6wd6o7d77&dl=0"
+fi
+
+if grep -q "SNN_PATH=" ~/.bashrc; then
+    sed -i "s|export SNN_PATH=.*|export SNN_PATH=$(pwd)|g" ~/.bashrc
+    source ~/.bashrc
+    echo "SNN_PATH updated to current directory."
+else
+    echo "export SNN_PATH=$(pwd)" >> ~/.bashrc
+    source ~/.bashrc
+    echo "SNN_PATH is set to current directory."
 fi
 
 echo "Execution terminated"
