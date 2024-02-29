@@ -226,12 +226,11 @@ void SNN::Init_delays_man(){
                 file.close(); // Close the file before throwing exception
                 throw runtime_error("Error: Unable to read delay value at position (" + to_string(in) + ", " + to_string(is) + ").");    
             }
-            Delay[in][is] = MaxDelay-Delay[in][is];
         }
     }
     for (int in = N_neuronsL[0]; in < N_neurons; in++){
         for (int is = 0; is < N_InputStreams; is++)
-            Delay[in][is] = MaxDelay;
+            Delay[in][is] = 0;
     }
     // Close the file
     file.close();

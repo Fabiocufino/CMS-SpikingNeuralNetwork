@@ -3128,7 +3128,7 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
-    SNN_Tracking(S,file_id_GS);
+    //SNN_Tracking(S,file_id_GS);
 
     // preparing the file to plot the neuron potentials of the best configurations
     cout << "Creating the file for the potentials plot" << endl;
