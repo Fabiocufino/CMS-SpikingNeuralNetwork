@@ -46,7 +46,7 @@ static char progress[53] = "[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
 static long int ievent;
 
 // New random number generator
-static TRandom3 *myRNG = new TRandom3(23);
+static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
 
 // Function that reads parameters from file, if you want to start from a previous optimization
 // ----------------------------------------
@@ -365,7 +365,7 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
         // average efficiency on class j over neurons
         S = 0.;
-        float Effn[N_classes];
+        float Effn[snn.N_neurons];
         float Effc[N_classes];
         float sumeff = 0.;
         for (int in = inmin; in < inmax; in++)
@@ -552,8 +552,9 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr, bool no_firing_mode = false)
+void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
 {
+    insert = true;
     vector<int> neurons_index;
     // initialization of neurons_index vector
     for (int i = 0; i < P.N_neurons; i++)
@@ -868,7 +869,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                         { // inhibitions within layer or across
                             P.History_time[in2].push_back(min_fire_time);
                             P.History_type[in2].push_back(2);
-                            P.History_ID[in2].push_back(in_first);
+                            P.History_ID[in2].push_back(P.N_InputStreams + in_first);
                         }
                     }
                 }
@@ -878,9 +879,13 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                 { // this is a Layer-0 neuron
                     for (int in = P.N_neuronsL[0]; in < P.N_neurons; in++)
                     {
-                        P.History_time[in].push_back(min_fire_time);
-                        P.History_type[in].push_back(1);
-                        P.History_ID[in].push_back(_N_InputStreams + in_first);
+                        int is = P.N_InputStreams + in_first;
+                        if(!P.Void_weight[in][is]){
+                            P.History_time[in].push_back(min_fire_time+ P.Delay[in][is]);
+                            P.History_type[in].push_back(1);
+                            P.History_ID[in].push_back(is);
+                        }
+                        
                     }
                 }
                 ispike -= 1;
@@ -900,7 +905,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     int is = PreSpike_Stream[ispike];
                     if (!P.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
-                        P.History_time[in].push_back(t);
+                        P.History_time[in].push_back(t+ P.Delay[in][is]);
                         // All input spikes lead to EPSP
                         P.History_type[in].push_back(1);
                         P.History_ID[in].push_back(is);
@@ -1013,8 +1018,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         gROOT->SetBatch(kTRUE);
 
     // initialization of neurons_index vector
-    for (int i = 0; i < snn_in.N_neurons; i++)
+    int N_neu_temp = 0;
+    for (int i = 0; i < snn_in.N_neurons; i++){
         neurons_index.push_back(i);
+        N_neu_temp++;
+    }
+
 
     if (TrainingCode / 4 > 0)
     {
@@ -1339,7 +1348,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                  _a_plus, _a_minus,
 
                  _N_InputStreams,
-                 _Threshold0, _Threshold1);
+                 _Threshold0, _Threshold1, _sparsity);
     SNN snn_old(_NL0, _NL1,
                 _alpha,
                 _CFI0, _CFI1, _CF01,
@@ -1352,7 +1361,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 _a_plus, _a_minus,
 
                 _N_InputStreams,
-                _Threshold0, _Threshold1);
+                _Threshold0, _Threshold1, _sparsity);
 
     // Storing parameters subjected to random search
     snn_old.Threshold[0] = snn_in.Threshold[0];
@@ -1628,7 +1637,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         { // inhibitions within layer or across
                             snn_in.History_time[in2].push_back(min_fire_time);
                             snn_in.History_type[in2].push_back(2);
-                            snn_in.History_ID[in2].push_back(in_first);
+                            snn_in.History_ID[in2].push_back(snn_in.N_InputStreams + in_first);
                         }
                     }
                 }
@@ -1638,10 +1647,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 { // this is a Layer-0 neuron
                     for (int in = snn_in.N_neuronsL[0]; in < snn_in.N_neurons; in++)
                     {
-                        snn_in.History_time[in].push_back(min_fire_time);
-                        snn_in.History_type[in].push_back(1);
-                        snn_in.History_ID[in].push_back(snn_in.N_InputStreams + in_first);
-                        snn_in.LTD(in, in_first, min_fire_time, nearest_spike_approx, snn_old);
+                        int is = snn_in.N_InputStreams + in_first;
+                        if(!snn_in.Void_weight[in][is]){
+                            snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
+                            snn_in.History_type[in].push_back(1);
+                            snn_in.History_ID[in].push_back(is);
+                            snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
+                        }
                     }
                 }
 
@@ -1723,12 +1735,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
-                        snn_in.History_time[in].push_back(t);
+                        snn_in.History_time[in].push_back(t+ snn_in.Delay[in][is]);
                         // All input spikes lead to EPSP
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(is);
 
-                        snn_in.LTD(in, is, t, nearest_spike_approx, snn_old);
+                        snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
             }
@@ -3089,6 +3101,8 @@ int main(int argc, char *argv[])
             NROOT = stoi(argv[i + 1]);
         else if (strcmp(arg, "--file_id_GS") == 0)
             file_id_GS = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--sparsity") == 0)
+            _sparsity = stof(argv[i + 1]);
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
@@ -3108,13 +3122,14 @@ int main(int argc, char *argv[])
           _a_plus, _a_minus,
 
           _N_InputStreams,
-          _Threshold0, _Threshold1);
+          _Threshold0, _Threshold1, _sparsity);
+
 
     SNN_Tracking(S,file_id_GS);
 
     // preparing the file to plot the neuron potentials of the best configurations
     cout << "Creating the file for the potentials plot" << endl;
-    PlotPotentials("Data/ordered.root", S, 12);
+    PlotPotentials("../Data/ordered.root", S, 12);
 
     // to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
     /* SNN P(_NL0, _NL1,
@@ -3129,7 +3144,7 @@ int main(int argc, char *argv[])
           _a_plus, _a_minus,
 
           _N_InputStreams,
-          _Threshold0, _Threshold1);
+          _Threshold0, _Threshold1, _sparsity);
     PlotPotentials("Data/ordered.root", P, 12, true, "MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root");
     */
     return 0;
