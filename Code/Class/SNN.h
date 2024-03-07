@@ -42,9 +42,13 @@ public:
     double tau_r;          // refractory time[s]
     double tau_plus;       // [s]
     double tau_minus;      // [s]
+    double taud_plus;      // [s]
+    double taud_minus;     // [s]
 
-    double a_plus;          // for model of EPSP
-    double a_minus;       // 0.85*a_plus;
+    double a_plus;          
+    double a_minus;       
+    double d_plus;         
+    double d_minus;       
 
     float sparsity;
     bool split_layer0;      //decide if you want to split layer 0 in two.
@@ -93,6 +97,9 @@ public:
 
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
          double _a_plus, double _a_minus,
+
+         double _tausd_plus, double _taud_minus,
+         double _d_plus, double _d_minus,
 
          int _N_InputStreams,
          float _Threshold0, float _Threshold1, float _sparsity, bool _split_layer0);
