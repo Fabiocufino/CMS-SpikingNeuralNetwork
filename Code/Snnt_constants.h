@@ -69,7 +69,8 @@ static float eff_target = 0.9;
 static float acc_target = 0.05;
 static bool learnDelays = false;
 static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
-static int N_test = 500;
+static int N_display = 500;
+static int Train_fraction = 0.9;
 
 // -------------------------------------------
 // tracking constants
