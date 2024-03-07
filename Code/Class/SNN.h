@@ -116,6 +116,7 @@ public:
 
     void Init_delays_PERT();
     void Init_delays_man();
+    void Init_delays_uniform();
 
     void Init_connection_map();
     float EPS_potential(double delta_t);

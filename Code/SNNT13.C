@@ -1905,7 +1905,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
-                snn_in.Init_delays_man(); // This unlike void connections, because we can opt to learn these at each cycle too
+                snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
 
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
                  << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
