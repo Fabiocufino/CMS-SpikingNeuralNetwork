@@ -1349,6 +1349,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                  _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
                  _a_plus, _a_minus,
 
+                 _taud_plus, _taud_minus,
+                 _d_plus, _d_minus,
+
                  _N_InputStreams,
                  _Threshold0, _Threshold1, _sparsity, _split_layer0);
     SNN snn_old(_NL0, _NL1,
@@ -1361,6 +1364,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
                 _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
                 _a_plus, _a_minus,
+
+                _taud_plus, _taud_minus,
+                _d_plus, _d_minus,
 
                 _N_InputStreams,
                 _Threshold0, _Threshold1, _sparsity, _split_layer0);
@@ -3002,6 +3008,10 @@ void PrintHelp()
     cout << "   --a_minus" << endl;
     cout << "   --tau_plus" << endl;
     cout << "   --tau_minus" << endl;
+    cout << "   --d_plus" << endl;
+    cout << "   --d_minus" << endl;
+    cout << "   --taud_plus" << endl;
+    cout << "   --taud_minus" << endl;
 
     cout << endl;
 
@@ -3079,6 +3089,16 @@ int main(int argc, char *argv[])
         else if (strcmp(arg, "--a_minus") == 0)
             _a_minus = stof(argv[i + 1]);
 
+        else if (strcmp(arg, "--taud_plus") == 0)
+            _taud_plus = stof(argv[i + 1]);
+        else if (strcmp(arg, "--taud_minus") == 0)
+            _taud_minus = stof(argv[i + 1]);
+
+        else if (strcmp(arg, "--d_plus") == 0)
+            _d_plus = stof(argv[i + 1]);
+        else if (strcmp(arg, "--d_minus") == 0)
+            _d_minus = stof(argv[i + 1]);
+
         else if (strcmp(arg, "--TH0") == 0)
             _Threshold0 = stof(argv[i + 1]);
         else if (strcmp(arg, "--TH1") == 0)
@@ -3130,6 +3150,9 @@ int main(int argc, char *argv[])
           _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
           _a_plus, _a_minus,
 
+          _taud_plus, _taud_minus,
+          _d_plus, _d_minus,
+
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
@@ -3150,6 +3173,9 @@ int main(int argc, char *argv[])
 
           _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
           _a_plus, _a_minus,
+
+          _taud_plus, _taud_minus,
+          _d_plus, _d_minus,
 
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity);

@@ -115,6 +115,11 @@ static double _MaxDelay =  2.5e-09;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
 
+static double _d_plus = 0.00003125;
+static double _d_minus = 0.00002656; 
+static double _taud_plus = 1.68e-09 /3;
+static double _taud_minus = 3.37e-09 /3;
+
 static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
 

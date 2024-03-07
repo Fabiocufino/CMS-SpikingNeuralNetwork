@@ -19,6 +19,9 @@ SNN::SNN(int _NL0, int _NL1,
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
          double _a_plus, double _a_minus,
 
+         double _taud_plus, double _taud_minus,
+         double _d_plus, double _d_minus,
+
          int _N_InputStreams,
          float _Threshold0, float _Threshold1, float _sparsity, bool _split_layer0) :
                                                  // Initializations
@@ -48,6 +51,13 @@ SNN::SNN(int _NL0, int _NL1,
 
                                                  a_plus(_a_plus),
                                                  a_minus(_a_minus),
+
+                                                 taud_plus(_taud_plus),
+                                                 taud_minus(_taud_minus),
+
+                                                 d_plus(_d_plus),
+                                                 d_minus(_d_minus),
+
 
                                                  N_InputStreams(_N_InputStreams),
                                                  sparsity(_sparsity),
@@ -614,6 +624,7 @@ float SNN::IE_potential(double delta_t, int in, int is)
     return sp;
 }
 
+//LTP rule for weights -> depression of the delays 
 void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
     for (int is = 0; is < N_streams; is++)
@@ -631,19 +642,16 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             {
                 double delta_t = History_time[in][isp] - fire_time;
 
-                if(isnan(delta_t)) cout << History_time[in][isp] << " deltat " << fire_time << endl;
-
-                if(isnan(Weight[in][is])) cout << Weight[in][is] << " efore " << endl;
-
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
-                if(isnan(Weight[in][is])) cout << Weight[in][is] << " after " << delta_t << endl;
+                Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
 
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
+                if (Delay[in][is] < 0.)
+                    Delay[in][is] = 0.;
 
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
-                if(isnan(delta_weight)) cout << Weight[in][is] << "   " << old.Weight[in][is] << " "<< is << endl;
 
                 // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
@@ -652,11 +660,8 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             isp--;
         } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
         
-        if (!no_prespikes){
-            if(isnan(delta_weight)) cout <<" LTP " << in << endl;
-
+        if (!no_prespikes)
             Renorm(in, old);
-        }
     }
     return;
 }
@@ -676,10 +681,14 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
+        Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
+
         if (Weight[in][is] < 0.)
             Weight[in][is] = 0.;
+        if (Delay[in][is] > MaxDelay)
+            Delay[in][is] = MaxDelay;
+
         float delta_weight =  Weight[in][is] - old.Weight[in][is];
-        if(isnan(delta_weight)) cout <<" LTD " << in << is << endl;
 
         Renorm(in, old);
     }
@@ -715,11 +724,6 @@ void SNN::Renorm_Opt(int in, float delta_weight, SNN &old)
         if (!Void_weight[in][is])
         {
             Weight[in][is] /= norm_factor;
-            if(isnan(Weight[in][is])){
-                cout <<"Errore " << old.Weight[in][is] << " " << norm_factor<<  " "<< delta_weight <<endl;
-                cout << in <<" " << is << endl;
-                exit(1);
-            }
             old.Weight[in][is] = Weight[in][is];
         }
     }
