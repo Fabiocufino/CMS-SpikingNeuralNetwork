@@ -286,6 +286,22 @@ void SNN::Init_delays_PERT()
     return;
 }
 
+void SNN::Init_delays_uniform()
+{
+    //gaussian delays for all synapses connecting to input streams
+    for (int in = 0; in < N_neurons; in++){
+        for (int is = 0; is < N_InputStreams; is++){
+            Delay[in][is] = myRNG->Gaus(0.5*MaxDelay, sparsity/sqrt(N_InputStreams)*MaxDelay);
+        }
+    }
+    //0 delay for everything else
+    for (int in = 0; in < N_neurons; in++){
+        for (int is = N_InputStreams; is < N_streams; is++)
+            Delay[in][is] = 0;
+    }
+
+    return;
+}
 
 void SNN::Init_weights()
 {
