@@ -21,7 +21,7 @@
 
 //in the future 18
 static const int NFile = 2;
-static TRandom3 * myRNG = new TRandom3(232);
+static TRandom3 * myRNG = new TRandom3(65645);
 static TFile *files[NFile];
 static TDirectory *dirIT_list[NFile];
 static TDirectory *dirOT_list[NFile];
@@ -29,7 +29,7 @@ static TTree *IT_list[NFile];
 static TTree *OT_list[NFile];
 static int N_Events_list[NFile];
 static vector<int> N_Events_list_id[NFile];
-static string P_name[3]= {"1", "3", "10"};
+static string P_name[2]= {"1", "10"};
 static double *P_cum;
 static int NIT;
 static int NOT;
@@ -286,17 +286,17 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
     return make_pair(event_IT, event_OT);
 }
 
-void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.root", float bkg_rate = 100, bool random_ev = false, float bg_freq=1, string folder = "/Users/Fabio/Desktop/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void generate_data(int N_events = 50000, string outRoot="Data/binary_50k_100br.root", float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Desktop/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
 
     //momentaneamente j = 0 per gestire solo i file a 1GeV
     int combind = 0;
 
-    for (int j=0; j < 3; j++)
+    for (int j=0; j < 2; j++)
     {   
         //open all root files and TTrees inside
         //momentaneamente solo 1
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 1; i++)
         {
             string rootInput;
             if(i%2==0) rootInput = folder + P_name[j] + "GeV/SingleParticleEta0p4/" + file_name;

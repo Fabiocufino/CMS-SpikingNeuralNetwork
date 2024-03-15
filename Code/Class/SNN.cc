@@ -109,7 +109,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_neurons();
     Init_connection_map();
     Init_weights();
-    Init_delays_man();
+    Init_delays_uniform();
 }
 
 SNN::~SNN()
@@ -334,6 +334,20 @@ void SNN::Init_weights()
     return;
 }
 
+void SNN::Init_delays_uniform()
+{
+    for (int in = 0; in < N_neurons; in++)
+    {
+        for (int is = 0; is < N_streams; is++)
+        {
+            Delay[in][is] = myRNG->Uniform()*MaxDelay;
+            
+        }
+        
+    }
+
+    return;
+}
 
 void SNN::Init_weights_uniform()
 {
@@ -414,7 +428,7 @@ void SNN::Init_connection_map()
     //enabFle IPSP in layer 1
     for(int in=N_neuronsL[0]; in<N_neurons; in++){
         for(int jn=N_neuronsL[0]; jn<N_neurons; jn++)
-            EnableIPSP[in][jn] = false;
+            EnableIPSP[in][jn] = true;
     }
 
     //enable IPSP in layer 0

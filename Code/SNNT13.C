@@ -644,6 +644,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     // Loop on events ----------------------------------------------
     do
     {
+        
         float previous_firetime = 0;
 
         PreSpike_Time.clear();
@@ -1255,11 +1256,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     for (int i = 0; i < 10; i++)
     {
         sprintf(name, "StreamsS%d", i);
-        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsB%d", i);
-        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsN%d", i);
-        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_test, 0., (max_angle + Empty_buffer) * N_test/10. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
+        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
 
     // If requested, read in parameters
@@ -1448,7 +1449,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             OptvarD[id] = snn_in.Delay[in][is];
         }
     }
-    int MaxdQHist = 50; // we do not want the full history, because we are moving in the par space; only last 10 points.
+    int MaxdQHist = N_display/10; // we do not want the full history, because we are moving in the par space; only last 10 points.
     vector<float> dQHist;
     vector<float> OptvarHist[9];
     vector<float> OptvarDHist[snn_in.N_neurons * snn_in.N_streams];
@@ -1624,7 +1625,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                if(ievent < N_events - N_test) snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                if(ievent < N_events * Train_fraction) snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
 
                 // Reset history of this neuron
                 snn_in.History_time[in_first].clear();
@@ -1658,16 +1659,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
                             snn_in.History_type[in].push_back(1);
                             snn_in.History_ID[in].push_back(is);
-                            if(ievent < N_events - N_test) snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
+                            if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
                         }
                     }
                 }
 
                 // Fill spikes train histogram
-                if (ievent >= N_events - N_test)
+                if (ievent >= N_events - N_display)
                 {
-                    int is = (ievent - N_events + N_test) / (N_test/10);
-                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / N_test/10) * N_test/10;
+                    int is = (ievent - N_events + N_display) / (N_display/10);
+                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / (N_display/10)) * (N_display/10);
                     StreamsN[is]->Fill(time, in_first + 1);
                     if (N_part > 0)
                     {
@@ -1690,12 +1691,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 }
                 else
                 {
-                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * 0.9)
+                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * Train_fraction)
                     {
                         random_fire[in_first]++;
                         not_filled[in_first] = false;
                     }
-                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * 0.9)
+                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
                     { // for Q-value calculations
                         if (not_fired_bgr)
                         {
@@ -1715,13 +1716,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             // insert the new spike for the next iteration
             if (insert)
             {
-                // Save information on hit-based streams for last N_test events to histograms
-                if (ievent >= N_events - N_test)
+                // Save information on hit-based streams for last N_display events to histograms
+                if (ievent >= N_events - N_display)
                 {
                     // dividing N_events in 10 groups
-                    int is = (ievent - N_events + N_test) / (N_test/10);
+                    int is = (ievent - N_events + N_display) / (N_display/10);
                     // time = tin + thit - tin(First event of the group)
-                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / N_test/10.) * N_test/10.;
+                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / (N_display/10)) * (N_display/10);
 
                     // Histograms
                     if (PreSpike_Signal[ispike] == 1)
@@ -1746,7 +1747,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(is);
 
-                        if(ievent < N_events - N_test) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
+                        if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
             }
@@ -1756,7 +1757,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         if (N_part > 0)
         {
             // efficiency calculations only in the last 10% of the epoch
-            if (iev_thisepoch > NevPerEpoch * 0.9)
+            if (iev_thisepoch > NevPerEpoch * Train_fraction)
             {
                 gen_sum[pclass]++;
                 for (int in = 0; in < snn_in.N_neurons; in++)
@@ -1875,7 +1876,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
-            averacctotL1 = atleastonefired * (2. / NevPerEpoch * 10.); // total acceptance, computed with 0.1*NevPerEpoch/2 events with no tracks
+            averacctotL1 = atleastonefired * (2. / NevPerEpoch * (1-Train_fraction)*100); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
             averefftotL1 = 0.;
             for (int ic = 0; ic < N_classes; ic++)
             {
@@ -1904,7 +1905,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
-                snn_in.Init_delays_man(); // This unlike void connections, because we can opt to learn these at each cycle too
+                snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
 
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
                  << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
@@ -3023,6 +3024,8 @@ void PrintHelp()
     cout << "   --TrainingCode" << endl;
     cout << "   --ReadPars" << endl;
     cout << "   --NROOT" << endl;
+    cout << "   --N_dispalay" << endl;
+    cout << "   --Train_fraction" << endl;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -3106,8 +3109,10 @@ int main(int argc, char *argv[])
             N_events = stoi(argv[i + 1]);
         else if (strcmp(arg, "--N_ep") == 0)
             N_epochs = stoi(argv[i + 1]);
-        else if (strcmp(arg, "--N_test") == 0)
-            N_test = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--N_display") == 0)
+            N_display = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--Train_fraction") == 0)
+            Train_fraction = stoi(argv[i + 1]);
         else if (strcmp(arg, "--batch") == 0)
             batch = stoi(argv[i + 1]);
         else if (strcmp(arg, "--rootInput") == 0)
@@ -3151,7 +3156,7 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
-    //SNN_Tracking(S,file_id_GS);
+    SNN_Tracking(S,file_id_GS);
 
     // preparing the file to plot the neuron potentials of the best configurations
     cout << "Creating the file for the potentials plot" << endl;
