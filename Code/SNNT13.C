@@ -134,7 +134,7 @@ int Read_Parameters()
 void Write_Parameters()
 {
 
-    string Path = SNN_PATH+"/Code/MODE/SNNT/";
+    string Path = "./MODE/SNNT/";
     ifstream tmpfile;
     indfile = -1;
     // Determine first available file number to write, by attempting to open all files with same name and previous numbering
@@ -275,9 +275,6 @@ void Encode(double t_in)
         double time = t_in + row.phi / omega;
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
 
-        if(row.id == 2){
-        //    cout << itl << " " << time << endl;
-        }
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
         PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
@@ -755,7 +752,6 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         }
 
         float t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
-        //cout <<  "Event: " << ievent << endl;
         Encode(t_in);
 
         // Loop on spikes and modify neuron and synapse potentials
@@ -1331,7 +1327,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     float averacctotL1 = 0.;
 
     Eff = new float[snn_in.N_neurons * N_classes];
-    float SumofSquaresofWeight[snn_in.N_neurons]  = {0};  // sum of squares synaptic weights for each neuron for RMS calc
+    float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
     float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
     float MinWeight[snn_in.N_neurons];

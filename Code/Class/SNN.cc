@@ -286,7 +286,7 @@ void SNN::Init_delays_PERT()
     return;
 }
 
-void SNN::Init_delays_uniform()
+void SNN::Init_delays_gauss()
 {
     //gaussian delays for all synapses connecting to input streams
     for (int in = 0; in < N_neurons; in++){

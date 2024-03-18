@@ -116,8 +116,9 @@ public:
 
     void Init_delays_PERT();
     void Init_delays_man();
+    void Init_delays_gauss();
     void Init_delays_uniform();
-
+    
     void Init_connection_map();
     float EPS_potential(double delta_t);
     float Spike_potential(double delta_t, int ilayer);
