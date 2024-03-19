@@ -109,7 +109,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_neurons();
     Init_connection_map();
     Init_weights();
-    Init_delays_uniform();
+    Init_delays_man();
 }
 
 SNN::~SNN()
