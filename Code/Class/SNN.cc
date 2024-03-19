@@ -109,7 +109,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_neurons();
     Init_connection_map();
     Init_weights();
-    Init_delays_man();
+    Init_delays_uniform();
 }
 
 SNN::~SNN()
@@ -336,6 +336,19 @@ void SNN::Init_weights()
 
 void SNN::Init_delays_uniform()
 {
+   for (int in = 0; in < N_neurons; in++){
+        for (int is = 0; is < N_InputStreams; is++){
+            Delay[in][is] = MaxDelay/2;
+        }
+    }
+    //0 delay for everything else
+    for (int in = 0; in < N_neurons; in++){
+        for (int is = N_InputStreams; is < N_streams; is++)
+            Delay[in][is] = 0;
+    }
+
+    return;
+
     for (int in = 0; in < N_neurons; in++)
     {
         for (int is = 0; is < N_streams; is++)
@@ -673,13 +686,13 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
                 double delta_t = History_time[in][isp] - fire_time;
 
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
-                Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
-
+                
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
-                if (Delay[in][is] < 0.)
-                    Delay[in][is] = 0.;
-
+                
+                Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
+                if (Delay[in][is] > MaxDelay)
+                    Delay[in][is] = MaxDelay;
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
 
@@ -711,12 +724,13 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
-        Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
 
+        Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
+        if (Delay[in][is] < 0.)
+                    Delay[in][is] = 0.;
+                    
         if (Weight[in][is] < 0.)
             Weight[in][is] = 0.;
-        if (Delay[in][is] > MaxDelay)
-            Delay[in][is] = MaxDelay;
 
         float delta_weight =  Weight[in][is] - old.Weight[in][is];
 

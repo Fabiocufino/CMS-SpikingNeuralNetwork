@@ -19,6 +19,9 @@
         "test.C": "cpp",
         "new": "cpp",
         "deque": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp",
+        "thread": "cpp"
     }
 }
