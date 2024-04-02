@@ -19,7 +19,8 @@
         "unordered_map": "cpp",
         "algorithm": "cpp",
         "draw_histrograms.C": "cpp",
-        "env.C": "cpp"
+        "env.C": "cpp",
+        "rootlogon.C": "cpp"
     },
     "cmake.configureOnOpen": true
 }

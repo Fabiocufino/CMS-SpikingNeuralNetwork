@@ -59,6 +59,8 @@ public:
     double fire_granularity;    //it defines how much close we will look for neuron's activation.
     float fire_precision;      // [V] it defines the precision of the neuron firetime detection.
 
+    double Delta_delay;
+    double Mean_delay;
 
     //Variables that depend on the upper ones
     int N_neurons;
@@ -82,6 +84,8 @@ public:
     vector<double> *Fire_time;          // Times of firing of each neuron
     int *Neuron_layer;
     float *sumweight; // summed weights of streams for each neurons for the purpose of normalization
+    float *sumdelays; // summed delays of streams for each neurons for the purpose of normalization
+    
     int N_neuronsL[2];           // Number of neurons in layers 0 and 1
     TRandom3 *myRNG;
     double largenumber;

@@ -1,3 +1,4 @@
+#pragma cling optimize(0)
 #include "TH2.h"
 #include "TH1.h"
 #include "TProfile.h"
@@ -29,7 +30,7 @@ static TTree *IT_list[NFile];
 static TTree *OT_list[NFile];
 static int N_Events_list[NFile];
 static vector<int> N_Events_list_id[NFile];
-static string P_name[2]= {"1", "10"};
+static string P_name[3]= {"1", "3", "10"};
 static double *P_cum;
 static int NIT;
 static int NOT;
@@ -286,13 +287,12 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
     return make_pair(event_IT, event_OT);
 }
 
-void generate_data(int N_events = 50000, string outRoot="Data/binary_50k_100br.root", float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Desktop/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void generate_data_macro(int N_events = 50000, string outRoot="Data/muons_50k_100br.root", float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Desktop/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
-
     //momentaneamente j = 0 per gestire solo i file a 1GeV
     int combind = 0;
 
-    for (int j=0; j < 2; j++)
+    for (int j=0; j < 3; j++)
     {   
         //open all root files and TTrees inside
         //momentaneamente solo 1
@@ -368,10 +368,10 @@ void generate_data(int N_events = 50000, string outRoot="Data/binary_50k_100br.r
             combind++;
         }   
     }
-    
+    cout << "Uscito" << endl;
     //opening output file
     TFile* out = new TFile(outRoot.c_str(), "RECREATE");
-
+    cout << "Open output file" << endl;
     TDirectory *dirIT_out = out->mkdir("clusterValidIT");
     TDirectory *dirOT_out = out->mkdir("clusterValidOT");    
     

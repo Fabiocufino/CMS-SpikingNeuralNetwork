@@ -1,12 +1,14 @@
 #include "SNN.h"
+/*
 #include <boost/random.hpp>
 #include <boost/random/beta_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
+*/
 
-using namespace boost::random;
+//using namespace boost::random;
 using namespace std;
 
-mt19937 rng;
+//mt19937 rng;
 
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
@@ -64,7 +66,7 @@ SNN::SNN(int _NL0, int _NL1,
                                                  split_layer0(_split_layer0)
 
 {
-    rng.seed(static_cast<unsigned int>(std::time(0)));
+    //rng.seed(static_cast<unsigned int>(std::time(0)));
     Threshold[0] = _Threshold0;
     Threshold[1] = _Threshold1;
     
@@ -104,7 +106,11 @@ SNN::SNN(int _NL0, int _NL1,
     Fire_time = new vector<double>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
+    sumdelays = new float[N_neurons]; // summed delays of streams for each neurons for the purpose of normalization
 
+
+    Delta_delay = MaxDelay/10.;
+    Mean_delay = MaxDelay/2.;
 
     Init_neurons();
     Init_connection_map();
@@ -254,6 +260,7 @@ void SNN::Init_delays_man(){
     return;
 }
 
+/*
 void SNN::Init_delays_PERT()
 {
     // Define delays
@@ -284,7 +291,7 @@ void SNN::Init_delays_PERT()
     }
     cout << endl;
     return;
-}
+}*/
 
 void SNN::Init_delays_gauss()
 {
@@ -337,26 +344,16 @@ void SNN::Init_weights()
 void SNN::Init_delays_uniform()
 {
    for (int in = 0; in < N_neurons; in++){
+        sumdelays[in] = 0.;
         for (int is = 0; is < N_InputStreams; is++){
-            Delay[in][is] = MaxDelay/2;
+            Delay[in][is] = Delta_delay * (2*myRNG->Uniform()-1.) * Mean_delay;
+            sumdelays[in]+=Delay[in][is];
         }
     }
     //0 delay for everything else
     for (int in = 0; in < N_neurons; in++){
         for (int is = N_InputStreams; is < N_streams; is++)
             Delay[in][is] = 0;
-    }
-
-    return;
-
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            Delay[in][is] = myRNG->Uniform()*MaxDelay;
-            
-        }
-        
     }
 
     return;
@@ -741,11 +738,15 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
 
 void SNN::Renorm(int in, SNN &old) {
     float weight_sum = 0.0;
+    float delay_factor = 0.;
+
     // Calculate the sum of weights for the 'in' neuron
     for (int is = 0; is < N_streams; is++) {
         if(!Void_weight[in][is]) weight_sum += Weight[in][is];
+        delay_factor+=Delay[in][is];
     }
-    
+
+    delay_factor/= sumdelays[in];
     // Check if the sum is greater than 0 to avoid division by zero
     if (weight_sum > 0.0) {
         // Normalize the weights for the 'in' neuron
@@ -754,9 +755,12 @@ void SNN::Renorm(int in, SNN &old) {
                 Weight[in][is] = Weight[in][is]/weight_sum;
                 old.Weight[in][is] = Weight[in][is];
            }
+           Delay[in][is]*=delay_factor;
+           //TODO: maybe I should recheck the boundary conditions for the delays.
         }
     }
-return;    
+
+    return;    
 }
 
 
