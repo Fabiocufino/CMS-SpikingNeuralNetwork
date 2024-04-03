@@ -115,8 +115,8 @@ static double _MaxDelay =  3.e-09;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
 
-static double _d_plus = 1.e-10;
-static double _d_minus = 1.e-10; 
+static double _d_plus = 1.e-14;
+static double _d_minus = 1.e-14; 
 static double _taud_plus = 3.37e-09 /3;
 static double _taud_minus = 3.37e-09 /3;
 

@@ -36,6 +36,10 @@ if ! [[ -e "Code/Data/ordered.root" ]];then
     wget -o - -O Code/Data/ordered.root "https://www.dropbox.com/scl/fi/2ipkrkxud5k9j7hglh64c/ordered.root?rlkey=8qrtubtqdedszypb6wd6o7d77&dl=0"
 fi
 
+if ! [[ -e "Code/Data/muons_100k_100br.root" ]];then
+    wget -o - -O Code/Data/muons_100k_100br.root "https://www.dropbox.com/scl/fi/i9o2525gz1t7buyxcl028/muons_100k_100br.root?rlkey=a8r54plfuy0r0gb8a0mc83vgc&dl=0"
+fi
+
 if grep -q "SNN_PATH=" ~/.bashrc; then
     sed -i "s|export SNN_PATH=.*|export SNN_PATH=$(pwd)|g" ~/.bashrc
     source ~/.bashrc
