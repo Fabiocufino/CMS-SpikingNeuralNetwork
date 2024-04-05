@@ -77,7 +77,7 @@ SNN::SNN(int _NL0, int _NL1,
     tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
     MaxDeltaT = 7. * tau_m;
 
-    fire_granularity = tau_s / 5.;
+    fire_granularity = tau_s / 4.;
     fire_precision = Threshold[0] *5. / 100.;
     myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
     largenumber = 999999999.;
@@ -85,9 +85,11 @@ SNN::SNN(int _NL0, int _NL1,
 
     Weight = new float *[N_neurons];         // Weight of synapse-neuron strength
     Weight_initial = new float *[N_neurons];
+    Delay = new double *[N_neurons];          // Delay in incoming signals
+    Delay_initial = new double *[N_neurons];
     check_LTD = new bool *[N_neurons];       // checks to generate LTD after neuron discharge
     Void_weight = new bool *[N_neurons];     // These may be used to model disconnections
-    Delay = new double *[N_neurons];          // Delay in incoming signals
+    
     EnableIPSP = new bool *[N_neurons];
 
     for (int in = 0; in < N_neurons; in++)
@@ -97,6 +99,7 @@ SNN::SNN(int _NL0, int _NL1,
         check_LTD[in] = new bool[N_streams];
         Void_weight[in] = new bool[N_streams];
         Delay[in] = new double[N_streams];
+        Delay_initial[in] = new double[N_streams];
         EnableIPSP[in] = new bool[N_neurons];
     }
 
@@ -106,7 +109,7 @@ SNN::SNN(int _NL0, int _NL1,
     Fire_time = new vector<double>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
-    sumdelays = new float[N_neurons]; // summed delays of streams for each neurons for the purpose of normalization
+    sumdelays = new double[N_neurons]; // summed delays of streams for each neurons for the purpose of normalization
 
 
     Delta_delay = MaxDelay/10.;
@@ -238,15 +241,18 @@ void SNN::Init_delays_man(){
     //set them by default to MaxDelay for connections involving the input stream
     for (int in = 0; in < N_neuronsL[0]; in++){
         for (int is = 0; is < N_InputStreams; is++){
-            if (!(file >> Delay[in][is])) {
+            if (!(file >> Delay[in][is] && file >> Delay_initial[in][is])) {
                 file.close(); // Close the file before throwing exception
                 throw runtime_error("Error: Unable to read delay value at position (" + to_string(in) + ", " + to_string(is) + ").");    
             }
         }
     }
     for (int in = N_neuronsL[0]; in < N_neurons; in++){
-        for (int is = 0; is < N_InputStreams; is++)
+        for (int is = 0; is < N_InputStreams; is++){
             Delay[in][is] = 0;
+            Delay_initial[in][is] = 0;  
+
+        }      
     }
     // Close the file
     file.close();
@@ -255,6 +261,7 @@ void SNN::Init_delays_man(){
     for (int in = 0; in < N_neurons; in++){
         for (int is = N_InputStreams; is < N_streams; is++){
             Delay[in][is] = 0;
+            Delay_initial[in][is] = 0;
         }
     }
     return;
@@ -272,6 +279,7 @@ void SNN::Init_delays_PERT()
         for (int is = 0; is < N_streams; is++)
         { 
             Delay[in][is] = 0.;
+            Delay_initial[in][is] = 0;
             if (is<N_InputStreams) { // no delay for neuron-originated spikes into L1
                 float most_likely = 0;
                 if (type < 0.5) 
@@ -285,6 +293,7 @@ void SNN::Init_delays_PERT()
                 variate_generator<mt19937&, beta_distribution<> > betaGenerator(rng, betaDistribution);
 
                 Delay[in][is] = pow(betaGenerator(), 1.)* MaxDelay*factor;
+                Delay_initial[in][is] = Delay[in][is];
                 cout << "("<< most_likely << ", " << Delay[in][is] << ")  ";
             }
         }
@@ -299,12 +308,15 @@ void SNN::Init_delays_gauss()
     for (int in = 0; in < N_neurons; in++){
         for (int is = 0; is < N_InputStreams; is++){
             Delay[in][is] = myRNG->Gaus(0.5*MaxDelay, sparsity/sqrt(N_InputStreams)*MaxDelay);
+            Delay_initial[in][is] = Delay[in][is];
         }
     }
     //0 delay for everything else
     for (int in = 0; in < N_neurons; in++){
-        for (int is = N_InputStreams; is < N_streams; is++)
+        for (int is = N_InputStreams; is < N_streams; is++){
             Delay[in][is] = 0;
+            Delay_initial[in][is] = 0;
+        }
     }
 
     return;
@@ -346,14 +358,19 @@ void SNN::Init_delays_uniform()
    for (int in = 0; in < N_neurons; in++){
         sumdelays[in] = 0.;
         for (int is = 0; is < N_InputStreams; is++){
-            Delay[in][is] = Delta_delay * (2*myRNG->Uniform()-1.) * Mean_delay;
+            Delay[in][is] = Delta_delay * (2*myRNG->Uniform()-1.) + Mean_delay;
+            Delay_initial[in][is] = Delay[in][is];
             sumdelays[in]+=Delay[in][is];
         }
     }
     //0 delay for everything else
     for (int in = 0; in < N_neurons; in++){
-        for (int is = N_InputStreams; is < N_streams; is++)
-            Delay[in][is] = 0;
+        for (int is = N_InputStreams; is < N_streams; is++){
+            Delay[in][is] = 0.;
+            Delay_initial[in][is] = 0.;
+            sumdelays[in]+=Delay[in][is];
+        }
+        //cout << in << " " << sumdelays[in] << endl;
     }
 
     return;
@@ -686,10 +703,15 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
                 
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
+
+
+                if(is < N_InputStreams){
+                    Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
                 
-                Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
-                if (Delay[in][is] > MaxDelay)
-                    Delay[in][is] = MaxDelay;
+                    if (Delay[in][is] > MaxDelay)
+                        Delay[in][is] = MaxDelay;
+                }
+                
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
 
@@ -709,44 +731,55 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN &old)
 {
     if(!check_LTD[in][is]) return;
-    if (Fire_time[in].size() == 0)
+    if (Fire_time[in].size() == 0){
+        //cout <<"skip" << endl; 
         return;
-    if (Void_weight[in][is])
+    }
+    if (Void_weight[in][is]){
+        //cout << "void skip" <<endl;
         return;
+    }
+    
     double delta_t = spike_time - Fire_time[in].back();
     // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
     if (nearest_spike_approx)
         check_LTD[in][is] = false;
 
+    //cout << "Go " << delta_t << " " << spike_time<< " " << Fire_time[in].back() << endl;
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
 
-        Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
-        if (Delay[in][is] < 0.)
-                    Delay[in][is] = 0.;
+        if(is<N_InputStreams){
+            Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
+            //cout << -1.*d_minus * exp(-delta_t / taud_minus) << endl;
+
+            if (Delay[in][is] < 0.)
+                Delay[in][is] = 0.; 
+        }
                     
         if (Weight[in][is] < 0.)
             Weight[in][is] = 0.;
 
-        float delta_weight =  Weight[in][is] - old.Weight[in][is];
-
         Renorm(in, old);
+    }
+    else{
+        Fire_time[in].clear();
     }
     return;
 }
 
 void SNN::Renorm(int in, SNN &old) {
     float weight_sum = 0.0;
-    float delay_factor = 0.;
+    double delay_factor = 0.;
 
     // Calculate the sum of weights for the 'in' neuron
     for (int is = 0; is < N_streams; is++) {
         if(!Void_weight[in][is]) weight_sum += Weight[in][is];
         delay_factor+=Delay[in][is];
     }
-
-    delay_factor/= sumdelays[in];
+    //cout << "delay factor " << in << "  " << delay_factor << endl;
+    delay_factor /= sumdelays[in];
     // Check if the sum is greater than 0 to avoid division by zero
     if (weight_sum > 0.0) {
         // Normalize the weights for the 'in' neuron
@@ -755,7 +788,7 @@ void SNN::Renorm(int in, SNN &old) {
                 Weight[in][is] = Weight[in][is]/weight_sum;
                 old.Weight[in][is] = Weight[in][is];
            }
-           Delay[in][is]*=delay_factor;
+           Delay[in][is]/=delay_factor;
            //TODO: maybe I should recheck the boundary conditions for the delays.
         }
     }

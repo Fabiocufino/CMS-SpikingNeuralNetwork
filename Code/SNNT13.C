@@ -1455,7 +1455,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // Big loop on events
     // ------------------
     bool doprogress = true;
-    int block = N_events / N_epochs / 10;
+    int block = N_events / N_epochs / 50;
     if (block < 1)
         doprogress = false;
     if (doprogress)
@@ -1655,7 +1655,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
                             snn_in.History_type[in].push_back(1);
                             snn_in.History_ID[in].push_back(is);
-                            if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
+
+                            //cout << "call ltd2 " << min_fire_time << " " << snn_in.Delay[in][is]<<endl;
+
+                            if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, min_fire_time + snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                         }
                     }
                 }
@@ -1743,6 +1746,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         snn_in.History_type[in].push_back(1);
                         snn_in.History_ID[in].push_back(is);
 
+                        //cout << "call ltd2 " << t <<" " << snn_in.Delay[in][is]<<endl;
                         if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
@@ -1893,6 +1897,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 max_dxD[id] = 0.1 * LR;
             }
 
+            /*
+            
+            ACHTUNG: SHOULDN'T THIS BE PUT AFTER ALL?
             // Re-initialize neurons
             snn_in.Init_neurons();
             // Reset hits
@@ -1902,7 +1909,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
                 snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
-
+            */
+           
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
                  << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
 
@@ -2622,6 +2630,28 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     file->Close();
     delete file;
 
+    // copy the best parameters inside snn_in
+    /*
+    snn_in.Threshold[0] = snn_best.Threshold[0];
+    snn_in.Threshold[1] = snn_best.Threshold[1];
+    snn_in.alpha = snn_best.alpha;
+    snn_in.L1inhibitfactor = snn_best.L1inhibitfactor;
+    snn_in.K = snn_best.K;
+    snn_in.K1 = snn_best.K1;
+    snn_in.K2 = snn_best.K2;
+    snn_in.IE_Pot_const = snn_best.IE_Pot_const;
+    snn_in.IPSP_dt_dilation = snn_best.IPSP_dt_dilation;
+    for (int in = 0; in < snn_best.N_neurons; in++)
+    {
+        for (int is = 0; is < snn_best.N_streams; is++)
+        {
+            snn_in.Delay[in][is] = snn_best.Delay[in][is];
+            snn_in.Void_weight[in][is] = snn_best.Void_weight[in][is];
+        }
+    }
+    */
+    
+
     // Draw histograms
     cout << "Drawing histos" << endl;
     TCanvas *S = new TCanvas("S", "", 3000, 600);
@@ -2793,6 +2823,47 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     Y->cd();
     EffMap->Draw("COL4");
 
+    //Draw dealays
+
+    // Create a 2D histogram to store the delays
+    TH2D* delayHistogram = new TH2D("Delay Histogram", "Delay Histogram", snn_in.N_neurons, 0, snn_in.N_neurons, snn_in.N_streams, 0, snn_in.N_streams);
+
+    // Fill the histogram with delay values
+    for (int in = 0; in < snn_in.N_neurons; in++) {
+        for (int is = 0; is < snn_in.N_streams; is++) {
+            delayHistogram->SetBinContent(in + 1, is + 1, snn_in.Delay[in][is]);
+        }
+    }
+
+    // Create a canvas to draw the histogram
+    TCanvas* delay_canvas = new TCanvas("Delay", "Delay", 800, 600);
+    delay_canvas->cd();
+    gStyle->SetOptStat(0);
+    delayHistogram->SetOption("goff");
+    delayHistogram->Draw("colz"); // Draw the histogram with a color palette
+    
+    //Draw delta delays
+    // Create a 2D histogram to store the delays
+    TH2D* delta_delayHistogram = new TH2D("Delta Delay Histogram", "Delta Delay Histogram", snn_in.N_neurons, 0, snn_in.N_neurons, snn_in.N_streams, 0, snn_in.N_streams);
+
+    // Fill the histogram with delay values
+    for (int in = 0; in < snn_in.N_neurons; in++) {
+        cout << in <<  endl;
+        for (int is = 0; is < snn_in.N_streams; is++) {
+            delta_delayHistogram->SetBinContent(in + 1, is + 1, snn_in.Delay[in][is] - snn_in.Delay_initial[in][is]);
+            cout << snn_in.Delay[in][is] - snn_in.Delay_initial[in][is] << " ";
+        }
+        cout <<endl;
+    }
+
+    // Create a canvas to draw the histogram
+    TCanvas* delta_delay_canvas = new TCanvas("Delta Delay", "Delta Delay", 800, 600);
+    delta_delay_canvas->cd();
+    gStyle->SetOptStat(0);
+    delta_delayHistogram->SetOption("goff");
+    delta_delayHistogram->Draw("colz"); // Draw the histogram with a color palette
+
+
     // Final Statistics
     // ----------------
     cout << endl
@@ -2852,7 +2923,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");
     rootfile->cd();
-
+    
     // Write canvases first
     cout << "Writing canvas" << endl;
     S->Write();
@@ -2864,6 +2935,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     W->Write();
     Y->Write();
     MW->Write();
+    delay_canvas->Write();
+    delta_delay_canvas->Write();
 
     cout << "Saving pdf" << endl;
     S->SaveAs((SNN_PATH + "/Code/pdf/S.pdf").c_str(), "pdf");
@@ -2875,6 +2948,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     W->SaveAs((SNN_PATH + "/Code/pdf/W.pdf").c_str(), "pdf");
     Y->SaveAs((SNN_PATH + "/Code/pdf/Y.pdf").c_str(), "pdf");
     MW->SaveAs((SNN_PATH + "/Code/pdf/MWlog.pdf").c_str(), "pdf");
+    delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delay_canvas.pdf").c_str(), "pdf");
+    delta_delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delta_delay_canvas.pdf").c_str(), "pdf");
 
     // Then histograms
     SelectivityL0->Write();
@@ -2883,6 +2958,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     Qmax->Write();
     HEff->Write();
     HAcc->Write();
+    delayHistogram->Write();
+    delta_delayHistogram->Write();
     HT0->Write();
     HT1->Write();
     HA->Write();
@@ -2944,25 +3021,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     rootfile->Close();
     gROOT->Time();
 
-    // copy the best parameters inside snn_in
-    snn_in.Threshold[0] = snn_best.Threshold[0];
-    snn_in.Threshold[1] = snn_best.Threshold[1];
-    snn_in.alpha = snn_best.alpha;
-    snn_in.L1inhibitfactor = snn_best.L1inhibitfactor;
-    snn_in.K = snn_best.K;
-    snn_in.K1 = snn_best.K1;
-    snn_in.K2 = snn_best.K2;
-    snn_in.IE_Pot_const = snn_best.IE_Pot_const;
-    snn_in.IPSP_dt_dilation = snn_best.IPSP_dt_dilation;
-    for (int in = 0; in < snn_best.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_best.N_streams; is++)
-        {
-            snn_in.Delay[in][is] = snn_best.Delay[in][is];
-            snn_in.Void_weight[in][is] = snn_best.Void_weight[in][is];
-        }
-    }
-
     return;
 }
 
@@ -3020,7 +3078,7 @@ void PrintHelp()
     cout << "   --TrainingCode" << endl;
     cout << "   --ReadPars" << endl;
     cout << "   --NROOT" << endl;
-    cout << "   --N_dispalay" << endl;
+    cout << "   --N_display" << endl;
     cout << "   --Train_fraction" << endl;
 }
 
@@ -3108,7 +3166,7 @@ int main(int argc, char *argv[])
         else if (strcmp(arg, "--N_display") == 0)
             N_display = stoi(argv[i + 1]);
         else if (strcmp(arg, "--Train_fraction") == 0)
-            Train_fraction = stoi(argv[i + 1]);
+            Train_fraction = stof(argv[i + 1]);
         else if (strcmp(arg, "--batch") == 0)
             batch = stoi(argv[i + 1]);
         else if (strcmp(arg, "--rootInput") == 0)
@@ -3152,6 +3210,8 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
+    cout << Train_fraction <<endl;
+    cout << N_events << endl;
     SNN_Tracking(S,file_id_GS);
 
     // preparing the file to plot the neuron potentials of the best configurations

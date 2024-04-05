@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.rmd": "markdown",
         "Generate.C": "cpp",
         "SNNT13.C": "cpp",
         "__split_buffer": "c",
@@ -20,7 +21,9 @@
         "algorithm": "cpp",
         "draw_histrograms.C": "cpp",
         "env.C": "cpp",
-        "rootlogon.C": "cpp"
+        "rootlogon.C": "cpp",
+        "ostream": "cpp",
+        "iostream": "cpp"
     },
     "cmake.configureOnOpen": true
 }

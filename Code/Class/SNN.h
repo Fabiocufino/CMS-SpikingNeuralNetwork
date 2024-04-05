@@ -76,6 +76,7 @@ public:
     bool **check_LTD;       // checks to generate LTD after neuron discharge
     bool **Void_weight;     // These may be used to model disconnections
     double **Delay;          // Delay in incoming signals
+    double **Delay_initial;
     bool **EnableIPSP;      // N_Neurons * N_Neurons matrix to turn off IPSP inside layers, "splitting" them in more sectors.
 
     vector<double> *History_time;       // Time of signal events per each 1neuron
@@ -84,7 +85,7 @@ public:
     vector<double> *Fire_time;          // Times of firing of each neuron
     int *Neuron_layer;
     float *sumweight; // summed weights of streams for each neurons for the purpose of normalization
-    float *sumdelays; // summed delays of streams for each neurons for the purpose of normalization
+    double *sumdelays; // summed delays of streams for each neurons for the purpose of normalization
     
     int N_neuronsL[2];           // Number of neurons in layers 0 and 1
     TRandom3 *myRNG;
