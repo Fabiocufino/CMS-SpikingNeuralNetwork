@@ -1896,21 +1896,22 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             {
                 max_dxD[id] = 0.1 * LR;
             }
-
-            /*
             
-            ACHTUNG: SHOULDN'T THIS BE PUT AFTER ALL?
             // Re-initialize neurons
             snn_in.Init_neurons();
             // Reset hits
             Reset_hits();
+
+            /*
+            ACHTUNG: SHOULDN'T THIS BE PUT AFTER ALL?
+
             // Reset weights to initial conditions before new investigation
             snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
                 snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
             */
-           
+
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
                  << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
 
@@ -3216,6 +3217,7 @@ int main(int argc, char *argv[])
 
     // preparing the file to plot the neuron potentials of the best configurations
     cout << "Creating the file for the potentials plot" << endl;
+    S.Init_neurons();
     PlotPotentials("Data/ordered.root", S, 12);
 
     // to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run

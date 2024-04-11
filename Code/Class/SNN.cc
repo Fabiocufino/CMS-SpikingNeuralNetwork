@@ -77,8 +77,8 @@ SNN::SNN(int _NL0, int _NL1,
     tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
     MaxDeltaT = 7. * tau_m;
 
-    fire_granularity = tau_s / 4.;
-    fire_precision = Threshold[0] *5. / 100.;
+    fire_granularity = tau_s / 5.;
+    fire_precision = Threshold[1] *2.5 / 100.;
     myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
