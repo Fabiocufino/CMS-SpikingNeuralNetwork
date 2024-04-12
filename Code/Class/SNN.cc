@@ -478,6 +478,17 @@ void SNN::Init_connection_map()
     return;
 }
 
+//Function to insert new spikes in the correct temporal position
+void SNN::insert_spike(int id_neuron, double spike_time, int type, int id){
+    // Find the position where the new value should be inserted
+    auto it = lower_bound(History_time[id_neuron].begin(), History_time[id_neuron].end(), spike_time);
+    int position = distance(History_time[id_neuron].begin(), it);
+    // Insert the new value at the found position
+    History_time[id_neuron].insert(it, spike_time);
+    History_type[id_neuron].insert(History_type[id_neuron].begin()+position, type);
+    History_ID[id_neuron].insert(History_ID[id_neuron].begin()+position, id);
+}
+
 // Model Excitatory Post-Synaptic Potential
 // We take this as parametrized in T. Masquelier et al., "Competitive STDP-Based Spike Pattern Learning", DOI: 10.1162/neco.2008.06-08-804
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -518,7 +529,7 @@ float SNN::Inhibitory_potential(double delta_t, int ilayer)
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
-float SNN::Neuron_firetime(int in, double t)
+double SNN::Neuron_firetime(int in, double t)
 {
     double t0 = History_time[in][0];
     double delta_t = t - t0;
@@ -693,25 +704,17 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
         bool no_prespikes = true;
         int isp = History_time[in].size() - 1;
         float delta_weight = 0;
+        
         do
         {
-            if (History_ID[in][isp] == is && History_type[in][isp]==1)
+            double delta_t = History_time[in][isp] - fire_time;
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
             {
-                double delta_t = History_time[in][isp] - fire_time;
-
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
                 
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
 
-
-                if(is < N_InputStreams){
-                    Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
-                
-                    if (Delay[in][is] > MaxDelay)
-                        Delay[in][is] = MaxDelay;
-                }
-                
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
 
@@ -722,6 +725,26 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             isp--;
         } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
         
+        do
+        {   
+            double delta_t = History_time[in][isp] - fire_time;
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
+            {
+                if(is < N_InputStreams){
+                    Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
+                
+                    if (Delay[in][is] > MaxDelay)
+                        Delay[in][is] = MaxDelay;
+                }          
+                no_prespikes = false;
+
+                // in this approximation we're interested only in the first spike
+                if (nearest_spike_approx)
+                    break;
+            }
+            isp--;
+        } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus);
+
         if (!no_prespikes)
             Renorm(in, old);
     }
@@ -749,21 +772,22 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
     if (delta_t >= 0 && delta_t < 7. * tau_minus)
     {
         Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
-
-        if(is<N_InputStreams){
-            Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
-            //cout << -1.*d_minus * exp(-delta_t / taud_minus) << endl;
-
-            if (Delay[in][is] < 0.)
-                Delay[in][is] = 0.; 
-        }
                     
         if (Weight[in][is] < 0.)
             Weight[in][is] = 0.;
-
-        Renorm(in, old);
+     
     }
-    else{
+    if (delta_t >= 0 && delta_t < 7. * taud_minus)
+    {
+        if(is<N_InputStreams){
+            Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
+            
+            if (Delay[in][is] < 0.)
+                Delay[in][is] = 0.; 
+        }                    
+    }
+    Renorm(in, old);
+    if(delta_t >= 0 && delta_t < 7. * max(taud_minus, tau_minus)){
         Fire_time[in].clear();
     }
     return;

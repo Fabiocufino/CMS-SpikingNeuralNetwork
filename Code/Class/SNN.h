@@ -2,6 +2,8 @@
 #define SNN_H
 
 #include <iostream>
+#include <algorithm>
+
 #include <fstream>
 #include <cstdlib>
 #include <string>
@@ -123,12 +125,14 @@ public:
     void Init_delays_man();
     void Init_delays_gauss();
     void Init_delays_uniform();
+
+    void insert_spike(int id_neuron, double spike_time, int type, int id);
     
     void Init_connection_map();
     float EPS_potential(double delta_t);
     float Spike_potential(double delta_t, int ilayer);
     float Inhibitory_potential(double delta_t, int ilayer);
-    float Neuron_firetime(int in, double t);
+    double Neuron_firetime(int in, double t);
     float Neuron_Potential(int in, double t, bool delete_history);
     float IE_potential(double delta_t, int in, int is);
     void LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old);  

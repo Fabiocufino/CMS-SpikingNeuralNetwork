@@ -562,7 +562,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     N_events = _N_events;
 
     // vectors to plot
-    vector<float> Time[N_events];
+    vector<double> Time[N_events];
     vector<float> Potential[N_events][P.N_neurons];
     int fire_count[P.N_neurons];
     for (int ic = 0; ic < P.N_neurons; ic++)
@@ -642,7 +642,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     do
     {
         
-        float previous_firetime = 0;
+        double previous_firetime = 0;
 
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
@@ -751,7 +751,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             continue;
         }
 
-        float t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        double t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
 
         // Loop on spikes and modify neuron and synapse potentials
@@ -759,11 +759,11 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
         {
             // By looping to size(), we can insert along the way and still make it to the end
-            float t = PreSpike_Time[ispike];
+            double t = PreSpike_Time[ispike];
 
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
-            float min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
+            double min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
 
             // Loop on neurons, but not in order to not favor any neuron
@@ -777,7 +777,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             {
 
                 // Compute future fire times of neurons and their order
-                float fire_time = P.Neuron_firetime(in, t);
+                double fire_time = P.Neuron_firetime(in, t);
 
                 if (fire_time < min_fire_time)
                 {
@@ -790,8 +790,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             if (in_first == -1)
             {
                 // finish the plot for the previous spike
-                float t_prime;
-                float delta_t;
+                double t_prime;
+                double delta_t;
                 if (!insert)
                 {
                     t_prime = previous_firetime;
@@ -829,8 +829,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             // --------------------------------------------------------------------
             else
             {
-                float t_prime;
-                float delta_t;
+                double t_prime;
+                double delta_t;
                 // handle firing of neuron in_first
                 // That means that we are handling the first neruon activation bewtween two EPSP spike
 
@@ -857,9 +857,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                 P.History_time[in_first].clear();
                 P.History_type[in_first].clear();
                 P.History_ID[in_first].clear();
-                P.History_time[in_first].push_back(min_fire_time);
-                P.History_type[in_first].push_back(0);
-                P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
+                P.insert_spike(in_first, min_fire_time, 0, 0);
+    
 
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < P.N_neurons; in2++)
@@ -868,9 +867,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            P.History_time[in2].push_back(min_fire_time);
-                            P.History_type[in2].push_back(2);
-                            P.History_ID[in2].push_back(P.N_InputStreams + in_first);
+                            P.insert_spike(in2, min_fire_time, 2, P.N_InputStreams + in_first);
                         }
                     }
                 }
@@ -882,9 +879,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         int is = P.N_InputStreams + in_first;
                         if(!P.Void_weight[in][is]){
-                            P.History_time[in].push_back(min_fire_time+ P.Delay[in][is]);
-                            P.History_type[in].push_back(1);
-                            P.History_ID[in].push_back(is);
+                            P.insert_spike(in, min_fire_time+ P.Delay[in][is], 1, is);
                         }
                         
                     }
@@ -905,11 +900,9 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
                     int is = PreSpike_Stream[ispike];
                     if (!P.Void_weight[in][is])
-                    { // otherwise stream "is" does not lead to neuron "in"
-                        P.History_time[in].push_back(t+ P.Delay[in][is]);
+                    {   // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
-                        P.History_type[in].push_back(1);
-                        P.History_ID[in].push_back(is);
+                        P.insert_spike(in, t+ P.Delay[in][is], 1, is);
                     }
                 }
             }
@@ -1164,7 +1157,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     HIEPC->SetMinimum(0.);
     HIPSPdf->SetMinimum(0.);
     HL1IF->SetMinimum(0.);
-    TH1D *HDelays = new TH1D("HDelays", "", 50, 0., snn_in.MaxDelay);
+    TH1D *HistDelays = new TH1D("HistDelays", "", 50, 0., snn_in.MaxDelay);
     TH2F *HVoidWs = new TH2F("HVoidWs", "", snn_in.N_neurons, -0.5, -0.5 + snn_in.N_neurons, snn_in.N_streams, -0.5, -0.5 + snn_in.N_streams);
     TH2F *Q_12 = new TH2F("Q_12", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
     TH2F *Q_34 = new TH2F("Q_34", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
@@ -1188,6 +1181,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Latency[i] = new TH2D(name, name, N_bins, 0., (double)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
     }
     TH1F *HWeight[snn_in.N_neurons * snn_in.N_streams];
+    TH1D *HDelay[snn_in.N_neurons * snn_in.N_streams];
     TH1F *HRMSWeight[snn_in.N_neurons];
     TH1F *HMaxWeight[snn_in.N_neurons];
     TH1F *HMinWeight[snn_in.N_neurons];
@@ -1206,6 +1200,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     {
         sprintf(name, "HWeight%d", i);
         HWeight[i] = new TH1F(name, name, N_bins, 0., (float)NevPerEpoch);
+        sprintf(name, "HDelay%d", i);
+        HDelay[i] = new TH1D(name, name, N_bins, 0., (float)NevPerEpoch);
     }
     for (int i = 0; i < snn_in.N_neurons; i++)
     {
@@ -1627,9 +1623,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.History_time[in_first].clear();
                 snn_in.History_type[in_first].clear();
                 snn_in.History_ID[in_first].clear();
-                snn_in.History_time[in_first].push_back(min_fire_time);
-                snn_in.History_type[in_first].push_back(0);
-                snn_in.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
+                snn_in.insert_spike(in_first, min_fire_time, 0, 0);
 
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
@@ -1638,9 +1632,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         if (snn_in.Neuron_layer[in2] == snn_in.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            snn_in.History_time[in2].push_back(min_fire_time);
-                            snn_in.History_type[in2].push_back(2);
-                            snn_in.History_ID[in2].push_back(snn_in.N_InputStreams + in_first);
+                            snn_in.insert_spike(in2, min_fire_time, 2, snn_in.N_InputStreams + in_first);
                         }
                     }
                 }
@@ -1652,9 +1644,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         int is = snn_in.N_InputStreams + in_first;
                         if(!snn_in.Void_weight[in][is]){
-                            snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
-                            snn_in.History_type[in].push_back(1);
-                            snn_in.History_ID[in].push_back(is);
+                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], 1, is);
 
                             //cout << "call ltd2 " << min_fire_time << " " << snn_in.Delay[in][is]<<endl;
 
@@ -1741,10 +1731,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
-                        snn_in.History_time[in].push_back(t+ snn_in.Delay[in][is]);
                         // All input spikes lead to EPSP
-                        snn_in.History_type[in].push_back(1);
-                        snn_in.History_ID[in].push_back(is);
+                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], 1, is);
 
                         //cout << "call ltd2 " << t <<" " << snn_in.Delay[in][is]<<endl;
                         if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
@@ -1802,14 +1790,18 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (!snn_in.Void_weight[in][is])
                     {
                         HWeight[in * snn_in.N_streams + is]->SetBinContent(bin, snn_in.Weight[in][is]);
+                        HDelay[in * snn_in.N_streams + is]->SetBinContent(bin, snn_in.Delay[in][is]);
                         SumofSquaresofWeight[in] += snn_in.Weight[in][is] * snn_in.Weight[in][is]; // for RMS calculation
                         if (snn_in.Weight[in][is] > MaxWeight[in])
                             MaxWeight[in] = snn_in.Weight[in][is]; // finding maxima
                         else if (snn_in.Weight[in][is] < MinWeight[in])
                             MinWeight[in] = snn_in.Weight[in][is]; // finding minima
                     }
-                    else
+                    else{
                         HWeight[in * snn_in.N_streams + is]->SetBinContent(bin, -1);
+                        HDelay[in * snn_in.N_streams + is]->SetBinContent(bin, -1);
+                    }
+                        
                 }
 
                 // RMS Plot
@@ -2086,13 +2078,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             }
 
             // Fill histograms with delays
-            HDelays->Reset();
+            HistDelays->Reset();
             HVoidWs->Reset();
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
                 for (int is = 0; is < snn_in.N_streams; is++)
                 {
-                    HDelays->Fill(snn_in.Delay[in][is]);
+                    HistDelays->Fill(snn_in.Delay[in][is]);
                     if (snn_in.Void_weight[in][is])
                     {
                         HVoidWs->SetBinContent(in + 1, is + 1, 0.);
@@ -2200,7 +2192,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             CU->cd(7);
             HIPSPdf->Draw();
             CU->cd(8);
-            HDelays->Draw();
+            HistDelays->Draw();
             CU->cd(9);
             HVoidWs->Draw("COL4");
             CU->cd(10);
@@ -2797,10 +2789,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         {
             HWeight[in * snn_in.N_streams + is]->SetMaximum((HMaxWeight[in]->GetMaximum()) * 1.1);
             HWeight[in * snn_in.N_streams + is]->SetMinimum(0.);
+
             int color = is + 1;
             if (color == 8)
                 color = 9;
             HWeight[in * snn_in.N_streams + is]->SetLineColor(color);
+
             if (is == 0)
             {
                 HWeight[in * snn_in.N_streams + is]->Draw();
@@ -2811,6 +2805,32 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             }
         }
     }
+
+    TCanvas *D = new TCanvas("D", "", 500, 800);
+
+    D->Divide(2, nrow);
+    for (int in = 0; in < snn_in.N_neurons; in++)
+    {
+        D->cd(in + 1);
+        for (int is = 0; is < snn_in.N_streams; is++)
+        {
+            HDelay[in * snn_in.N_streams + is]->SetMaximum(snn_in.MaxDelay * 1.1);
+            HDelay[in * snn_in.N_streams + is]->SetMinimum(0.);
+            int color = is + 1;
+            if (color == 8)
+                color = 9;
+            HDelay[in * snn_in.N_streams + is]->SetLineColor(color);
+            if (is == 0)
+            {
+                HDelay[in * snn_in.N_streams + is]->Draw();
+            }
+            else
+            {
+                HDelay[in * snn_in.N_streams + is]->Draw("SAME");
+            }
+        }
+    }
+
 
     // Draw final Efficiency and acceptance maps
     for (int in = 0; in < snn_in.N_neurons; in++)
@@ -2934,6 +2954,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     BE->Write();
     SE->Write();
     W->Write();
+    D->Write();
     Y->Write();
     MW->Write();
     delay_canvas->Write();
@@ -2947,6 +2968,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     BE->SaveAs((SNN_PATH + "/Code/pdf/BE.pdf").c_str(), "pdf");
     SE->SaveAs((SNN_PATH + "/Code/pdf/SE.pdf").c_str(), "pdf");
     W->SaveAs((SNN_PATH + "/Code/pdf/W.pdf").c_str(), "pdf");
+    D->SaveAs((SNN_PATH + "/Code/pdf/D.pdf").c_str(), "pdf");
     Y->SaveAs((SNN_PATH + "/Code/pdf/Y.pdf").c_str(), "pdf");
     MW->SaveAs((SNN_PATH + "/Code/pdf/MWlog.pdf").c_str(), "pdf");
     delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delay_canvas.pdf").c_str(), "pdf");
@@ -2970,7 +2992,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     HK2->Write();
     HIEPC->Write();
     HVoidWs->Write();
-    HDelays->Write();
+    HistDelays->Write();
     Q_12->Write();
     Q_34->Write();
     Q_56->Write();
@@ -2993,6 +3015,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         {
             int id = in * snn_in.N_streams + is;
             HWeight[id]->Write();
+            HDelay[id]->Write();
         }
         FakeRate[in]->Write();
         BestEff[in]->Write();
