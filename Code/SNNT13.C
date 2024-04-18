@@ -243,8 +243,8 @@ int GetBinR(double r_hit)
     {
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
             return i;
-        else if (r_hit < Left_Layers[i])
-            return N_bin_r - 1;
+        else if (r_hit < Left_Layers[i+1])
+            return i;
     }
     return N_bin_r - 1;
 }
