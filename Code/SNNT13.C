@@ -37,10 +37,14 @@ static vector<double> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
-static float Q_best;
+static float Q_best_L0;
+static float SelL0_best;
+static float Eff_best_L0;
+static float Acc_best_L0;
+static float Q_best_L1;
 static float SelL1_best;
-static float Eff_best;
-static float Acc_best;
+static float Eff_best_L1;
+static float Acc_best_L1;
 static int indfile;
 static char progress[53] = "[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]"; // Progress bar
 static long int ievent;
@@ -175,8 +179,8 @@ void Write_Parameters()
     }
 
     // Also write optimization output
-    parfile << Q_best << " "
-            << " " << Eff_best << " " << Acc_best << " " << SelL1_best << endl;
+    parfile << Q_best_L1 << " "
+            << " " << Eff_best_L1 << " " << Acc_best_L1 << " " << SelL1_best << endl;
 
     // Finally, write complete set of hyperparameters and settings
     parfile << "                       L0 neurons: " << N_neuronsL[0] << endl;
@@ -1304,7 +1308,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         }
     }
     bool not_fired_bgr = true;
+    bool not_fired_bgr_L0 = true;
     int atleastonefired = 0;
+    int atleastonefired_L0 = 0;
+
     int gen_sum[N_classes];
     int fired_anyL0[N_classes];
     int fired_anyL1[N_classes];
@@ -1319,6 +1326,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     bool Seen[N_classes][snn_in.N_neurons];
     float selectivityL0 = 0.;
     float selectivityL1 = 0.;
+    float averefftotL0 = 0.;
+    float averacctotL0 = 0.;
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
 
@@ -1395,11 +1404,19 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         }
     }
     float Q = 0.;
+    float Q_L0 = 0.;
+
     float Q_old = 0.;
-    Q_best = 0.;
+    
+    Q_best_L0 = 0.;
+    SelL0_best = 0.;
+    Eff_best_L0 = 0.;
+    Acc_best_L0 = 0.;
+
+    Q_best_L1 = 0.;
     SelL1_best = 0.;
-    Eff_best = 0.;
-    Acc_best = 0.;
+    Eff_best_L1 = 0.;
+    Acc_best_L1 = 0.;
 
     snn_best.Threshold[0] = 0.;
     snn_best.Threshold[1] = 0.;
@@ -1555,6 +1572,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         doneL0[pclass] = false;
         doneL1[pclass] = false;
         not_fired_bgr = true;
+        not_fired_bgr_L0 = true;
 
         // Encode hits in spike streams
         // Here we encode the position of hits through the timing of a spike,
@@ -1693,6 +1711,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             not_fired_bgr = false;
                         }
                     }
+                    else if (in_first <= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
+                    { // for Q-value calculations
+                        if (not_fired_bgr_L0)
+                        {
+                            atleastonefired_L0++;
+                            not_fired_bgr_L0 = false;
+                        }
+                    }
+                    
                 }
 
                 ispike -= 1;
@@ -1848,6 +1875,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
             }
             float Efftot[N_classes];
+            float Efftot_L0[N_classes];
+            
             for (int ic = 0; ic < N_classes; ic++)
             {
                 float etl0 = fired_anyL0[ic];
@@ -1859,6 +1888,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     etl1 /= gen_sum[ic];
                 Eff_totL1[ic]->SetBinContent(iepoch, etl1);
                 Efftot[ic] = etl1;
+                Efftot_L0[ic] = etl0;
             }
 
             selectivityL0 = Compute_Selectivity(0, 2, snn_in);
@@ -1868,15 +1898,19 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
-            averacctotL1 = atleastonefired * (2. / NevPerEpoch * (1-Train_fraction)*100); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
-            averefftotL1 = 0.;
+            averacctotL1 = atleastonefired *    (2. / NevPerEpoch * (1-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
+            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch * (1-Train_fraction));
+            
             for (int ic = 0; ic < N_classes; ic++)
             {
                 averefftotL1 += Efftot[ic];
+                averefftotL0 += Efftot_L0[ic];
             }
             averefftotL1 /= N_classes;
+            averefftotL0 /= N_classes;
 
             Q = Compute_Q(averefftotL1, averacctotL1, selectivityL1);
+            Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
 
             // Fix maximum excursion of parameters with a schedule
             LR = LR_Scheduler(MaxFactor, iepoch, N_epochs);
@@ -1905,7 +1939,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             */
 
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
-                 << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
+                 << "; Eff L0 = " << averefftotL0 << " Acc L0 = " << averacctotL0 << "; Eff L1 = " << averefftotL1 << " Acc L1 = " << averacctotL1 << "; Firings: ";
 
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
@@ -2097,18 +2131,23 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             }
 
             // Is this Q factor not larger than before?
-            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best << " ib = " << ibad << endl;
+            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best_L1 << " ib = " << ibad << endl;
 
             // Update histograms with current parameter values and optimization metrics
             Qvalue->SetBinContent(iepoch, Q);
-            if (Q > Q_best)
+            if (Q > Q_best_L1)
             {
                 ind_qbest = iepoch;
-                Q_best = Q;
+                Q_best_L1 = Q;
+                Q_best_L0 = Q_L0;
+
+                SelL0_best = selectivityL0;
+                Eff_best_L0 = averefftotL0;
+                Acc_best_L0 = averacctotL0;
 
                 SelL1_best = selectivityL1;
-                Eff_best = averefftotL1;
-                Acc_best = averacctotL1;
+                Eff_best_L1 = averefftotL1;
+                Acc_best_L1 = averacctotL1;
 
                 snn_best.Threshold[0] = snn_in.Threshold[0];
                 snn_best.Threshold[1] = snn_in.Threshold[1];
@@ -2128,7 +2167,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     }
                 }
             }
-            Qmax->SetBinContent(iepoch, Q_best);
+            Qmax->SetBinContent(iepoch, Q_best_L1);
             HEff->SetBinContent(iepoch, averefftotL1);
             HAcc->SetBinContent(iepoch, averacctotL1);
             HT0->SetBinContent(iepoch, snn_in.Threshold[0]);
@@ -2486,7 +2525,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                                 }
                             }
                         }
-                        Q_old = Q_best;
+                        Q_old = Q_best_L1;
                         ibad = 0;
                     }
                 }
@@ -2600,6 +2639,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     fired_anyL1[ic] = 0;
                 }
                 atleastonefired = 0;
+                atleastonefired_L0 = 0;
+
+                not_fired_bgr = true;
+                not_fired_bgr_L0 = true;
 
                 // Reset progress bar
                 if (doprogress)
@@ -2869,12 +2912,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     // Fill the histogram with delay values
     for (int in = 0; in < snn_in.N_neurons; in++) {
-        cout << in <<  endl;
         for (int is = 0; is < snn_in.N_streams; is++) {
             delta_delayHistogram->SetBinContent(in + 1, is + 1, snn_in.Delay[in][is] - snn_in.Delay_initial[in][is]);
-            cout << snn_in.Delay[in][is] - snn_in.Delay_initial[in][is] << " ";
         }
-        cout <<endl;
     }
 
     // Create a canvas to draw the histogram
@@ -2900,9 +2940,14 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     cout << endl;
     cout << "         Optimization results" << endl;
     cout << "         -----------------------------------" << endl;
-    cout << "               Average efficiency: " << Eff_best << endl;
-    cout << "                Average fake rate: " << Acc_best << endl;
-    cout << "                  Maximum Q value: " << Q_best << endl;
+    cout << "               Average efficiency L0: " << Eff_best_L0 * 100 << endl;
+    cout << "                Average fake rate L0: " << Acc_best_L0 * 100 << endl;
+    cout << "                  Maximum Q value L0: " << Q_best_L0 << endl;
+    cout << "                   L0 selectivity: " << SelL0_best << endl;
+    cout << endl;
+    cout << "               Average efficiency L1: " << Eff_best_L1 * 100 << endl;
+    cout << "                Average fake rate L1: " << Acc_best_L1 * 100 << endl;
+    cout << "                  Maximum Q value L1: " << Q_best_L1 << endl;
     cout << "                   L1 selectivity: " << SelL1_best << endl;
     cout << endl;
     cout << "         Optimized parameter values" << endl;

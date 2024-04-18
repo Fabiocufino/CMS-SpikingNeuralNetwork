@@ -78,7 +78,7 @@ SNN::SNN(int _NL0, int _NL1,
     MaxDeltaT = 7. * tau_m;
 
     fire_granularity = tau_s / 5.;
-    fire_precision = Threshold[1] *2.5 / 100.;
+    fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
     myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
@@ -868,6 +868,10 @@ void SNN::PrintSNN(){
     cout << "tau_minus = " << tau_minus << endl;
     cout << "a_plus = " << a_plus << endl;
     cout << "a_minus = " << a_minus << endl;
+    cout << "taud_plus = " << taud_plus << endl;
+    cout << "taud_minus = " << taud_minus << endl;
+    cout << "d_plus = " << d_plus << endl;
+    cout << "d_minus = " << d_minus << endl;
     cout << "N_neurons = " << N_neurons << endl;
     cout << "N_streams = " << N_streams << endl;
     cout << "Threshold[0] = " << Threshold[0] << endl;
@@ -879,5 +883,7 @@ void SNN::PrintSNN(){
     cout << "N_InputStreams = " << N_InputStreams << endl;
     cout << "largenumber = " << largenumber << endl;
     cout << "epsilon = " << epsilon << endl;
+    cout << "sparsity = "<< sparsity << endl;
+    cout << "split layer0 = " << split_layer0 << endl;
     cout << "-------------------------------------" << endl;
 }
