@@ -137,6 +137,7 @@ public:
     float IE_potential(double delta_t, int in, int is);
     void LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old);  
     void LTD(int in, int is, double spike_time,bool nearest_spike_approx, SNN &old);
+    void Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &old);
     void Renorm(int in, SNN &old);
     void Renorm_Opt(int in, float delta_weight, SNN &old);
     void PrintWeights();

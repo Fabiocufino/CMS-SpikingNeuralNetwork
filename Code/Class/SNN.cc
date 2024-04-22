@@ -692,7 +692,7 @@ float SNN::IE_potential(double delta_t, int in, int is)
     return sp;
 }
 
-//LTP rule for weights -> depression of the delays 
+//LTP rule for weights
 void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
     for (int is = 0; is < N_streams; is++)
@@ -753,6 +753,7 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 
 void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN &old)
 {
+    return;
     if(!check_LTD[in][is]) return;
     if (Fire_time[in].size() == 0){
         //cout <<"skip" << endl; 
@@ -793,7 +794,69 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
     return;
 }
 
+//different approach: compute ltd bewtween two consecutive spikes
+void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &old)
+{
+    if (Fire_time[in].size() == 0){
+        //cout <<"skip" << endl; 
+        return;
+    }
+
+    bool no_prespikes = true;
+    int isp = 1;
+    double previous_firetime = Fire_time[in].back();
+
+    for (int is = 0; is < N_streams; is++)
+    {
+        if (Void_weight[in][is])
+            continue;
+        
+        do
+        {
+            double delta_t = History_time[in][isp] - previous_firetime;
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
+            {
+                Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
+                
+                if (Weight[in][is] < 0.)
+                    Weight[in][is] = 0.;
+
+                no_prespikes = false;
+                
+                // in this approximation we're interested only in the first spike
+                if (nearest_spike_approx)
+                    break;
+            }
+            isp++;
+        } while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7. * tau_minus && History_time[in][isp]<fire_time);
+        
+        do
+        {
+            double delta_t = History_time[in][isp] - previous_firetime;
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
+            {
+                if(is<N_InputStreams){
+                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
+                    
+                    if (Delay[in][is] < 0.)
+                        Delay[in][is] = 0.; 
+                }
+                no_prespikes = false;
+                
+                // in this approximation we're interested only in the first spike
+                if (nearest_spike_approx)
+                    break;
+            }
+            isp++;
+        } while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7. * taud_minus && History_time[in][isp] < fire_time);
+        if(!no_prespikes)
+            Renorm(in, old);        
+    }
+    return;
+}
+
 void SNN::Renorm(int in, SNN &old) {
+    return ;
     float weight_sum = 0.0;
     double delay_factor = 0.;
 

@@ -1635,7 +1635,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                if(ievent < N_events * Train_fraction) snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                if(ievent < N_events * Train_fraction){
+                    snn_in.Compute_LTD(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                    snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                } 
+
 
                 // Reset history of this neuron
                 snn_in.History_time[in_first].clear();
