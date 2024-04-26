@@ -856,7 +856,6 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
 }
 
 void SNN::Renorm(int in, SNN &old) {
-    return ;
     float weight_sum = 0.0;
     double delay_factor = 0.;
 
