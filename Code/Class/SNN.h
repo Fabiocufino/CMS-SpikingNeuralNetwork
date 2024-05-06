@@ -22,6 +22,12 @@ private:
     double bisectionMethod(double a, double b, int in, double epsilon, std::function<float(int, double, bool)> func);
 
 public:
+    const int EPSP  = 1;
+    const int IPSP  = 2;
+    const int SPIKE = 0;
+    const int NOCLASS  = -2;
+    const int BKGCLASS = -1;
+
     float alpha;              // 0.25; // factor tuning inhibition strength
     
     float CFI0;
@@ -84,6 +90,8 @@ public:
     vector<double> *History_time;       // Time of signal events per each 1neuron
     vector<int> *History_type;         // Type of signal
     vector<int> *History_ID;           // ID of generating signal stream or neuron
+    vector<int> *History_class;
+    
     vector<double> *Fire_time;          // Times of firing of each neuron
     int *Neuron_layer;
     float *sumweight; // summed weights of streams for each neurons for the purpose of normalization
@@ -126,13 +134,14 @@ public:
     void Init_delays_gauss();
     void Init_delays_uniform();
 
-    void insert_spike(int id_neuron, double spike_time, int type, int id);
+    void insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class);
     
     void Init_connection_map();
     float EPS_potential(double delta_t);
     float Spike_potential(double delta_t, int ilayer);
     float Inhibitory_potential(double delta_t, int ilayer);
     double Neuron_firetime(int in, double t);
+    void Activate_Neuron(int in, double t);
     float Neuron_Potential(int in, double t, bool delete_history);
     float IE_potential(double delta_t, int in, int is);
     void LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old);  

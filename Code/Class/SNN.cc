@@ -1,14 +1,6 @@
 #include "SNN.h"
-/*
-#include <boost/random.hpp>
-#include <boost/random/beta_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
-*/
 
-//using namespace boost::random;
 using namespace std;
-
-//mt19937 rng;
 
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
@@ -66,7 +58,6 @@ SNN::SNN(int _NL0, int _NL1,
                                                  split_layer0(_split_layer0)
 
 {
-    //rng.seed(static_cast<unsigned int>(std::time(0)));
     Threshold[0] = _Threshold0;
     Threshold[1] = _Threshold1;
     
@@ -106,6 +97,8 @@ SNN::SNN(int _NL0, int _NL1,
     History_time = new vector<double>[N_neurons]; // Time of signal events per each 1neuron
     History_type = new vector<int>[N_neurons];   // Type of signal
     History_ID = new vector<int>[N_neurons];     // ID of generating signal stream or neuron
+    History_class = new vector<int>[N_neurons];  // Class of the signal
+
     Fire_time = new vector<double>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
@@ -175,7 +168,6 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::fun
 
 // Initialize neuron potentials
 // ----------------------------
-
 void SNN::Init_neurons()
 {
     for (int in = 0; in < N_neurons; in++)
@@ -184,10 +176,13 @@ void SNN::Init_neurons()
         History_time[in].clear();
         History_type[in].clear();
         History_ID[in].clear();
+        History_class[in].clear();
 
         History_time[in].push_back(0);
-        History_type[in].push_back(0);
+        History_type[in].push_back(SPIKE);
         History_ID[in].push_back(0);
+        History_class[in].push_back(-2);
+
         if (in < N_neuronsL[0])
             Neuron_layer[in] = 0;
         else
@@ -266,41 +261,6 @@ void SNN::Init_delays_man(){
     }
     return;
 }
-
-/*
-void SNN::Init_delays_PERT()
-{
-    // Define delays
-    for (int in = 0; in < N_neurons; in++)
-    {
-        float type = myRNG->Uniform();
-        float factor =  myRNG->Uniform();
-        cout << endl << "Neuron " << in << " TYPE " << type << endl;
-        for (int is = 0; is < N_streams; is++)
-        { 
-            Delay[in][is] = 0.;
-            Delay_initial[in][is] = 0;
-            if (is<N_InputStreams) { // no delay for neuron-originated spikes into L1
-                float most_likely = 0;
-                if (type < 0.5) 
-                    most_likely = (is + 1.)/(N_InputStreams+1.) ;
-                else            
-                    most_likely = (N_InputStreams - is)/(N_InputStreams+1.);
-                float alpha_val = (4. * most_likely  + 1.);
-                float beta_val = (5. - 4. * most_likely);
-                
-                beta_distribution<> betaDistribution(alpha_val, beta_val);
-                variate_generator<mt19937&, beta_distribution<> > betaGenerator(rng, betaDistribution);
-
-                Delay[in][is] = pow(betaGenerator(), 1.)* MaxDelay*factor;
-                Delay_initial[in][is] = Delay[in][is];
-                cout << "("<< most_likely << ", " << Delay[in][is] << ")  ";
-            }
-        }
-    }
-    cout << endl;
-    return;
-}*/
 
 void SNN::Init_delays_gauss()
 {
@@ -479,7 +439,7 @@ void SNN::Init_connection_map()
 }
 
 //Function to insert new spikes in the correct temporal position
-void SNN::insert_spike(int id_neuron, double spike_time, int type, int id){
+void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class){
     // Find the position where the new value should be inserted
     auto it = lower_bound(History_time[id_neuron].begin(), History_time[id_neuron].end(), spike_time);
     int position = distance(History_time[id_neuron].begin(), it);
@@ -487,6 +447,7 @@ void SNN::insert_spike(int id_neuron, double spike_time, int type, int id){
     History_time[id_neuron].insert(it, spike_time);
     History_type[id_neuron].insert(History_type[id_neuron].begin()+position, type);
     History_ID[id_neuron].insert(History_ID[id_neuron].begin()+position, id);
+    History_class[id_neuron].insert(History_class[id_neuron].begin()+position, type);
 }
 
 // Model Excitatory Post-Synaptic Potential
@@ -543,7 +504,7 @@ double SNN::Neuron_firetime(int in, double t)
     for (int ih = History_type[in].size() - 1; ih > 1; ih--)
     {
         // longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
-        if (History_type[in][ih] == 1 && !Void_weight[in][History_ID[in][ih]] && History_time[in][ih]<t)
+        if (History_type[in][ih] == EPSP && !Void_weight[in][History_ID[in][ih]] && History_time[in][ih]<t)
         {
             last_EPSP = History_time[in][ih];
             break;
@@ -599,6 +560,18 @@ double SNN::Neuron_firetime(int in, double t)
                            });
 }
 
+//Handle the activation of a neuron
+void SNN::Activate_Neuron(int in, double t){
+    // Reset history of this neuron
+    //TODO: loop pack in History_time to clear just the spikes before the activation
+    History_time[in].clear();
+    History_type[in].clear();
+    History_ID[in].clear();
+    insert_spike(in, t, SPIKE, 0, NOCLASS);
+    
+    return;
+}
+
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
 float SNN::Neuron_Potential(int in, double t, bool delete_history)
@@ -621,7 +594,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
         for (int ih = 1; ih < len; ih++)
         {
             delta_t = t - History_time[in][ih];
-            if (History_type[in][ih] == 1)
+            if (History_type[in][ih] == EPSP)
             { // EPSP
                 if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
                 {
@@ -633,10 +606,11 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    History_class[in].erase(History_class[in].begin() + ih, History_class[in].begin() + ih + 1);
                     len = len - 1;
                 }
             }
-            else if (History_type[in][ih] == 2)
+            else if (History_type[in][ih] == IPSP)
             { // IPSP
                 if (delta_t < MaxDeltaT && EnableIPSP[in][History_ID[in][ih] - N_InputStreams])
                 {
@@ -649,22 +623,8 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    len = len - 1;
-                }
-            }
-            else if (History_type[in][ih] == 3)
-            { // IE
-                if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
-                {
-                    if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
-                        P += IE_potential(delta_t, in, History_ID[in][ih]);
-                }
-                else if (delete_history)
-                {
-                    // get rid of irrelevant events
-                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
-                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
-                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
+                    History_class[in].erase(History_class[in].begin() + ih, History_class[in].begin() + ih + 1);
+                    
                     len = len - 1;
                 }
             }
@@ -708,7 +668,7 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
         do
         {
             double delta_t = History_time[in][isp] - fire_time;
-            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==EPSP && delta_t <= 0) 
             {
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
                 
@@ -728,7 +688,7 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
         do
         {   
             double delta_t = History_time[in][isp] - fire_time;
-            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==EPSP && delta_t <= 0) 
             {
                 if(is < N_InputStreams){
                     Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
@@ -814,7 +774,7 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
         do
         {
             double delta_t = History_time[in][isp] - previous_firetime;
-            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==EPSP && delta_t >= 0) 
             {
                 Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
                 
@@ -833,7 +793,7 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
         do
         {
             double delta_t = History_time[in][isp] - previous_firetime;
-            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==EPSP && delta_t >= 0) 
             {
                 if(is<N_InputStreams){
                     Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);

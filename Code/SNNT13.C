@@ -52,178 +52,6 @@ static long int ievent;
 // New random number generator
 static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
 
-// Function that reads parameters from file, if you want to start from a previous optimization
-// ----------------------------------------
-/*
-int Read_Parameters()
-{
-    string Path = SNN_PATH+"/Code/MODE/SNNT/";
-    ifstream tmpfile;
-    indfile = -1;
-    // Determine last available file number to read from, by attempting to open all files with same name and previous numbering
-    do
-    {
-        if (indfile > -1)
-            tmpfile.close();
-        indfile++;
-        stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
-        string tmpfilename = Path + tmpstring.str() + ".txt";
-        tmpfile.open(tmpfilename);
-    } while (tmpfile.is_open());
-
-    if (indfile == -1)
-    {
-        cout << "     Warning, no file to read parameters from. " << endl;
-        return -1;
-    }
-    ifstream parfile;
-    stringstream sstr;
-    char num[80];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile - 1); // we'll pick the last one in the list
-    sstr << "Params13_";
-    string nameparfile = Path + sstr.str() + num + ".txt";
-    parfile.open(nameparfile);
-    float e;
-    int ie;
-    parfile >> ie;
-    if (ie != N_neurons)
-        cout << "Warning, file " << nameparfile << " ie= " << ie << " N_neurons = " << N_neurons << " - input file not matching N_neurons" << endl;
-    parfile >> ie;
-    if (ie != N_streams)
-        cout << "Warning, file " << nameparfile << " ie= " << ie << " N_streams = " << N_streams << " - input file not matching N_streams" << endl;
-    parfile >> e;
-    Threshold[0] = e;
-    parfile >> e;
-    Threshold[1] = e;
-    parfile >> e;
-    alpha = e;
-    parfile >> e;
-    L1inhibitfactor = e;
-    parfile >> e;
-    K = e;
-    parfile >> e;
-    K1 = e;
-    parfile >> e;
-    K2 = e;
-    parfile >> e;
-    IE_Pot_const = e;
-    parfile >> e;
-    IPSP_dt_dilation = e;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile >> e;
-            Delay[in][is] = e;
-        }
-    }
-    bool b;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile >> b;
-            Void_weight[in][is] = b;
-            if (in < N_neuronsL[0] && is >= N_InputStreams)
-                Void_weight[in][is] = true; // just making sure
-        }
-    }
-    parfile.close();
-    return 0;
-}
-
-// Function that saves the layout data to file
-// -------------------------------------------
-void Write_Parameters()
-{
-
-    string Path = "./MODE/SNNT/";
-    ifstream tmpfile;
-    indfile = -1;
-    // Determine first available file number to write, by attempting to open all files with same name and previous numbering
-    do
-    {
-        if (indfile > -1)
-            tmpfile.close();
-        indfile++;
-        stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
-        string tmpfilename = Path + tmpstring.str() + ".txt";
-        tmpfile.open(tmpfilename);
-    } while (tmpfile.is_open());
-
-    ofstream parfile;
-    stringstream sstr;
-    char num[80];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile);
-    sstr << "Params13_";
-    string nameparfile = Path + sstr.str() + num + ".txt";
-    parfile.open(nameparfile);
-    parfile << N_neurons << " " << N_streams << endl;
-    parfile << T0_best << " " << T1_best << " " << A_best << " "
-            << L1if_best << " " << K_best << " " << K1_best << " " << K2_best << " " << IEPC_best << " " << IPSP_dt_dilation << endl;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile << bestDelay[in][is] << endl;
-        }
-    }
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile << bestVoid_weight[in][is] << endl;
-        }
-    }
-
-    // Also write optimization output
-    parfile << Q_best_L1 << " "
-            << " " << Eff_best_L1 << " " << Acc_best_L1 << " " << SelL1_best << endl;
-
-    // Finally, write complete set of hyperparameters and settings
-    parfile << "                       L0 neurons: " << N_neuronsL[0] << endl;
-    parfile << "                       L1 neurons: " << N_neuronsL[1] << endl;
-    parfile << "            Connected L0-L1 frac.: " << CF01 << endl;
-    parfile << "            Connected IN-L0 frac.: " << CFI0 << endl;
-    parfile << "            Connected IN-L1 frac.: " << CFI1 << endl;
-    parfile << "                    Track classes: " << N_classes << endl;
-    parfile << "                     Total events: " << N_events << endl;
-    parfile << "               Optimization loops: " << N_epochs << endl;
-    parfile << "             Optimize SNN params.: ";
-    if (update9)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "                  Optimize delays: ";
-    if (updateDelays)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "             Optimize connections: ";
-    if (updateConnections)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "                  Max mod. factor: " << MaxFactor << endl;
-    parfile.close();
-    return;
-}
-*/
-
 // clear hits vector
 void Reset_hits()
 {
@@ -238,7 +66,6 @@ int GetBinR(double r_hit)
         return N_bin_r - 1;
 
     // 10 bins are associated to a tracking layer
-    // The last bin is collecting hits outside the layers
     for (int i = 0; i < N_TrackingLayers; i++)
     {
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
@@ -281,7 +108,7 @@ void Encode(double t_in)
 
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
-        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+        PreSpike_Signal.push_back(row.id); //1,2 -> respectively Backgroung, Signal
     }
 
     // rescan from [0, delta]
@@ -295,7 +122,7 @@ void Encode(double t_in)
 
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
-        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+        PreSpike_Signal.push_back(row.id); // 1,2 -> respectively Backgroung, Signal
     }
 }
 
@@ -519,7 +346,6 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
 }
 
 // Plot potential stuff
-
 void ReadWeights(TFile *file, SNN &P)
 {
     vector<TH1F *> Hvec;
@@ -556,7 +382,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
+void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
 {
     insert = true;
     vector<int> neurons_index;
@@ -592,7 +418,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     // we need to fecth the events and compute the plots
 
     // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput, "READ");
+    TFile *file = TFile::Open(rootInput.c_str(), "READ");
     if (!file || file->IsZombie())
     {
         cerr << "Error: Cannot open file " << rootInput << endl;
@@ -856,14 +682,9 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                         Potential[ievent - 1][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
                 }
 
-                P.Fire_time[in_first].push_back(min_fire_time);
-                // Reset history of this neuron
-                P.History_time[in_first].clear();
-                P.History_type[in_first].clear();
-                P.History_ID[in_first].clear();
-                P.insert_spike(in_first, min_fire_time, 0, 0);
-    
-
+                //Handle the activation of the neuron in_first
+                P.Activate_Neuron(in_first, min_fire_time);
+                
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < P.N_neurons; in2++)
                 {
@@ -871,7 +692,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            P.insert_spike(in2, min_fire_time, 2, P.N_InputStreams + in_first);
+                            P.insert_spike(in2, min_fire_time, P.IPSP, P.N_InputStreams + in_first, P.NOCLASS);
                         }
                     }
                 }
@@ -883,7 +704,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         int is = P.N_InputStreams + in_first;
                         if(!P.Void_weight[in][is]){
-                            P.insert_spike(in, min_fire_time+ P.Delay[in][is], 1, is);
+                            P.insert_spike(in, min_fire_time+ P.Delay[in][is], P.EPSP, is, P.NOCLASS);
                         }
                         
                     }
@@ -906,7 +727,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     if (!P.Void_weight[in][is])
                     {   // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
-                        P.insert_spike(in, t+ P.Delay[in][is], 1, is);
+                        P.insert_spike(in, t+ P.Delay[in][is], P.EPSP, is, PreSpike_Signal[ispike]);
                     }
                 }
             }
@@ -1259,18 +1080,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
 
-    // If requested, read in parameters
-    /*
-
-
-        int okfile;
-        if (ReadPars)
-        {
-            okfile = Read_Parameters();
-            if (okfile == -1)
-                return;
-        }
-    */
     // Final part of initial printout
     cout << "         -----------------------------------" << endl;
     cout << endl;
@@ -1480,7 +1289,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int ind_qbest = 0;
 
     // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput, "READ");
+    TFile *file = TFile::Open(rootInput.c_str(), "READ");
     if (!file || file->IsZombie())
     {
         cerr << "Error: Cannot open file " << rootInput << endl;
@@ -1578,6 +1387,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         // Here we encode the position of hits through the timing of a spike,
         // In the future we might think at how the analog charge readout in the hits could also be added
         double previous_firetime = 0;
+
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
@@ -1639,14 +1449,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     snn_in.Compute_LTD(in_first, min_fire_time, nearest_spike_approx, snn_old);
                     snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
                 } 
+                //we are in the test phase
+                else{
+                    //TODO: continue here
+                    //loop back on the history of spikes to check if the neuron is reacting to noise or signal
 
-
+                }
+                
                 // Reset history of this neuron
-                snn_in.History_time[in_first].clear();
-                snn_in.History_type[in_first].clear();
-                snn_in.History_ID[in_first].clear();
-                snn_in.insert_spike(in_first, min_fire_time, 0, 0);
-
+                snn_in.Activate_Neuron(in_first, min_fire_time);
+                
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
                 {
@@ -1654,7 +1466,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         if (snn_in.Neuron_layer[in2] == snn_in.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            snn_in.insert_spike(in2, min_fire_time, 2, snn_in.N_InputStreams + in_first);
+                            snn_in.insert_spike(in2, min_fire_time, snn_in.IPSP, snn_in.N_InputStreams + in_first, snn_in.NOCLASS);
                         }
                     }
                 }
@@ -1666,7 +1478,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         int is = snn_in.N_InputStreams + in_first;
                         if(!snn_in.Void_weight[in][is]){
-                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], 1, is);
+                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], snn_in.EPSP, is, snn_in.NOCLASS);
 
                             //cout << "call ltd2 " << min_fire_time << " " << snn_in.Delay[in][is]<<endl;
 
@@ -1745,12 +1557,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / (N_display/10)) * (N_display/10);
 
                     // Histograms
-                    if (PreSpike_Signal[ispike] == 1)
+                    if (PreSpike_Signal[ispike] == SIG)
                     {
                         StreamsS[is]->Fill(time, PreSpike_Stream[ispike] + 1);
                         fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
                     }
-                    else if (PreSpike_Signal[ispike] == 0)
+                    else if (PreSpike_Signal[ispike] == BGR)
                     {
                         StreamsB[is]->Fill(time, PreSpike_Stream[ispike] + 1);
                     }
@@ -1763,7 +1575,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
-                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], 1, is);
+                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], snn_in.EPSP, is, PreSpike_Signal[ispike]);
 
                         //cout << "call ltd2 " << t <<" " << snn_in.Delay[in][is]<<endl;
                         if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
@@ -3264,8 +3076,9 @@ int main(int argc, char *argv[])
             PrintHelp();
             exit(0);
         }
+        
     }
-
+    rootInput = SNN_PATH + rootInput;
     SNN S(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
