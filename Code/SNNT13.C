@@ -775,31 +775,10 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
 void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 {
-    // Pass parameters:
-    // ----------------
-    // N_ev:      total number of simulated events
-    // N_ep:      number of weight-learning cycles divido N_ev in N_ep gruppi e faccio girare il learning
-    // NL0, NL1:  number of neurons performing track pattern recognition, organized in 2 layers
-    // N_cl:      number of different signal classes (different particle momenta)
-    // rootInput: name of the root file if you want to load the data. If not provided it will simulate the events
-    // CF:        fraction of connected neurons between L0 and L1
-    // ipspdf:    IPSP time dilation factor (to increase effect of inhibition)
-    // Trainingcode: binary code to turn on updates of 9 pars, delays, voids
-    // ReadPars:  whether to read parameters in from file
-    // Thresh0:   threshold for firing at Layer 0
-    // Thresh1:   threshold for firing at Layer 1
-    // alpha:     parameter of signal model
-    // l1if:      L1 inhibit factor
-    // k, k1, k2: parameters of signal model
-    // IEPC:      inhibition-excitation potential constant
-    // IPSPdf:    IPSP dt dilation factor
-
     // The routine works as follows:
     // -----------------------------
     // Define tracker geometry ok
     // Initialize neuron potentials and synapse weights ok
-    // Simulate background hits
-    // Simulate hits from particle interactions
     // Encode hits in spike streams
     // Loop on optimization cycles (N_epochs)
     //   Loop on time steps in event-based fashion and modify neuron and synapse potentials
@@ -829,7 +808,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     //  - The optimization strategy is naive and needs to be improved
     //  - In addition, rather than re-learning weights every time parameters are modified, some better
     //    way of handling this should be implemented
-    //  - IE spike model is to be improved
     // -----------------------------------------------------------------------------------------------
 
     // Pass parameters can't update static values, so we need to reassign the latter
@@ -1714,8 +1692,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
-            averacctotL1 = atleastonefired *    (2. / NevPerEpoch * (1-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
-            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch * (1-Train_fraction));
+            averacctotL1 = atleastonefired *    (2. / NevPerEpoch / (1-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
+            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch / (1-Train_fraction));
             
             for (int ic = 0; ic < N_classes; ic++)
             {
@@ -3105,24 +3083,5 @@ int main(int argc, char *argv[])
     S.Init_neurons();
     PlotPotentials("Data/ordered.root", S, 12);
 
-    // to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
-    /* SNN P(_NL0, _NL1,
-          _alpha,
-          _CFI0, _CFI1, _CF01,
-          _L1inhibitfactor,
-          _K, _K1, _K2,
-          _IE_Pot_const, _IPSP_dt_dilation,
-          _MaxDelay,
-
-          _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-          _a_plus, _a_minus,
-
-          _taud_plus, _taud_minus,
-          _d_plus, _d_minus,
-
-          _N_InputStreams,
-          _Threshold0, _Threshold1, _sparsity);
-    PlotPotentials("Data/ordered.root", P, 12, true, "MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root");
-    */
     return 0;
 }

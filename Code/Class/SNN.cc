@@ -564,9 +564,19 @@ double SNN::Neuron_firetime(int in, double t)
 void SNN::Activate_Neuron(int in, double t){
     // Reset history of this neuron
     //TODO: loop pack in History_time to clear just the spikes before the activation
+    auto it = upper_bound(History_time[in].begin(), History_time[in].end(), t);
+    int position = distance(History_time[in].begin(), it);
+    // Erase elements before the position found by binary search
+    History_time[in].erase(History_time[in].begin(), it);
+    History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
+    History_ID[in].erase(History_ID[in].begin(), History_ID[in].begin() + position);
+
+    /*
     History_time[in].clear();
     History_type[in].clear();
     History_ID[in].clear();
+    */
+
     insert_spike(in, t, SPIKE, 0, NOCLASS);
     
     return;

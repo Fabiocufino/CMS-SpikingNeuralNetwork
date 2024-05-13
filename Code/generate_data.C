@@ -20,7 +20,7 @@
 #include <vector>
 #include <string>
 
-//in the future 18
+//now three to generate just muonss
 static const int NFile = 3;
 static TRandom3 * myRNG = new TRandom3(65645);
 static TFile *files[NFile];
@@ -37,8 +37,6 @@ static int NOT;
 static int N_RandEvents;
 double scale = 1.e3;
 static float epsilon = 1.e-10;
-
-//myRNG->Uniform()
 
 using namespace std;
 
@@ -289,13 +287,12 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
 
 void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_200br.root", float bkg_rate = 200, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
-    //momentaneamente j = 0 per gestire solo i file a 1GeV
+
     int combind = 0;
 
     for (int j=0; j < 3; j++)
     {   
         //open all root files and TTrees inside
-        //momentaneamente solo 1
         for (int i = 0; i < 1; i++)
         {
             string rootInput;
@@ -368,7 +365,7 @@ void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_200br.
             combind++;
         }   
     }
-    cout << "Uscito" << endl;
+
     //opening output file
     TFile* out = new TFile(outRoot.c_str(), "RECREATE");
     cout << "Open output file" << endl;
@@ -421,14 +418,12 @@ void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_200br.
     {
         if(i%(N_events/10)==0)
             cout << i/(N_events/10)*10 << "%" <<endl;
-        //cout << i << endl;
+
         //generate background
-        //cout << "Getting the background" << endl;
         pair <vector<Event>, vector<Event>> event = GetBackgroundFromMia(IT_list[0], OT_list[0], i+1, bkg_rate);
         vector<Event> event_IT = event.first;
         vector<Event> event_OT = event.second;
         
-        //cout << "Gen BKG" << endl;
         //generate only background or signal with 50% of probability
         bool signal = (myRNG->Uniform())<bg_freq;
         //last event is of background
