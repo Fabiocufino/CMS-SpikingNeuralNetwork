@@ -1875,7 +1875,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         Eff[combind] /= gen_sum[ic];
                     Efficiency[combind]->SetBinContent(iepoch, Eff[combind]);
                 }
-                float fakerate = random_fire[in] * 2. / NevPerEpoch; // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
+                float fakerate = random_fire[in] * 2. / NevPerEpoch / (1.-Train_fraction); // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
             }
             float Efftot[N_classes];
@@ -1902,8 +1902,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
-            averacctotL1 = atleastonefired *    (2. / NevPerEpoch * (1-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
-            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch * (1-Train_fraction));
+            averacctotL1 = atleastonefired *    (2. / NevPerEpoch / (1.-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
+            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch / (1.-Train_fraction));
             
             for (int ic = 0; ic < N_classes; ic++)
             {
