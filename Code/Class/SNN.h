@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <functional>
 #include "TRandom3.h"
 
 using namespace std;
