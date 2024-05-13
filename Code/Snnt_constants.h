@@ -37,9 +37,10 @@ struct Hit //holds info about one hit (position of a cluster)
     float z;
     float r, phi;
     short int id;
+    short int pclass;
 
-    Hit(float r_, float z_, float phi_, short int id_)
-        : r(r_), z(z_), phi(phi_), id(id_)
+    Hit(float r_, float z_, float phi_, short int id_, short int pclass_)
+        : r(r_), z(z_), phi(phi_), id(id_), pclass(pclass_)
     {
     }
 };
@@ -53,24 +54,6 @@ static int pclass;
 
 static const short int BGR = 1;
 static const short int SIG = 2;
-
-// -------------------------------------------
-// neural network constants
-// -------------------------------------------
-
-static const int MaxEvents = 10000000;
-static const double largenumber = 999999999.;
-static const double epsilon = 1. / largenumber;
-static const int MaxNeurons = 100;
-static float ProbWSwitchUp = 0.5;
-static float ProbWSwitchDown = 0.05;
-static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
-static float eff_target = 0.9;
-static float acc_target = 0.05;
-static bool learnDelays = false;
-static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
-static int N_display = 500;
-static float Train_fraction = 0.9;
 
 // -------------------------------------------
 // tracking constants
@@ -128,4 +111,24 @@ static bool _split_layer0 = true;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 static string SNN_PATH = "";
+
+// -------------------------------------------
+// neural network constants
+// -------------------------------------------
+
+static const int MaxEvents = 10000000;
+static const double largenumber = 999999999.;
+static const double epsilon = 1. / largenumber;
+static const int MaxNeurons = 100;
+static float ProbWSwitchUp = 0.5;
+static float ProbWSwitchDown = 0.05;
+static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
+static float eff_target = 0.9;
+static float acc_target = 0.05;
+static bool learnDelays = false;
+static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
+static int N_display = 500;
+static float Train_fraction = 0.9;
+static double window = _tau_m*7.;
+
 #endif // SNNT_CONSTANTS_H

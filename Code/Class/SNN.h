@@ -10,8 +10,6 @@
 
 #include <vector>
 #include <stdexcept>
-
-#include "TF1.h"
 #include "TRandom3.h"
 
 using namespace std;
@@ -27,7 +25,7 @@ public:
     const int SPIKE = 0;
     const int NOCLASS  = -2;
     const int BKGCLASS = -1;
-
+    const int SIGCLASS = 0;
     float alpha;              // 0.25; // factor tuning inhibition strength
     
     float CFI0;
@@ -90,7 +88,7 @@ public:
     vector<double> *History_time;       // Time of signal events per each 1neuron
     vector<int> *History_type;         // Type of signal
     vector<int> *History_ID;           // ID of generating signal stream or neuron
-    vector<int> *History_class;
+    vector<pair<int, int>> *History_ev_class;
     
     vector<double> *Fire_time;          // Times of firing of each neuron
     int *Neuron_layer;
@@ -123,7 +121,7 @@ public:
 
 
     //------- Functions ---------
-    void Init_neurons();
+    void Init_neurons(int ievent);
     void Init_weights_uniform();
     void Init_weights();
     void Set_weights();
@@ -134,13 +132,14 @@ public:
     void Init_delays_gauss();
     void Init_delays_uniform();
 
-    void insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class);
+    void insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class, int ievent);
     
     void Init_connection_map();
     float EPS_potential(double delta_t);
     float Spike_potential(double delta_t, int ilayer);
     float Inhibitory_potential(double delta_t, int ilayer);
     double Neuron_firetime(int in, double t);
+    vector<pair <int, int>> Inspect_History(int in, double fire_time, double window);
     void Activate_Neuron(int in, double t);
     float Neuron_Potential(int in, double t, bool delete_history);
     float IE_potential(double delta_t, int in, int is);

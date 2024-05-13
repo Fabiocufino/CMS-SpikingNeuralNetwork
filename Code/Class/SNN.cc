@@ -70,7 +70,7 @@ SNN::SNN(int _NL0, int _NL1,
 
     fire_granularity = tau_s / 5.;
     fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
-    myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
+    myRNG = new TRandom3(static_cast<unsigned int>(time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
 
@@ -97,7 +97,7 @@ SNN::SNN(int _NL0, int _NL1,
     History_time = new vector<double>[N_neurons]; // Time of signal events per each 1neuron
     History_type = new vector<int>[N_neurons];   // Type of signal
     History_ID = new vector<int>[N_neurons];     // ID of generating signal stream or neuron
-    History_class = new vector<int>[N_neurons];  // Class of the signal
+    History_ev_class = new vector<pair <int, int>>[N_neurons];  // Class of the signal
 
     Fire_time = new vector<double>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
@@ -108,7 +108,7 @@ SNN::SNN(int _NL0, int _NL1,
     Delta_delay = MaxDelay/10.;
     Mean_delay = MaxDelay/2.;
 
-    Init_neurons();
+    Init_neurons(0);
     Init_connection_map();
     Init_weights();
     Init_delays_uniform();
@@ -126,7 +126,7 @@ void SNN::Reset_weights(){
     }
 }
 
-double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::function<float(int, double, bool)> func)
+double SNN::bisectionMethod(double a, double b, int in, double epsilon, function<float(int, double, bool)> func)
 {
     float fa = func(in, a, false);
     float fb = func(in, b, false);
@@ -145,7 +145,7 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::fun
         float fc = func(in, c, false);
 
         // Check if the root is found within the specified tolerance
-        if (std::abs(fc) < epsilon)
+        if (abs(fc) < epsilon)
         {
             return c;
         }
@@ -168,7 +168,7 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::fun
 
 // Initialize neuron potentials
 // ----------------------------
-void SNN::Init_neurons()
+void SNN::Init_neurons(int ievent)
 {
     for (int in = 0; in < N_neurons; in++)
     {
@@ -176,12 +176,12 @@ void SNN::Init_neurons()
         History_time[in].clear();
         History_type[in].clear();
         History_ID[in].clear();
-        History_class[in].clear();
+        History_ev_class[in].clear();
 
         History_time[in].push_back(0);
         History_type[in].push_back(SPIKE);
         History_ID[in].push_back(0);
-        History_class[in].push_back(-2);
+        History_ev_class[in].push_back({ievent, NOCLASS});
 
         if (in < N_neuronsL[0])
             Neuron_layer[in] = 0;
@@ -439,7 +439,7 @@ void SNN::Init_connection_map()
 }
 
 //Function to insert new spikes in the correct temporal position
-void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class){
+void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class, int ievent){
     // Find the position where the new value should be inserted
     auto it = lower_bound(History_time[id_neuron].begin(), History_time[id_neuron].end(), spike_time);
     int position = distance(History_time[id_neuron].begin(), it);
@@ -447,7 +447,7 @@ void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int s
     History_time[id_neuron].insert(it, spike_time);
     History_type[id_neuron].insert(History_type[id_neuron].begin()+position, type);
     History_ID[id_neuron].insert(History_ID[id_neuron].begin()+position, id);
-    History_class[id_neuron].insert(History_class[id_neuron].begin()+position, type);
+    History_ev_class[id_neuron].insert(History_ev_class[id_neuron].begin()+position, {ievent, spike_class});
 }
 
 // Model Excitatory Post-Synaptic Potential
@@ -560,6 +560,34 @@ double SNN::Neuron_firetime(int in, double t)
                            });
 }
 
+//function to extract the unique values in a subset of a vector
+vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs, int start_idx, int end_idx) {
+    vector<pair<int, int>> range_subset(my_pairs.begin() + start_idx, my_pairs.begin() + end_idx + 1);
+
+    // Sort the subrange
+    sort(range_subset.begin(), range_subset.end());
+
+    // Remove consecutive duplicates
+    auto it = unique(range_subset.begin(), range_subset.end(), [](const auto& a, const auto& b) {
+        return a.first == b.first && a.second == b.second;
+    });
+
+    // Resize the vector to remove the duplicates
+    range_subset.resize(distance(range_subset.begin(), it));
+
+    return range_subset;
+}
+
+//Inspect the history of a neuron before the activation
+vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double window){
+    //find the position of the fire_time and the first spike in the window
+    int start_pos = distance(History_time[in].begin(), lower_bound(History_time[in].begin(), History_time[in].end(), fire_time - window));
+    int end_pos   = distance(History_time[in].begin(), upper_bound(History_time[in].begin(), History_time[in].end(), fire_time));
+
+    return (uniquePairsInRange(History_ev_class[in], start_pos, end_pos));
+    
+}
+
 //Handle the activation of a neuron
 void SNN::Activate_Neuron(int in, double t){
     // Reset history of this neuron
@@ -570,16 +598,16 @@ void SNN::Activate_Neuron(int in, double t){
     History_time[in].erase(History_time[in].begin(), it);
     History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
     History_ID[in].erase(History_ID[in].begin(), History_ID[in].begin() + position);
-
+    History_ev_class[in].erase(History_ev_class[in].begin(), History_ev_class[in].begin() + position);
+    
+    insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].back().first);
+    
+    return;
     /*
     History_time[in].clear();
     History_type[in].clear();
     History_ID[in].clear();
     */
-
-    insert_spike(in, t, SPIKE, 0, NOCLASS);
-    
-    return;
 }
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
@@ -616,7 +644,8 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    History_class[in].erase(History_class[in].begin() + ih, History_class[in].begin() + ih + 1);
+                    History_ev_class[in].erase(History_ev_class[in].begin() + ih, History_ev_class[in].begin() + ih + 1);
+                    
                     len = len - 1;
                 }
             }
@@ -633,7 +662,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    History_class[in].erase(History_class[in].begin() + ih, History_class[in].begin() + ih + 1);
+                    History_ev_class[in].erase(History_ev_class[in].begin() + ih, History_ev_class[in].begin() + ih + 1);
                     
                     len = len - 1;
                 }

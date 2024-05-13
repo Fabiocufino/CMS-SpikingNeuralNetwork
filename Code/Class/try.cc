@@ -2,19 +2,32 @@
 #include <vector>
 #include <algorithm>
 
+std::vector<std::pair<int, int>> uniquePairsInRange(const std::vector<std::pair<int, int>>& my_pairs, int start_idx, int end_idx) {
+    std::vector<std::pair<int, int>> range_subset(my_pairs.begin() + start_idx, my_pairs.begin() + end_idx + 1);
+
+    // Sort the subrange
+    std::sort(range_subset.begin(), range_subset.end());
+
+    // Remove consecutive duplicates
+    auto it = std::unique(range_subset.begin(), range_subset.end(), [](const auto& a, const auto& b) {
+        return a.first == b.first && a.second == b.second;
+    });
+
+    // Resize the vector to remove the duplicates
+    range_subset.resize(std::distance(range_subset.begin(), it));
+
+    return range_subset;
+}
+
 int main() {
-    std::vector<double> numbers = {1, 2, 4, 5};
-    double x = 2; // Set the threshold value
+    std::vector<std::pair<int, int>> my_pairs = {{0, 1}, {0, 1}, {0, 2}, {1, 2}, {2, 3}, {0, 1}, {1, 2}, {1, 2}};
+    int start_idx = 2;
+    int end_idx = 6;
+    std::vector<std::pair<int, int>> unique_pairs = uniquePairsInRange(my_pairs, start_idx, end_idx);
 
-    // Use binary search to find the position of the first element greater than x
-    auto it = std::upper_bound(numbers.begin(), numbers.end(), x);
-
-    // Erase elements before the position found by binary search
-    numbers.erase(numbers.begin(), it);
-
-    // Print the remaining elements
-    for (auto num : numbers) {
-        std::cout << num << " ";
+    // Print the unique pairs
+    for (const auto& pair : unique_pairs) {
+        std::cout << "(" << pair.first << ", " << pair.second << ") ";
     }
     std::cout << std::endl;
 
