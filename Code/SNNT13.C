@@ -195,7 +195,7 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
         }
     }
     else if (mode == 2)
-    { // compute mutual information
+    {   // compute mutual information
         // I(N_neurons,N_classes) = Sum_i^N_n Sum_j^N_c Eff(i,j) log_2 [Eff(i,j)/Eff_i Eff_j)]
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
         // average efficiency on class j over neurons
@@ -254,19 +254,30 @@ float Compute_Q(float eff, float acc, float sel)
 }
 
 // To read our preprocessed file
-void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
+void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, long int id_event_value)
 {
     Reset_hits();
-    pclass = 0;
-    N_part = 0;
     First_angle = max_angle;
+
+    //retrieve the information about the eventClass
+    int eventClass;
+    ET->SetBranchAddress("eventClass", &eventClass);
+    ET->GetEntry(id_event_value);
+    pclass = eventClass;
+
+    //TODO: generalize to more than 2 particles with an integer division
+    if(eventClass < 0) N_part=0;   
+    if(eventClass >= 0 && eventClass < N_classes) N_part=1;
+    else N_part = 2;
+    
+    // Reading the Inner Tracker
 
     float z;
     float r, phi;
     float id_event;
     float type;
     float cluster_pclass;
-
+    
     IT->SetBranchAddress("cluster_z", &z);
     IT->SetBranchAddress("cluster_R", &r);
     IT->SetBranchAddress("cluster_phi", &phi);
@@ -294,8 +305,6 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
         if (static_cast<int>(type) == 1)
         {
             type = SIG;
-            pclass = (int)cluster_pclass;
-            N_part = 1;
             phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
             if (phi >= 2. * M_PI)
                 phi -= 2. * M_PI;
@@ -386,6 +395,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
+//TODO adapt it to multiple particles
 void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
 {
     insert = true;
@@ -485,7 +495,6 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
         Reset_hits();
 
-        // EMA check
         if (ievent % NROOT == 0)
         {
             last_row_event_IT = 0;
@@ -1300,6 +1309,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
     TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
+    TDirectoryFile *dirEV = dynamic_cast<TDirectoryFile *>(file->Get("classification"));
 
     if (!dirIT)
     {
@@ -1315,8 +1325,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         return;
     }
 
+    if (!dirEV)
+    {
+        cerr << "Error: Cannot access directory classification" << endl;
+        file->Close();
+        return;
+    }
+
     TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
     TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
+    TTree *ET = dynamic_cast<TTree *>(dirEV->Get("event_tree"));
 
     if (!IT)
     {
@@ -1332,11 +1350,21 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         return;
     }
 
+    if (!ET)
+    {
+        cerr << "Error: Cannot access tree in classification" << endl;
+        file->Close();
+        return;
+    }
+
     IT->SetMaxVirtualSize(250000000);
     IT->LoadBaskets();
 
     OT->SetMaxVirtualSize(250000000);
     OT->LoadBaskets();
+
+    ET->SetMaxVirtualSize(250000000);
+    ET->LoadBaskets();
 
     // End of reading ----------------------------------------------
     
@@ -1375,7 +1403,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             last_row_event_OT = 0;
         }
 
-        ReadFromProcessed(IT, OT, ievent % NROOT);
+        ReadFromProcessed(IT, OT, ET, ievent % NROOT);
 
         // See if we find with track with positive latency by at least one neuron
         for (int in = 0; in < snn_in.N_neurons; in++)

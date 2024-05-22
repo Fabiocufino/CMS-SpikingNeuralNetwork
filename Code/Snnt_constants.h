@@ -65,6 +65,7 @@ static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
 static string rootInput = "/Code/Data/muons_100k_100br.root";
 static int N_classes = 3;
+static int N_ev_classes = 9;
 static int TrainingCode = 0;
 static bool ReadPars = false;
 static long int NROOT = 100000;                //number of events inside the root file
