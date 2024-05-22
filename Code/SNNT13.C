@@ -33,6 +33,7 @@ static bool insert = true;
 static int N_part; // Number of generated particles in an event
 static double First_angle;
 static float *Eff; // Efficiency of each neuron to signals of different classes
+static float *Eff_window; // Efficiency of each neuron to signals of different classes
 static vector<double> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
@@ -945,6 +946,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *HIEPC = new TH1F("HIEPC", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH1F *HIPSPdf = new TH1F("HIPSPdf", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH2F *EffMap = new TH2F("EffMap", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_classes, -0.5, N_classes - 0.5);
+    TH2F *EffMap_window = new TH2F("EffMap_window", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_classes, -0.5, N_classes - 0.5);
     SelectivityL1->SetLineColor(kBlack);
     Qmax->SetLineColor(2);
     HEff->SetMaximum(1.1);
@@ -993,7 +995,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *HMaxWeight[snn_in.N_neurons];
     TH1F *HMinWeight[snn_in.N_neurons];
     TH1F *Efficiency[snn_in.N_neurons * N_classes];
+    TH1F *Efficiency_window[snn_in.N_neurons * N_classes];
     TH1F *FakeRate[snn_in.N_neurons];
+    TH1F *FakeRate_window[snn_in.N_neurons];
     TH1F *Eff_totL0[N_classes];
     TH1F *Eff_totL1[N_classes];
     TH2D *StreamsS[10];
@@ -1029,11 +1033,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     {
         sprintf(name, "Efficiency%d", i);
         Efficiency[i] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        sprintf(name, "Efficiency_window%d", i);
+        Efficiency_window[i] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
     }
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         sprintf(name, "FakeRate%d", in);
         FakeRate[in] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        sprintf(name, "FakeRate_window%d", in);
+        FakeRate_window[in] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
     }
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
@@ -1050,6 +1058,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Eff_totL0[ic] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
         sprintf(name, "Eff_totL1%d", ic);
         Eff_totL1[ic] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        
     }
 
     for (int i = 0; i < 10; i++)
@@ -1131,6 +1140,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     vector<pair<int, int>> *History_ev_class = new vector<pair <int, int>>[snn_in.N_neurons];
 
     Eff = new float[snn_in.N_neurons * N_classes];
+    Eff_window = new float[snn_in.N_neurons * N_classes];
     float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
     float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
@@ -1735,10 +1745,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             bool Check_class[N_classes];
             fill_n(Check_class, N_classes, false);
             for(int in = 0; in < snn_in.N_neurons; in++){
+                
                 int current_event = History_ev_class[in].front().first;
                 bool fake_fire = true;
                 //just to don't loose the last test event
                 History_ev_class[in].push_back({-1, snn_in.NOCLASS});
+                //scan back the history to calculate efficiencies
                 for(auto &&ev_class: History_ev_class[in]){
                     if (ev_class.first != current_event){
                         //if just background hits -> it's a false positive
@@ -1757,38 +1769,46 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         //if it's a ghost, let's check if has already seen the particle
                         if(id_class > N_classes-1){
                             id_class-= N_classes;
-                            if (Check_class[id_class])
+                            if (!Check_class[id_class])
                             {
                                 Check_class[id_class] = true;
-                                fired_sum_window[in][id_class]++;
+                                fired_sum_window[id_class][in]++;
                             }                            
                         }
                         else{
-                            Check_class[id_class] = true;
-                            fired_sum_window[in][id_class]++;
+                            if(!Check_class[id_class]){
+                                if(id_class<0 || id_class>2) cout << id_class << endl;
+                                Check_class[id_class] = true;
+                                fired_sum_window[id_class][in]++;
+                                
+                            }
                         }
-                        fired_sum_window[in][ev_class.second]++;
                         fake_fire = false;
                     }                   
                 }
-            }
 
-            cout << "With the new metrics, we obtain: " << endl;
-
-            for (int in = 0; in < snn_in.N_neurons; in++)
-            {
+                //produce the metrics
                 int total_fire = 0;
                 cout << "Neuron " << in << " classes by row: " << endl; 
                 for (int ic = 0; ic < N_classes; ic++)
                 {
+
                     total_fire+=fired_sum_window[ic][in];
-                    float Eff_window = fired_sum_window[ic][in];
+                    int combind = ic + N_classes * in;
+                    Eff_window[combind] = fired_sum_window[ic][in];
                     if (gen_sum[ic] > 0)
-                        Eff_window /= gen_sum[ic];
+                        Eff_window[combind] /= gen_sum[ic];
+                    Efficiency_window[combind]->SetBinContent(iepoch, Eff_window[combind]);
+
                     cout << "   " << ic << " " << Eff_window << endl;
                 }
+                float FP_rate = 0;
+                total_fire+=random_fire_window[in];
+                if(total_fire>0) FP_rate = 1.*random_fire_window[in]/total_fire;
+                FakeRate_window[in]->SetBinContent(iepoch, FP_rate);
                 cout << "   Fake fires: " << random_fire_window[in] << endl;
-                cout << "   FP rate : " <<   1.*random_fire_window[in]/total_fire;
+                cout << "   FP rate : " << FP_rate  << endl;
+
             }
             
             // ------------------------------------------------------------------------
@@ -2612,6 +2632,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Efficiency[i]->SetMaximum(1.1);
         Efficiency[i]->SetMinimum(0.);
         Efficiency[i]->Draw("");
+        
         int in = i / N_classes;
         FakeRate[in]->SetMarkerColor(2);
         FakeRate[in]->SetLineColor(2);
@@ -2640,6 +2661,35 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Eff_totL1[ic]->SetLineColor(3);
         Eff_totL1[ic]->Draw("SAME");
         Efficiency[i]->Draw("SAME");
+    }
+
+    TCanvas *E0_window = new TCanvas("E0_window", "", 800, 800);
+    E0_window->Divide(N_classes, snn_in.N_neuronsL[0]);
+    for (int i = 0; i < snn_in.N_neuronsL[0] * N_classes; i++)
+    {
+        E0_window->cd(i + 1);
+        Efficiency_window[i]->SetMaximum(1.1);
+        Efficiency_window[i]->SetMinimum(0.);
+        Efficiency_window[i]->Draw("");
+        
+        int in = i / N_classes;
+        FakeRate_window[in]->SetMarkerColor(2);
+        FakeRate_window[in]->SetLineColor(2);
+        FakeRate_window[in]->Draw("SAME");
+    }
+
+    TCanvas *E1_window = new TCanvas("E1_window", "", 800, 800);
+    E1_window->Divide(N_classes, snn_in.N_neuronsL[1]);
+    for (int i = snn_in.N_neuronsL[0] * N_classes; i < snn_in.N_neurons * N_classes; i++)
+    {
+        E1_window->cd(i + 1 - snn_in.N_neuronsL[0] * N_classes);
+        Efficiency_window[i]->SetMaximum(1.1);
+        Efficiency_window[i]->SetMinimum(0.);
+        Efficiency_window[i]->Draw("");
+        int in = i / N_classes;
+        FakeRate_window[in]->SetMarkerColor(2);
+        FakeRate_window[in]->SetLineColor(2);
+        FakeRate_window[in]->Draw("SAME");
     }
 
     // Plot the efficiencies and acceptances for the best q-value run
@@ -2770,7 +2820,19 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     Y->cd();
     EffMap->Draw("COL4");
 
-    //Draw dealays
+    // Draw final Efficiency and acceptance maps
+    for (int in = 0; in < snn_in.N_neurons; in++)
+    {
+        for (int ic = 0; ic < N_classes; ic++)
+        {
+            EffMap_window->SetBinContent(in + 1, ic + 1, Efficiency_window[ic + in * N_classes]->GetBinContent(ind_qbest));
+        }
+    }
+    TCanvas *Y_window = new TCanvas("Y_window", "", 600, 900);
+    Y_window->cd();
+    EffMap_window->Draw("COL4");
+
+    //Draw delays
 
     // Create a 2D histogram to store the delays
     TH2D* delayHistogram = new TH2D("Delay Histogram", "Delay Histogram", snn_in.N_neurons, 0, snn_in.N_neurons, snn_in.N_streams, 0, snn_in.N_streams);
@@ -2938,6 +3000,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             int id = in * N_classes + ic;
             Latency[id]->Write();
             Efficiency[id]->Write();
+            Efficiency_window[id]->Write();
         }
         for (int is = 0; is < snn_in.N_streams; is++)
         {
@@ -2946,6 +3009,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             HDelay[id]->Write();
         }
         FakeRate[in]->Write();
+        FakeRate_window[in]->Write();
         BestEff[in]->Write();
         BestFR[in]->Write();
         BestEtot[in]->Write();
@@ -2965,6 +3029,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         StreamsN[i]->Write();
     }
     EffMap->Write();
+    EffMap_window->Write();
 
     MW->Write();
     rootfile->Write();

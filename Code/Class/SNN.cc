@@ -589,19 +589,26 @@ vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double wi
 }
 
 //Handle the activation of a neuron
-void SNN::Activate_Neuron(int in, double t){
-    // Reset history of this neuron
-    //TODO: loop pack in History_time to clear just the spikes before the activation
+void SNN::Activate_Neuron(int in, double t) {
+    // Reset history of this neuron before time t
     auto it = upper_bound(History_time[in].begin(), History_time[in].end(), t);
-    int position = distance(History_time[in].begin(), it);
-    // Erase elements before the position found by binary search
-    History_time[in].erase(History_time[in].begin(), it);
-    History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
-    History_ID[in].erase(History_ID[in].begin(), History_ID[in].begin() + position);
-    History_ev_class[in].erase(History_ev_class[in].begin(), History_ev_class[in].begin() + position);
+    if (it != History_time[in].begin()) {
+        int position = distance(History_time[in].begin(), it);
+        
+        // Erase elements before the position found by binary search
+        History_time[in].erase(History_time[in].begin(), it);
+        History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
+        History_ID[in].erase(History_ID[in].begin(), History_ID[in].begin() + position);
+        History_ev_class[in].erase(History_ev_class[in].begin(), History_ev_class[in].begin() + position);
+    }
     
-    insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].back().first);
-    
+    // Insert the spike at time t
+    if (!History_ev_class[in].empty()) {
+        insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].back().first);
+    } else {
+        // Handle the case when the history is empty
+        insert_spike(in, t, SPIKE, 0, NOCLASS, 0); // Assuming default value for last event class
+    }
     return;
     /*
     History_time[in].clear();
@@ -629,6 +636,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
     int len = History_time[in].size();
     if (len > 1)
     {
+        double last_spike = History_time[in][0];
         for (int ih = 1; ih < len; ih++)
         {
             delta_t = t - History_time[in][ih];
@@ -639,7 +647,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += Weight[in][History_ID[in][ih]] * EPS_potential(delta_t);
                 }
-                else if (delete_history)
+                else if (delete_history && (t - last_spike) > 7. * tau_minus)
                 {
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
