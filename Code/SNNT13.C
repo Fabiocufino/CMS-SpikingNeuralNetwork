@@ -162,15 +162,15 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
             // select max efficiency class
             float maxeff = 0.;
             float sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                float e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_ev_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
             }
             if (sumeff > 0.)
-                S += maxeff * N_classes / sumeff;
+                S += maxeff * N_ev_classes / sumeff;
         }
         if (inmax - inmin > 0)
             S = S / (inmax - inmin);
@@ -183,9 +183,9 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
             // select max efficiency class
             float maxeff = 0.;
             float sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                float e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_ev_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
@@ -201,40 +201,40 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
         // average efficiency on class j over neurons
         S = 0.;
         float Effn[snn.N_neurons];
-        float Effc[N_classes];
+        float Effc[N_ev_classes];
         float sumeff = 0.;
         for (int in = inmin; in < inmax; in++)
         {
             sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                sumeff += Eff[ic + N_classes * in];
+                sumeff += Eff[ic + N_ev_classes * in];
             }
-            if (N_classes > 0)
-                Effn[in] = sumeff / N_classes;
+            if (N_ev_classes > 0)
+                Effn[in] = sumeff / N_ev_classes;
         }
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
             sumeff = 0.;
             for (int in = inmin; in < inmax; in++)
             {
-                sumeff += Eff[ic + N_classes * in];
+                sumeff += Eff[ic + N_ev_classes * in];
             }
             if (inmax > inmin)
                 Effc[ic] = sumeff / (inmax - inmin);
         }
         for (int in = inmin; in < inmax; in++)
         {
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
                 if (Effc[ic] * Effn[in] > 0.)
-                    S += Eff[ic + N_classes * in] *
-                         (log2(Eff[ic + N_classes * in] + epsilon) - log2(Effc[ic] * Effn[in]));
+                    S += Eff[ic + N_ev_classes * in] *
+                         (log2(Eff[ic + N_ev_classes * in] + epsilon) - log2(Effc[ic] * Effn[in]));
             }
         }
     }
     if (inmax > inmin)
-        S /= N_classes * (inmax - inmin);
+        S /= N_ev_classes * (inmax - inmin);
     return S;
 }
 
@@ -870,7 +870,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         cout << "  Sorry, too many neurons. Terminating." << endl;
         return;
     }
-    if (N_classes > MaxClasses)
+    if (N_ev_classes > MaxClasses)
     {
         cout << "  Sorry, too many classes (max is " << MaxClasses << "). Terminating." << endl;
         return;
@@ -954,8 +954,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *HK2 = new TH1F("HK2", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH1F *HIEPC = new TH1F("HIEPC", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH1F *HIPSPdf = new TH1F("HIPSPdf", "", N_epochs, 0.5, 0.5 + N_epochs);
-    TH2F *EffMap = new TH2F("EffMap", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_classes, -0.5, N_classes - 0.5);
-    TH2F *EffMap_window = new TH2F("EffMap_window", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_classes, -0.5, N_classes - 0.5);
+    TH2F *EffMap = new TH2F("EffMap", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_ev_classes, -0.5, N_ev_classes - 0.5);
+    TH2F *EffMap_window = new TH2F("EffMap_window", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_ev_classes, -0.5, N_ev_classes - 0.5);
     SelectivityL1->SetLineColor(kBlack);
     Qmax->SetLineColor(2);
     HEff->SetMaximum(1.1);
@@ -991,9 +991,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH2F *N_MV = new TH2F("N_MV", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
 
     int N_bins = 100;
-    TH2D *Latency[snn_in.N_neurons * N_classes];
+    TH2D *Latency[snn_in.N_neurons * N_ev_classes];
     char name[50];
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         sprintf(name, "Latency%d", i);
         Latency[i] = new TH2D(name, name, N_bins, 0., (double)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
@@ -1003,12 +1003,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *HRMSWeight[snn_in.N_neurons];
     TH1F *HMaxWeight[snn_in.N_neurons];
     TH1F *HMinWeight[snn_in.N_neurons];
-    TH1F *Efficiency[snn_in.N_neurons * N_classes];
-    TH1F *Efficiency_window[snn_in.N_neurons * N_classes];
+    TH1F *Efficiency[snn_in.N_neurons * N_ev_classes];
+    TH1F *Efficiency_window[snn_in.N_neurons * N_ev_classes];
     TH1F *FakeRate[snn_in.N_neurons];
     TH1F *FakeRate_window[snn_in.N_neurons];
-    TH1F *Eff_totL0[N_classes];
-    TH1F *Eff_totL1[N_classes];
+    TH1F *Eff_totL0[N_ev_classes];
+    TH1F *Eff_totL1[N_ev_classes];
     TH2D *StreamsS[10];
     TH2D *StreamsB[10];
     TH2D *StreamsN[10];
@@ -1038,7 +1038,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         sprintf(name, "HRMSWeight%d", i);
         HMinWeight[i] = new TH1F(name, name, N_bins, 0., (float)NevPerEpoch);
     }
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         sprintf(name, "Efficiency%d", i);
         Efficiency[i] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
@@ -1055,13 +1055,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         sprintf(name, "BestEff%d", in);
-        BestEff[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestEff[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
         sprintf(name, "BestFR%d", in);
-        BestFR[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestFR[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
         sprintf(name, "BestEtot%d", in);
-        BestEtot[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestEtot[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
     }
-    for (int ic = 0; ic < N_classes; ic++)
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         sprintf(name, "Eff_totL0%d", ic);
         Eff_totL0[ic] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
@@ -1106,16 +1106,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         N_fires[in] = 0.;
         LastP[in] = 0.;
     }
-    int fired_sum[N_classes][snn_in.N_neurons];
+    int fired_sum[N_ev_classes][snn_in.N_neurons];
     int random_fire[snn_in.N_neurons];
-    int fired_sum_window[N_classes][snn_in.N_neurons];
+    int fired_sum_window[N_ev_classes][snn_in.N_neurons];
     int random_fire_window[snn_in.N_neurons];
 
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         random_fire[in] = 0;
         random_fire_window[in] = 0;
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
             fired_sum[ic][in] = 0;
             fired_sum_window[ic][in] = 0;
@@ -1127,19 +1127,19 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int atleastonefired = 0;
     int atleastonefired_L0 = 0;
 
-    int gen_sum[N_classes];
-    int fired_anyL0[N_classes];
-    int fired_anyL1[N_classes];
+    int gen_sum[N_ev_classes];
+    int fired_anyL0[N_ev_classes];
+    int fired_anyL1[N_ev_classes];
     
-    for (int ic = 0; ic < N_classes; ic++)
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         gen_sum[ic] = 0;
         fired_anyL0[ic] = 0;
         fired_anyL1[ic] = 0;
     }
-    bool doneL0[N_classes];
-    bool doneL1[N_classes];
-    bool Seen[N_classes][snn_in.N_neurons];
+    bool doneL0[N_ev_classes];
+    bool doneL1[N_ev_classes];
+    bool Seen[N_ev_classes][snn_in.N_neurons];
     float selectivityL0 = 0.;
     float selectivityL1 = 0.;
     float averefftotL0 = 0.;
@@ -1148,15 +1148,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     float averacctotL1 = 0.;
     vector<pair<int, int>> *History_ev_class = new vector<pair <int, int>>[snn_in.N_neurons];
 
-    Eff = new float[snn_in.N_neurons * N_classes];
-    Eff_window = new float[snn_in.N_neurons * N_classes];
+    Eff = new float[snn_in.N_neurons * N_ev_classes];
+    Eff_window = new float[snn_in.N_neurons * N_ev_classes];
     float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
     float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
     float MinWeight[snn_in.N_neurons];
     float RMSWeight[snn_in.N_neurons];
 
-    int count_classes[N_classes+1] = {}; 
+    int count_classes[N_ev_classes+1] = {}; 
 
     // TODO: implement clone method
     SNN snn_best(_NL0, _NL1,
@@ -1374,7 +1374,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     ofstream fout;
     char csv_name[80];
     if (file_id_GS == -1)
-        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
+        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_ev_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
     else
     {
         sprintf(csv_name, "%i.csv", file_id_GS);
@@ -1543,7 +1543,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (latency >= 0. && not_filled[in_first])
                     {
                         if (iepoch == N_epochs - 1)
-                            Latency[in_first * N_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
+                            Latency[in_first * N_ev_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
                         Seen[pclass][in_first] = true;
                         not_filled[in_first] = false;
                     }
@@ -1720,9 +1720,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
-                for (int ic = 0; ic < N_classes; ic++)
+                for (int ic = 0; ic < N_ev_classes; ic++)
                 {
-                    int combind = ic + N_classes * in;
+                    int combind = ic + N_ev_classes * in;
                     Eff[combind] = fired_sum[ic][in];
                     if (gen_sum[ic] > 0)
                         Eff[combind] /= gen_sum[ic];
@@ -1731,10 +1731,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 float fakerate = random_fire[in] * 2. / NevPerEpoch / (1.-Train_fraction); // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
             }
-            float Efftot[N_classes];
-            float Efftot_L0[N_classes];
+            float Efftot[N_ev_classes];
+            float Efftot_L0[N_ev_classes];
             
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
                 float etl0 = fired_anyL0[ic];
                 if (gen_sum[ic] > 0)
@@ -1758,20 +1758,20 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             averacctotL1 = atleastonefired *    (2. / NevPerEpoch / (1.-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
             averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch / (1.-Train_fraction));
             
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
                 averefftotL1 += Efftot[ic];
                 averefftotL0 += Efftot_L0[ic];
             }
-            averefftotL1 /= N_classes;
-            averefftotL0 /= N_classes;
+            averefftotL1 /= N_ev_classes;
+            averefftotL0 /= N_ev_classes;
 
             Q = Compute_Q(averefftotL1, averacctotL1, selectivityL1);
             Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
 
             //--------------- New method to calculate efficiency, fake rate, Q value ----------------
-            bool Check_class[N_classes];
-            fill_n(Check_class, N_classes, false);
+            bool Check_class[N_ev_classes];
+            fill_n(Check_class, N_ev_classes, false);
             for(int in = 0; in < snn_in.N_neurons; in++){
                 
                 int current_event = History_ev_class[in].front().first;
@@ -1785,7 +1785,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         if(fake_fire) random_fire_window[in]++;
                         //prepare for the next event
                         fake_fire = true;
-                        fill_n(Check_class, N_classes, false);
+                        fill_n(Check_class, N_ev_classes, false);
                         current_event = ev_class.first;
                     }
                     int id_class = ev_class.second;
@@ -1818,11 +1818,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 //produce the metrics
                 int total_fire = 0;
                 cout << "Neuron " << in << " classes by row: " << endl; 
-                for (int ic = 0; ic < N_classes; ic++)
+                for (int ic = 0; ic < N_ev_classes; ic++)
                 {
 
                     total_fire+=fired_sum_window[ic][in];
-                    int combind = ic + N_classes * in;
+                    int combind = ic + N_ev_classes * in;
                     Eff_window[combind] = fired_sum_window[ic][in];
                     if (gen_sum[ic] > 0)
                         Eff_window[combind] /= gen_sum[ic];
@@ -2558,12 +2558,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 for (int in = 0; in < snn_in.N_neurons; in++)
                 {
                     random_fire[in] = 0;
-                    for (int ic = 0; ic < N_classes; ic++)
+                    for (int ic = 0; ic < N_ev_classes; ic++)
                     {
                         fired_sum[ic][in] = 0;
                     }
                 }
-                for (int ic = 0; ic < N_classes; ic++)
+                for (int ic = 0; ic < N_ev_classes; ic++)
                 {
                     gen_sum[ic] = 0;
                     fired_anyL0[ic] = 0;
@@ -2645,27 +2645,27 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     }
 
     TCanvas *C = new TCanvas("C", "", 1000, 1000);
-    C->Divide(N_classes, snn_in.N_neurons);
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    C->Divide(N_ev_classes, snn_in.N_neurons);
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         C->cd(i + 1);
         Latency[i]->Draw("COL4");
     }
 
     TCanvas *E0 = new TCanvas("E0", "", 800, 800);
-    E0->Divide(N_classes, snn_in.N_neuronsL[0]);
-    for (int i = 0; i < snn_in.N_neuronsL[0] * N_classes; i++)
+    E0->Divide(N_ev_classes, snn_in.N_neuronsL[0]);
+    for (int i = 0; i < snn_in.N_neuronsL[0] * N_ev_classes; i++)
     {
         E0->cd(i + 1);
         Efficiency[i]->SetMaximum(1.1);
         Efficiency[i]->SetMinimum(0.);
         Efficiency[i]->Draw("");
         
-        int in = i / N_classes;
+        int in = i / N_ev_classes;
         FakeRate[in]->SetMarkerColor(2);
         FakeRate[in]->SetLineColor(2);
         FakeRate[in]->Draw("SAME");
-        int ic = i % N_classes;
+        int ic = i % N_ev_classes;
         Eff_totL0[ic]->SetMarkerColor(3);
         Eff_totL0[ic]->SetLineColor(3);
         Eff_totL0[ic]->Draw("SAME");
@@ -2673,18 +2673,18 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     }
 
     TCanvas *E1 = new TCanvas("E1", "", 800, 800);
-    E1->Divide(N_classes, snn_in.N_neuronsL[1]);
-    for (int i = snn_in.N_neuronsL[0] * N_classes; i < snn_in.N_neurons * N_classes; i++)
+    E1->Divide(N_ev_classes, snn_in.N_neuronsL[1]);
+    for (int i = snn_in.N_neuronsL[0] * N_ev_classes; i < snn_in.N_neurons * N_ev_classes; i++)
     {
-        E1->cd(i + 1 - snn_in.N_neuronsL[0] * N_classes);
+        E1->cd(i + 1 - snn_in.N_neuronsL[0] * N_ev_classes);
         Efficiency[i]->SetMaximum(1.1);
         Efficiency[i]->SetMinimum(0.);
         Efficiency[i]->Draw("");
-        int in = i / N_classes;
+        int in = i / N_ev_classes;
         FakeRate[in]->SetMarkerColor(2);
         FakeRate[in]->SetLineColor(2);
         FakeRate[in]->Draw("SAME");
-        int ic = i % N_classes;
+        int ic = i % N_ev_classes;
         Eff_totL1[ic]->SetMarkerColor(3);
         Eff_totL1[ic]->SetLineColor(3);
         Eff_totL1[ic]->Draw("SAME");
@@ -2692,29 +2692,29 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     }
 
     TCanvas *E0_window = new TCanvas("E0_window", "", 800, 800);
-    E0_window->Divide(N_classes, snn_in.N_neuronsL[0]);
-    for (int i = 0; i < snn_in.N_neuronsL[0] * N_classes; i++)
+    E0_window->Divide(N_ev_classes, snn_in.N_neuronsL[0]);
+    for (int i = 0; i < snn_in.N_neuronsL[0] * N_ev_classes; i++)
     {
         E0_window->cd(i + 1);
         Efficiency_window[i]->SetMaximum(1.1);
         Efficiency_window[i]->SetMinimum(0.);
         Efficiency_window[i]->Draw("");
         
-        int in = i / N_classes;
+        int in = i / N_ev_classes;
         FakeRate_window[in]->SetMarkerColor(2);
         FakeRate_window[in]->SetLineColor(2);
         FakeRate_window[in]->Draw("SAME");
     }
 
     TCanvas *E1_window = new TCanvas("E1_window", "", 800, 800);
-    E1_window->Divide(N_classes, snn_in.N_neuronsL[1]);
-    for (int i = snn_in.N_neuronsL[0] * N_classes; i < snn_in.N_neurons * N_classes; i++)
+    E1_window->Divide(N_ev_classes, snn_in.N_neuronsL[1]);
+    for (int i = snn_in.N_neuronsL[0] * N_ev_classes; i < snn_in.N_neurons * N_ev_classes; i++)
     {
-        E1_window->cd(i + 1 - snn_in.N_neuronsL[0] * N_classes);
+        E1_window->cd(i + 1 - snn_in.N_neuronsL[0] * N_ev_classes);
         Efficiency_window[i]->SetMaximum(1.1);
         Efficiency_window[i]->SetMinimum(0.);
         Efficiency_window[i]->Draw("");
-        int in = i / N_classes;
+        int in = i / N_ev_classes;
         FakeRate_window[in]->SetMarkerColor(2);
         FakeRate_window[in]->SetLineColor(2);
         FakeRate_window[in]->Draw("SAME");
@@ -2722,10 +2722,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     // Plot the efficiencies and acceptances for the best q-value run
     // --------------------------------------------------------------
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
-        int in = i / N_classes;
-        int ic = i % N_classes;
+        int in = i / N_ev_classes;
+        int ic = i % N_ev_classes;
         BestEff[in]->SetBinContent(ic + 1, Efficiency[i]->GetBinContent(ind_qbest));
         BestFR[in]->SetBinContent(ic + 1, FakeRate[in]->GetBinContent(ind_qbest));
         if (in < snn_in.N_neuronsL[0])
@@ -2839,9 +2839,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // Draw final Efficiency and acceptance maps
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
-            EffMap->SetBinContent(in + 1, ic + 1, Efficiency[ic + in * N_classes]->GetBinContent(ind_qbest));
+            EffMap->SetBinContent(in + 1, ic + 1, Efficiency[ic + in * N_ev_classes]->GetBinContent(ind_qbest));
         }
     }
     TCanvas *Y = new TCanvas("Y", "", 600, 900);
@@ -2851,9 +2851,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // Draw final Efficiency and acceptance maps
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
-            EffMap_window->SetBinContent(in + 1, ic + 1, Efficiency_window[ic + in * N_classes]->GetBinContent(ind_qbest));
+            EffMap_window->SetBinContent(in + 1, ic + 1, Efficiency_window[ic + in * N_ev_classes]->GetBinContent(ind_qbest));
         }
     }
     TCanvas *Y_window = new TCanvas("Y_window", "", 600, 900);
@@ -2953,7 +2953,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     char num[80];
 
     if (file_id_GS == -1)
-        sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
+        sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_ev_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
     else
         sprintf(num, "%i", file_id_GS);
 
@@ -3023,9 +3023,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     N_MV->Write();
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
-            int id = in * N_classes + ic;
+            int id = in * N_ev_classes + ic;
             Latency[id]->Write();
             Efficiency[id]->Write();
             Efficiency_window[id]->Write();
@@ -3045,7 +3045,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         HMaxWeight[in]->Write();
         HMinWeight[in]->Write();
     }
-    for (int ic = 0; ic < N_classes; ic++)
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         Eff_totL0[ic]->Write();
         Eff_totL1[ic]->Write();
@@ -3120,6 +3120,7 @@ void PrintHelp()
     cout << "   --batch" << endl;
     cout << "   --rootInput" << endl;
     cout << "   --N_classes" << endl;
+    cout << "   --N_ev_classes" << endl;
     cout << "   --TrainingCode" << endl;
     cout << "   --ReadPars" << endl;
     cout << "   --NROOT" << endl;
@@ -3222,6 +3223,8 @@ int main(int argc, char *argv[])
 
         else if (strcmp(arg, "--N_classes") == 0)
             N_classes = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--N_ev_classes") == 0)
+            N_ev_classes = stoi(argv[i + 1]);
         else if (strcmp(arg, "--TrainingCode") == 0)
             TrainingCode = stoi(argv[i + 1]);
         else if (strcmp(arg, "--ReadPars") == 0)
