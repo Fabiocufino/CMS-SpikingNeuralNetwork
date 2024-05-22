@@ -254,7 +254,7 @@ float Compute_Q(float eff, float acc, float sel)
 }
 
 // To read our preprocessed file
-void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, long int id_event_value)
+void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, int id_event_value)
 {
     Reset_hits();
     First_angle = max_angle;
@@ -266,8 +266,8 @@ void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, long int id_event_value)
     pclass = eventClass;
 
     //TODO: generalize to more than 2 particles with an integer division
-    if(eventClass < 0) N_part=0;   
-    if(eventClass >= 0 && eventClass < N_classes) N_part=1;
+    if(eventClass < 0) {N_part=0; pclass=0;}  
+    else if(eventClass >= 0 && eventClass < N_classes) N_part=1;
     else N_part = 2;
     
     // Reading the Inner Tracker
@@ -292,11 +292,11 @@ void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, long int id_event_value)
     }
 
     // Loop over entries and find rows with the specified id_event value
-    for (long int i = last_row_event_IT; i < IT->GetEntries(); ++i)
+    for (int i = last_row_event_IT; i < IT->GetEntries(); ++i)
     {
         IT->GetEntry(i);
 
-        if (static_cast<long int>(id_event) != id_event_value)
+        if (static_cast<int>(id_event) != id_event_value)
         {
             last_row_event_IT = i;
             break;
@@ -329,10 +329,10 @@ void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, long int id_event_value)
     OT->SetBranchAddress("eventID", &id_event);
     OT->SetBranchAddress("cluster_type", &type);
 
-    for (long int i = last_row_event_OT; i < OT->GetEntries(); ++i)
+    for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
     {
         OT->GetEntry(i);
-        if (static_cast<long int>(id_event) != id_event_value)
+        if (static_cast<int>(id_event) != id_event_value)
         {
             last_row_event_OT = i;
             break;
@@ -520,11 +520,11 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
         IT->SetBranchAddress("pclass", &cluster_pclass);
 
         // Loop over entries and find rows with the specified id_event value
-        for (long int i = last_row_event_IT; i < IT->GetEntries(); ++i)
+        for (int i = last_row_event_IT; i < IT->GetEntries(); ++i)
         {
             IT->GetEntry(i);
 
-            if (static_cast<long int>(id_event) != id_event_value)
+            if (static_cast<int>(id_event) != id_event_value)
             {
                 last_row_event_IT = i;
                 break;
@@ -559,10 +559,10 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
         OT->SetBranchAddress("eventID", &id_event);
         OT->SetBranchAddress("cluster_type", &type);
 
-        for (long int i = last_row_event_OT; i < OT->GetEntries(); ++i)
+        for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
         {
             OT->GetEntry(i);
-            if (static_cast<long int>(id_event) != id_event_value)
+            if (static_cast<int>(id_event) != id_event_value)
             {
                 last_row_event_OT = i;
                 break;
@@ -1828,7 +1828,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         Eff_window[combind] /= gen_sum[ic];
                     Efficiency_window[combind]->SetBinContent(iepoch, Eff_window[combind]);
 
-                    cout << "   " << ic << " " << Eff_window << endl;
+                    cout << "   " << ic << " " << Eff_window[combind] << endl;
                 }
                 float FP_rate = 0;
                 total_fire+=random_fire_window[in];
