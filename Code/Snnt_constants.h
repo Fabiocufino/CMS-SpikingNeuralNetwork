@@ -77,7 +77,7 @@ static int N_events = 20000;
 static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
-static char *rootInput = "../Data/100k_100br.root";
+static char *rootInput = "Data/100k_100br.root";
 static int N_classes = 6;
 static int TrainingCode = 0;
 static bool ReadPars = false;
@@ -91,10 +91,10 @@ static bool updateConnections = false;      // controls whether to optimize conn
 
 static int _NL0 = 6;
 static int _NL1 = 6;
-static float _alpha = 0.5;
-static float _CFI0 = 1; 
-static float _CFI1 = 1; 
-static float _CF01 = 1;
+static float _alpha = 0.550440;
+static float _CFI0 = 0.50; 
+static float _CFI1 = 0.58; 
+static float _CF01 = 0.41;
 static float _L1inhibitfactor = 1;
 static float _K = 1; 
 static float _K1 = 2; 
@@ -102,17 +102,17 @@ static float _K2 = 4;
 static float _IE_Pot_const = 1; 
 static double _IPSP_dt_dilation = 1;
 
-static double _tau_m = 1e-09 / 3;
-static double _tau_s =  0.25e-09 / 3;
+static double _tau_m = 2.054839e-09; //1e-09 / 3;
+static double _tau_s = 1.387097e-09;// 0.25e-09 / 3;
 static double _tau_r = 0.5e-09 / 3;
-static double _tau_plus = 1.68e-09 /3;
-static double _tau_minus = 3.37e-09 /3;
-static double _MaxDelay =  0; //0 if del;ays tunred off
-static double _a_plus = 0.00003125;
-static double _a_minus = 0.00002656; 
+static double _tau_plus = 9.709677e-09; //1.68e-09 /3;
+static double _tau_minus = 1.251613e-09; //3.37e-09 /3;
+static double _MaxDelay =  0; //0 if delays tunred off
+static double _a_plus = 0.000056;   //0.00003125;
+static double _a_minus = 0.000052; //0.00002656; 
 
-static float _Threshold0 = 0.45;
-static float _Threshold1 = 0.45;
+static float _Threshold0 = 0.837439; // 0.45;
+static float _Threshold1 = 0.617791; //0.45;
 
 static float _sparsity = 1; //gaussian inizialization
 

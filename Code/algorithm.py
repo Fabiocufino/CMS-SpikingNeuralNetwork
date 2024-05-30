@@ -1,0 +1,158 @@
+import numpy as np
+import random
+from random import randint
+import operator
+from array import *
+import sys 
+import os
+
+import matplotlib.pyplot as plt
+import subprocess
+import re
+
+import pygad
+
+
+import time
+
+def run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1):
+    try:
+        command = f'./SNNT13.out --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1}'
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        
+        values = {
+            'Eff': 0,
+            'Fr': 0,
+            'Q': 0,
+            'Selectivity': 0,
+        }
+
+        for line in iter(process.stdout.readline, ''):
+            line = line.strip()
+            if 'Average efficiency:' in line:
+                match = re.search(r'Average efficiency: (\d+\.\d+)', line)
+                if match:
+                    values['Eff'] = float(match.group(1))
+                else:
+                    values['Eff'] = 0
+                    
+            elif 'Average fake rate:' in line:
+                match = re.search(r'Average fake rate: (\d+\.\d+)', line)
+                if match:
+                    values['Fr'] = float(match.group(1))
+            elif 'Maximum Q value:' in line:
+                match = re.search(r'Maximum Q value: (\d+\.\d+)', line)
+                if match:
+                    values['Q'] = float(match.group(1))
+            elif 'L1 selectivity:' in line:
+                match = re.search(r'L1 selectivity: (\d+\.\d+)', line)
+                if match:
+                    values['Selectivity']= float(match.group(1))
+            
+        process.communicate()  # Wait for the process to finish
+        
+        return values
+    
+    except Exception as e:
+        print(f"Error during the execution of SNN: {e}")
+        return None
+
+# Fitness function for multi-objective optimization
+def fitness_func(ga_instance, solution, solution_idx):
+    N_ev = 100000
+    tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1 = solution
+
+    output_values = run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1)
+    
+    if output_values is None:
+        return [1000, 1000, 1000]  # Large values to indicate failure
+    
+    efficiency = output_values['Eff']
+    fake_rate = output_values['Fr']
+    selectivity = output_values['Selectivity']
+
+    # Minimize fake rate (thus using 1/fake_rate)
+    fitness = [efficiency, 1/(fake_rate + 1e6), selectivity]
+
+    # Append the solution and its fitness to the CSV file
+    with open('values_ga_100k.csv', 'a') as file:
+        file.write(','.join(map(str, solution)) + ',' + ','.join(map(str, fitness)) + '\n')
+
+    return fitness
+
+
+# Create the values.csv and write the header
+with open('values_ga_100k.csv', 'w') as file:
+    file.write('tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,fitnessEff,fitnessFake,fitnessSel\n')
+
+
+# Gene space --------------------------
+tau_m_MIN, tau_m_MAX = 1e-10, 1e-8
+tau_s_MIN, tau_s_MAX = 1e-10, 1e-8
+tau_r_MIN, tau_r_MAX = 1e-10, 1e-8
+tau_plus_MIN, tau_plus_MAX = 1e-10, 1e-8
+tau_minus_MIN, tau_minus_MAX = 1e-10, 1e-8
+a_minus_MIN, a_minus_MAX = 0.00000656, 0.00009656
+a_plus_MIN, a_plus_MAX = 0.00000125, 0.00009125
+CFI0_MIN, CFI0_MAX = 0.4, 0.8
+CF01_MIN, CF01_MAX = 0.4, 0.8
+CFI1_MIN, CFI1_MAX = 0.4, 0.8
+alpha_MIN, alpha_MAX = 0.1, 1
+TH0_MIN, TH0_MAX = 0.6, 0.95
+TH1_MIN, TH1_MAX = 0.6, 0.95
+
+gene_space = [
+    {'low': tau_m_MIN, 'high': tau_m_MAX},
+    {'low': tau_s_MIN, 'high': tau_s_MAX},
+    {'low': tau_r_MIN, 'high': tau_r_MAX},
+    {'low': tau_plus_MIN, 'high': tau_plus_MAX},
+    {'low': tau_minus_MIN, 'high': tau_minus_MAX},
+    {'low': a_minus_MIN, 'high': a_minus_MAX},
+    {'low': a_plus_MIN, 'high': a_plus_MAX},
+    {'low': CFI0_MIN, 'high': CFI0_MAX},
+    {'low': CF01_MIN, 'high': CF01_MAX},
+    {'low': CFI1_MIN, 'high': CFI1_MAX},
+    {'low': alpha_MIN, 'high': alpha_MAX},
+    {'low': TH0_MIN, 'high': TH0_MAX},
+    {'low': TH1_MIN, 'high': TH1_MAX}
+]
+# --------------------------
+
+
+## Algorithm
+
+# GA Configuration
+num_generations = 10000
+num_parents_mating = 6
+sol_per_pop = 12
+num_genes = len(gene_space)
+
+
+ga_instance = pygad.GA(num_generations=num_generations,
+                       num_parents_mating=num_parents_mating,
+                       sol_per_pop=sol_per_pop,
+                       num_genes=num_genes,
+                       fitness_func=fitness_func,
+                       gene_space=gene_space,
+                       parent_selection_type="rws",
+                       crossover_type="single_point",
+                       mutation_type="random",
+                       parallel_processing=["thread", 4],
+                       save_best_solutions=True,
+                       on_generation=lambda ga_instance: print(f"Generation: {ga_instance.generations_completed}"))
+
+# Run the GA
+ga_instance.run()
+
+# Plot the fitness values
+ga_instance.plot_fitness()
+
+# Get the best solution
+solution, solution_fitness, solution_idx = ga_instance.best_solution()
+print(f"Parameters of the best solution: {solution}")
+print(f"Fitness value of the best solution: {solution_fitness}")
+
+# Note: Saving the best solution separately is optional since all solutions are being saved during the run.
+# Save the best solution to the CSV file
+with open('values_ga_100k.csv', 'a') as file:
+    file.write(','.join(map(str, solution)) + ',' + ','.join(map(str, solution_fitness)) + '\n')
