@@ -262,9 +262,9 @@ void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, int id_event_value)
     //retrieve the information about the eventClass
     int eventClass;
     ET->SetBranchAddress("eventClass", &eventClass);
-    ET->GetEntry(id_event_value);
+    ET->GetEntry(id_event_value-1);
     pclass = eventClass;
-
+    
     //TODO: generalize to more than 2 particles with an integer division
     if(eventClass < 0) {N_part=0; pclass=0;}  
     else if(eventClass >= 0 && eventClass < N_classes) N_part=1;
@@ -328,6 +328,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, int id_event_value)
     OT->SetBranchAddress("cluster_phi", &phi);
     OT->SetBranchAddress("eventID", &id_event);
     OT->SetBranchAddress("cluster_type", &type);
+    OT->SetBranchAddress("pclass", &cluster_pclass);
 
     for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
     {
@@ -1159,70 +1160,14 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int count_classes[N_ev_classes+1] = {}; 
 
     // TODO: implement clone method
-    SNN snn_best(_NL0, _NL1,
-                 _alpha,
-                 _CFI0, _CFI1, _CF01,
-                 _L1inhibitfactor,
-                 _K, _K1, _K2,
-                 _IE_Pot_const, _IPSP_dt_dilation,
-                 _MaxDelay,
-
-                 _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-                 _a_plus, _a_minus,
-
-                 _taud_plus, _taud_minus,
-                 _d_plus, _d_minus,
-
-                 _N_InputStreams,
-                 _Threshold0, _Threshold1, _sparsity, _split_layer0);
-    SNN snn_old(_NL0, _NL1,
-                _alpha,
-                _CFI0, _CFI1, _CF01,
-                _L1inhibitfactor,
-                _K, _K1, _K2,
-                _IE_Pot_const, _IPSP_dt_dilation,
-                _MaxDelay,
-
-                _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-                _a_plus, _a_minus,
-
-                _taud_plus, _taud_minus,
-                _d_plus, _d_minus,
-
-                _N_InputStreams,
-                _Threshold0, _Threshold1, _sparsity, _split_layer0);
+    SNN snn_best;
+    SNN snn_old;
 
     // Storing parameters subjected to random search
-    snn_old.Threshold[0] = snn_in.Threshold[0];
-    snn_old.Threshold[1] = snn_in.Threshold[1];
-    snn_old.alpha = snn_in.alpha;
-    snn_old.L1inhibitfactor = snn_in.L1inhibitfactor;
-    snn_old.K = snn_in.K;
-    snn_old.K1 = snn_in.K1;
-    snn_old.K2 = snn_in.K2;
-    snn_old.IE_Pot_const = snn_in.IE_Pot_const;
-    snn_old.IPSP_dt_dilation = snn_in.IPSP_dt_dilation;
-
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_in.N_streams; is++)
-        {
-            snn_old.Delay[in][is] = snn_in.Delay[in][is];
-            snn_best.Delay[in][is] = snn_in.Delay[in][is];
-        }
-    }
-
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_in.N_streams; is++)
-        {
-            snn_old.Void_weight[in][is] = snn_in.Void_weight[in][is];
-            snn_best.Void_weight[in][is] = snn_in.Void_weight[in][is];
-
-            snn_old.Weight[in][is] = snn_in.Weight[in][is];
-            snn_best.Weight[in][is] = snn_in.Weight[in][is];
-        }
-    }
+    snn_old.copy_from(snn_in);
+    snn_best.copy_from(snn_in);
+    
+    
     float Q = 0.;
     float Q_L0 = 0.;
 
@@ -1237,16 +1182,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     SelL1_best = 0.;
     Eff_best_L1 = 0.;
     Acc_best_L1 = 0.;
-
-    snn_best.Threshold[0] = 0.;
-    snn_best.Threshold[1] = 0.;
-    snn_best.alpha = 0.;
-    snn_best.L1inhibitfactor = 0.;
-    snn_best.K = 0.;
-    snn_best.K1 = 0.;
-    snn_best.K2 = 0.;
-    snn_best.IE_Pot_const = 0.;
-    snn_best.IPSP_dt_dilation = 0.;
 
     float Optvar[9];
     float max_dx[9];
@@ -1718,24 +1653,33 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             if (doprogress)
                 cout << progress[51] << endl;
 
+            cout << "Efficiency calculation" << endl;
+            cout << "Fired sum" << endl;
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
+                cout << "Neuron " << in << endl;
                 for (int ic = 0; ic < N_ev_classes; ic++)
-                {
+                {   
+                    cout << "   - " << ic << " " << fired_sum[ic][in] << endl;
                     int combind = ic + N_ev_classes * in;
                     Eff[combind] = fired_sum[ic][in];
                     if (gen_sum[ic] > 0)
                         Eff[combind] /= gen_sum[ic];
                     Efficiency[combind]->SetBinContent(iepoch, Eff[combind]);
                 }
+                
                 float fakerate = random_fire[in] * 2. / NevPerEpoch / (1.-Train_fraction); // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
+                cout << "   - Fake rate: " << random_fire[in] << endl << endl;
             }
             float Efftot[N_ev_classes];
             float Efftot_L0[N_ev_classes];
             
+            cout << "Efficiency calculation" << endl;
+            cout << "Gen sum" << endl;
             for (int ic = 0; ic < N_ev_classes; ic++)
             {
+                cout << ic << "   " <<  gen_sum[ic] << endl;
                 float etl0 = fired_anyL0[ic];
                 if (gen_sum[ic] > 0)
                     etl0 /= gen_sum[ic];
@@ -1817,7 +1761,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
                 //produce the metrics
                 int total_fire = 0;
-                cout << "Neuron " << in << " classes by row: " << endl; 
                 for (int ic = 0; ic < N_ev_classes; ic++)
                 {
 
@@ -1827,15 +1770,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (gen_sum[ic] > 0)
                         Eff_window[combind] /= gen_sum[ic];
                     Efficiency_window[combind]->SetBinContent(iepoch, Eff_window[combind]);
-
-                    cout << "   " << ic << " " << Eff_window[combind] << endl;
                 }
                 float FP_rate = 0;
                 total_fire+=random_fire_window[in];
                 if(total_fire>0) FP_rate = 1.*random_fire_window[in]/total_fire;
                 FakeRate_window[in]->SetBinContent(iepoch, FP_rate);
-                cout << "   Fake fires: " << random_fire_window[in] << endl;
-                cout << "   FP rate : " << FP_rate  << endl;
+
+                cout << "Neuron " << in << ":" << endl;
+                cout << "   - Fake fires: " << random_fire_window[in] << endl;
+                cout << "   - FP rate : " << FP_rate  << endl;
 
             }
             
@@ -2946,10 +2889,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Write_Parameters(); // This also defines indfile, used below
     }
     */
-
-    // Dump histograms to root file
-    string Path = SNN_PATH + "/Code/MODE/SNNT/";
-    std::stringstream sstr;
+    // Dump SNN parameters to JSON file
+    string Path = SNN_PATH + "/Code/MODE/JSON/";
+    stringstream sstr;
     char num[80];
 
     if (file_id_GS == -1)
@@ -2957,7 +2899,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     else
         sprintf(num, "%i", file_id_GS);
 
-
+    sstr << "Parameters_";
+    string namejsonfile = Path + sstr.str() + num + ".json";
+    
+    snn_in.dumpToJson(namejsonfile);
+    
+    // Dump histograms to root file
+    Path = SNN_PATH + "/Code/MODE/SNNT/";
+    sstr.str(string());
+    
     sstr << "Histos13_";
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");
@@ -2975,6 +2925,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     D->Write();
     Y->Write();
     MW->Write();
+    E0_window->Write();
+    E1_window->Write();
+    Y_window->Write();
     delay_canvas->Write();
     delta_delay_canvas->Write();
 
@@ -3228,7 +3181,7 @@ int main(int argc, char *argv[])
         else if (strcmp(arg, "--TrainingCode") == 0)
             TrainingCode = stoi(argv[i + 1]);
         else if (strcmp(arg, "--ReadPars") == 0)
-            ReadPars = stoi(argv[i + 1]);
+            ReadPars = argv[i + 1];
         else if (strcmp(arg, "--NROOT") == 0)
             NROOT = stoi(argv[i + 1]);
         else if (strcmp(arg, "--file_id_GS") == 0)
@@ -3245,6 +3198,7 @@ int main(int argc, char *argv[])
         
     }
     rootInput = SNN_PATH + rootInput;
+    
     SNN S(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
@@ -3262,13 +3216,14 @@ int main(int argc, char *argv[])
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
-    cout << Train_fraction <<endl;
-    cout << N_events << endl;
-    SNN_Tracking(S,file_id_GS);
-
+    if (ReadPars != "none") {
+        cout << "Retrieving parameters from file" << endl;
+        S.loadFromJson(ReadPars);
+    }
     // preparing the file to plot the neuron potentials of the best configurations
+    SNN_Tracking(S, file_id_GS);
     cout << "Creating the file for the potentials plot" << endl;
-    S.Init_neurons(ievent);
+    S.Init_neurons(ievent+1);
     PlotPotentials("Data/ordered.root", S, 12);
 
     return 0;

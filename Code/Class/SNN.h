@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <functional>
 #include "TRandom3.h"
+#include "nlohmann/json.hpp"
 
 using namespace std;
 
@@ -101,6 +102,7 @@ public:
     double largenumber;
     double epsilon;
 
+    SNN();
     SNN(int _NL0, int _NL1,
          float _alpha,
          float _CFI0, float _CFI1, float _CF01,
@@ -151,6 +153,8 @@ public:
     void Renorm_Opt(int in, float delta_weight, SNN &old);
     void PrintWeights();
     void PrintSNN();
-
+    void copy_from(const SNN& other);
+    void dumpToJson(const string& filename);
+    void loadFromJson(const string& filename);
 };
 #endif

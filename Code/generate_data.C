@@ -286,8 +286,8 @@ pair<vector<Event>, vector<Event>> GetBackgroundFromMia(TTree *IT, TTree *OT, in
     return make_pair(event_IT, event_OT);
 }
 
-//ACHTUNG: implemented just of N_part = 1 and N_part = 2. 
-vector<string> generateKeys(int N_classes, int N_part) {
+//ACHTUNG: implemented just of Max_N_part = 1 and Max_N_part = 2. 
+vector<string> generateKeys(int N_classes, int Max_N_part) {
     vector<string> keys;
     
     
@@ -295,7 +295,7 @@ vector<string> generateKeys(int N_classes, int N_part) {
         keys.push_back(string(1, '0' + i));
     }
 
-    if(N_part == 1) return keys;
+    if(Max_N_part == 1) return keys;
 
     // Add double digit keys
     for (int i = 0; i < N_classes; ++i) {
@@ -306,9 +306,9 @@ vector<string> generateKeys(int N_classes, int N_part) {
     return keys;
 }
 
-unordered_map<string, int> generateDictionary(int N_classes, int N_part){
+unordered_map<string, int> generateDictionary(int N_classes, int Max_N_part){
     unordered_map<string, int> dictionary;
-    vector<string> keys = generateKeys(N_classes, N_part);
+    vector<string> keys = generateKeys(N_classes, Max_N_part);
 
     // Build the dictionary
     for (size_t i = 0; i < keys.size(); ++i) {
@@ -344,12 +344,12 @@ void create_event_particle_tree(TFile* inputFile, vector<int> eventClass) {
 }
 
 
-void generate_data(int N_events = 100000, string outRoot="Data/02muons_100k_100br.root",int N_part = 2, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_100br_new.root",int Max_N_part = 1, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
     //prepare a vector of indices
     //I'm choosing the number of classes by hand coherently with the file, could be automatized
     int N_classes = 3;
-    unordered_map<string, int> dictionary = generateDictionary(N_classes, N_part);
+    unordered_map<string, int> dictionary = generateDictionary(N_classes, Max_N_part);
     vector<int> eventClass = {};
 
     int combind = 0;
@@ -498,6 +498,7 @@ void generate_data(int N_events = 100000, string outRoot="Data/02muons_100k_100b
         if (signal && random_ev){
             //add signal to the event
             vector<int> track_class = {};
+            int N_part = (int) myRNG->Uniform(Max_N_part-epsilon)+1;
             for (int ip = 0; ip < N_part; ip++)
             {
                 //select random an event from a random file
@@ -534,6 +535,8 @@ void generate_data(int N_events = 100000, string outRoot="Data/02muons_100k_100b
         {
              //add signal to the event
             vector<int> track_class = {};
+
+            int N_part = (int) myRNG->Uniform(Max_N_part-epsilon)+1;
             for (int ip = 0; ip < N_part; ip++)
             {
                 int ID_file =i%NFile;           

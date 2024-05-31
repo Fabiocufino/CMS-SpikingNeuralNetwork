@@ -11,6 +11,9 @@ fi
 if ! [[ -e "Code/MODE/CSV" ]];then
     mkdir Code/MODE/SNNT
 fi
+if ! [[ -e "Code/MODE/JSON" ]];then
+    mkdir Code/MODE/JSON
+fi
 if ! [[ -e "Code/Data" ]];then
     mkdir Code/Data
 fi
@@ -38,6 +41,10 @@ fi
 
 if ! [[ -e "Code/Data/muons_100k_100br.root" ]];then
     wget -o - -O Code/Data/muons_100k_100br.root "https://www.dropbox.com/scl/fi/i9o2525gz1t7buyxcl028/muons_100k_100br.root?rlkey=a8r54plfuy0r0gb8a0mc83vgc&dl=0"
+fi
+
+if ! [[ -e "Code/Data/01-02muons_100k_100br.root" ]];then
+    wget -o - -O Code/Data/01-02muons_100k_100br.root "https://www.dropbox.com/scl/fi/atpq7ap1re04vvp38578r/01-02muons_100k_100br.root?rlkey=um54u3iz8kaeh77jpnjdbiab2&st=5zqb97m8&dl=0"
 fi
 
 if grep -q "SNN_PATH=" ~/.bashrc; then

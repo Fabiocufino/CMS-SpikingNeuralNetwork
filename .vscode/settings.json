@@ -75,7 +75,13 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "optional": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp",
+        "SNNT13_old.C": "cpp"
     },
     "cmake.configureOnOpen": true
 }
