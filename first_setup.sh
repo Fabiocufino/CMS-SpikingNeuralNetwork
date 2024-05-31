@@ -9,11 +9,19 @@ if ! [[ -e "Code/MODE/SNNT" ]];then
     mkdir Code/MODE/SNNT
 fi
 if ! [[ -e "Code/MODE/CSV" ]];then
-    mkdir Code/MODE/CSV
+    mkdir Code/MODE/SNNT
+fi
+if ! [[ -e "Code/MODE/JSON" ]];then
+    mkdir Code/MODE/JSON
 fi
 if ! [[ -e "Code/Data" ]];then
     mkdir Code/Data
 fi
+
+if ! [[ -e "Code/Data/delays.txt" ]];then
+    touch Code/Data/delays.txt
+fi
+
 if ! [[ -e "Code/pdf" ]];then
     mkdir Code/pdf
 fi
@@ -24,11 +32,29 @@ fi
 echo "Collecting the data files if missing... the process could take some minutes"
 
 if ! [[ -e "Code/Data/100k_100br.root" ]];then
-    wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1B6d3bxFBziWGIMmCp8uxxSF2As3k89m7' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1B6d3bxFBziWGIMmCp8uxxSF2As3k89m7" -O Code/Data/100k_100br.root && rm -rf /tmp/cookies.txt
+    wget -o - -O Code/Data/100k_100br.root "https://www.dropbox.com/scl/fi/dlauefynunvznx06kfol7/100k_100br.root?rlkey=qhmh2og38flpzo7spwmlsjm6w&dl=0"
 fi
 
 if ! [[ -e "Code/Data/ordered.root" ]];then
-    wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=17YxLI8qBCfBDKPHVCa-fAKVGeLocOf09' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=17YxLI8qBCfBDKPHVCa-fAKVGeLocOf09" -O Code/Data/ordered.root && rm -rf /tmp/cookies.txt
+    wget -o - -O Code/Data/ordered.root "https://www.dropbox.com/scl/fi/2ipkrkxud5k9j7hglh64c/ordered.root?rlkey=8qrtubtqdedszypb6wd6o7d77&dl=0"
+fi
+
+if ! [[ -e "Code/Data/muons_100k_100br.root" ]];then
+    wget -o - -O Code/Data/muons_100k_100br.root "https://www.dropbox.com/scl/fi/i9o2525gz1t7buyxcl028/muons_100k_100br.root?rlkey=a8r54plfuy0r0gb8a0mc83vgc&dl=0"
+fi
+
+if ! [[ -e "Code/Data/01-02muons_100k_100br.root" ]];then
+    wget -o - -O Code/Data/01-02muons_100k_100br.root "https://www.dropbox.com/scl/fi/atpq7ap1re04vvp38578r/01-02muons_100k_100br.root?rlkey=um54u3iz8kaeh77jpnjdbiab2&st=5zqb97m8&dl=0"
+fi
+
+if grep -q "SNN_PATH=" ~/.bashrc; then
+    sed -i "s|export SNN_PATH=.*|export SNN_PATH=$(pwd)|g" ~/.bashrc
+    source ~/.bashrc
+    echo "SNN_PATH updated to current directory."
+else
+    echo "export SNN_PATH=$(pwd)" >> ~/.bashrc
+    source ~/.bashrc
+    echo "SNN_PATH is set to current directory."
 fi
 
 echo "Execution terminated"

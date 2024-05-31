@@ -1512,17 +1512,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     // End of reading ----------------------------------------------
 
-    // Create csv fout file
-    ofstream fout;
-    char csv_name[80];
-    if (file_id_GS == -1)
-        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
-    else
-    {
-        sprintf(csv_name, "%i.csv", file_id_GS);
-    }
-    fout.open(csv_name);
-    fout << "Event,ID,Stream,Time,Pclass" << endl;
 
     // Loop on events ----------------------------------------------
     bool insert = true;

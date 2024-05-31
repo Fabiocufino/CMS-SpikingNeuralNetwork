@@ -6,7 +6,6 @@ from array import *
 import sys 
 import os
 
-import matplotlib.pyplot as plt
 import subprocess
 import re
 
@@ -15,11 +14,15 @@ import pygad
 
 import time
 
+import subprocess
+import re
+
 def run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1):
     try:
         command = f'./SNNT13.out --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1}'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
+
         values = {
             'Eff': 0,
             'Fr': 0,
@@ -29,27 +32,30 @@ def run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI
 
         for line in iter(process.stdout.readline, ''):
             line = line.strip()
+
+            print(line)
             if 'Average efficiency:' in line:
-                match = re.search(r'Average efficiency: (\d+\.\d+)', line)
+                match = re.search(r'Average efficiency: (\d+\.?\d*)', line)
                 if match:
                     values['Eff'] = float(match.group(1))
                 else:
                     values['Eff'] = 0
                     
             elif 'Average fake rate:' in line:
-                match = re.search(r'Average fake rate: (\d+\.\d+)', line)
+                match = re.search(r'Average fake rate: (\d+\.?\d*)', line)
                 if match:
                     values['Fr'] = float(match.group(1))
             elif 'Maximum Q value:' in line:
-                match = re.search(r'Maximum Q value: (\d+\.\d+)', line)
+                match = re.search(r'Maximum Q value: (\d+\.?\d*)', line)
                 if match:
                     values['Q'] = float(match.group(1))
             elif 'L1 selectivity:' in line:
-                match = re.search(r'L1 selectivity: (\d+\.\d+)', line)
+                match = re.search(r'L1 selectivity: (\d+\.?\d*)', line)
                 if match:
-                    values['Selectivity']= float(match.group(1))
-            
-        process.communicate()  # Wait for the process to finish
+                    values['Selectivity'] = float(match.group(1))
+        
+        process.stdout.close()
+        process.wait()
         
         return values
     
@@ -71,12 +77,12 @@ def fitness_func(ga_instance, solution, solution_idx):
     fake_rate = output_values['Fr']
     selectivity = output_values['Selectivity']
 
-    # Minimize fake rate (thus using 1/fake_rate)
-    fitness = [efficiency, 1/(fake_rate + 1e6), selectivity]
+    # Minimize fake rate (thus using 1/(fake_rate + 1e-6) in fitness)
+    fitness = [efficiency, 1/(fake_rate + 1e-6), selectivity]
 
-    # Append the solution and its fitness to the CSV file
+    # Append the solution and its fitness to the CSV file, but save the real fake_rate
     with open('values_ga_100k.csv', 'a') as file:
-        file.write(','.join(map(str, solution)) + ',' + ','.join(map(str, fitness)) + '\n')
+        file.write(','.join(map(str, solution)) + ',' + str(efficiency) + ',' + str(fake_rate) + ',' + str(selectivity) + '\n')
 
     return fitness
 
@@ -94,9 +100,9 @@ tau_plus_MIN, tau_plus_MAX = 1e-10, 1e-8
 tau_minus_MIN, tau_minus_MAX = 1e-10, 1e-8
 a_minus_MIN, a_minus_MAX = 0.00000656, 0.00009656
 a_plus_MIN, a_plus_MAX = 0.00000125, 0.00009125
-CFI0_MIN, CFI0_MAX = 0.4, 0.8
-CF01_MIN, CF01_MAX = 0.4, 0.8
-CFI1_MIN, CFI1_MAX = 0.4, 0.8
+CFI0_MIN, CFI0_MAX = 0.5, 0.9
+CF01_MIN, CF01_MAX = 0.5, 0.9
+CFI1_MIN, CFI1_MAX = 0.5, 0.9
 alpha_MIN, alpha_MAX = 0.1, 1
 TH0_MIN, TH0_MAX = 0.6, 0.95
 TH1_MIN, TH1_MAX = 0.6, 0.95
@@ -123,8 +129,8 @@ gene_space = [
 
 # GA Configuration
 num_generations = 10000
-num_parents_mating = 6
-sol_per_pop = 12
+num_parents_mating = 12
+sol_per_pop = 28
 num_genes = len(gene_space)
 
 
@@ -134,10 +140,10 @@ ga_instance = pygad.GA(num_generations=num_generations,
                        num_genes=num_genes,
                        fitness_func=fitness_func,
                        gene_space=gene_space,
-                       parent_selection_type="rws",
+                       parent_selection_type='nsga2',
                        crossover_type="single_point",
                        mutation_type="random",
-                       parallel_processing=["thread", 4],
+                       parallel_processing=["thread", 28],
                        save_best_solutions=True,
                        on_generation=lambda ga_instance: print(f"Generation: {ga_instance.generations_completed}"))
 
