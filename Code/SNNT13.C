@@ -1338,7 +1338,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             last_row_event_OT = 0;
         }
 
-        ReadFromProcessed(IT, OT, ET, ievent % NROOT);
+        ReadFromProcessed(IT, OT, ET, ievent % NROOT + 1);
 
         // See if we find with track with positive latency by at least one neuron
         for (int in = 0; in < snn_in.N_neurons; in++)
@@ -3198,7 +3198,8 @@ int main(int argc, char *argv[])
         
     }
     rootInput = SNN_PATH + rootInput;
-    
+    cout << rootInput << endl;
+
     SNN S(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
@@ -3223,8 +3224,8 @@ int main(int argc, char *argv[])
     // preparing the file to plot the neuron potentials of the best configurations
     SNN_Tracking(S, file_id_GS);
     cout << "Creating the file for the potentials plot" << endl;
-    S.Init_neurons(ievent+1);
-    PlotPotentials("Data/ordered.root", S, 12);
+    //S.Init_neurons(ievent+1);
+    //PlotPotentials("Data/ordered.root", S, 12);
 
     return 0;
 }
