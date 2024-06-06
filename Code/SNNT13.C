@@ -1329,8 +1329,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
     Eff = new float[snn_in.N_neurons * N_classes];
-    float SumofSquaresofWeight[12] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
-    float MeanofSquaresofWeight[12] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
+    float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
+    float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
     float MinWeight[snn_in.N_neurons];
     float RMSWeight[snn_in.N_neurons];
@@ -1652,10 +1652,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     int is = (ievent - N_events + 500) / 50;
                     double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
                     StreamsN[is]->Fill(time, in_first + 1);
-                    if (N_part > 0)
-                    {
-                        fout << ievent << ", " << 2 << ", " << in_first << "," << time << "," << pclass << endl;
-                    }
                 }
 
                 // Fill latency histogram
@@ -1710,7 +1706,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (PreSpike_Signal[ispike] == 1)
                     {
                         StreamsS[is]->Fill(time, PreSpike_Stream[ispike] + 1);
-                        fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
                     }
                     else if (PreSpike_Signal[ispike] == 0)
                     {
@@ -2604,7 +2599,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     delete dirIT;
     delete dirOT;
 
-    fout.close();
     file->Close();
     delete file;
 

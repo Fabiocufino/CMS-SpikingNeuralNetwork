@@ -2,8 +2,1296 @@
   warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
 /home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
   warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.59203
+Connected IN-L0 frac.: 0.872997
+Connected IN-L1 frac.: 0.778942
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.879501
+Connected IN-L0 frac.: 0.543522
+Connected IN-L1 frac.: 0.721071
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.547637
+Connected IN-L0 frac.: 0.696869
+Connected IN-L1 frac.: 0.603385
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.670181
+Connected IN-L0 frac.: 0.70295
+Connected IN-L1 frac.: 0.608474
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.795064
+Connected IN-L0 frac.: 0.522675
+Connected IN-L1 frac.: 0.613505
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.626387
+Connected IN-L0 frac.: 0.844709
+Connected IN-L1 frac.: 0.691509
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.829975
+Connected IN-L0 frac.: 0.641534
+Connected IN-L1 frac.: 0.749928
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.699069
+Connected IN-L0 frac.: 0.639214
+Connected IN-L1 frac.: 0.51638
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.76305
+Connected IN-L0 frac.: 0.81111
+Connected IN-L1 frac.: 0.754387
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.892102
+Connected IN-L0 frac.: 0.650341
+Connected IN-L1 frac.: 0.788882
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.64817
+Connected IN-L0 frac.: 0.734805
+Connected IN-L1 frac.: 0.668384
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.649079
+Connected IN-L0 frac.: 0.701857
+Connected IN-L1 frac.: 0.577282
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.665054
+Connected IN-L0 frac.: 0.696726
+Connected IN-L1 frac.: 0.611382
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.833299
+Connected IN-L0 frac.: 0.656703
+Connected IN-L1 frac.: 0.804137
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.783336
+Connected IN-L0 frac.: 0.823914
+Connected IN-L1 frac.: 0.869932
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.502253
+Connected IN-L0 frac.: 0.794239
+Connected IN-L1 frac.: 0.508489
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.536687
+Connected IN-L0 frac.: 0.609103
+Connected IN-L1 frac.: 0.610127
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.733388
+Connected IN-L0 frac.: 0.77607
+Connected IN-L1 frac.: 0.693296
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.515684
+Connected IN-L0 frac.: 0.717028
+Connected IN-L1 frac.: 0.890893
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.56102
+Connected IN-L0 frac.: 0.580782
+Connected IN-L1 frac.: 0.56644
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.747044
+Connected IN-L0 frac.: 0.891761
+Connected IN-L1 frac.: 0.737573
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.662671
+Connected IN-L0 frac.: 0.64484
+Connected IN-L1 frac.: 0.680696
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.751003
+Connected IN-L0 frac.: 0.583995
+Connected IN-L1 frac.: 0.80933
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.625017
+Connected IN-L0 frac.: 0.592895
+Connected IN-L1 frac.: 0.524846
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.656295
+Connected IN-L0 frac.: 0.612784
+Connected IN-L1 frac.: 0.623423
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.506065
+Connected IN-L0 frac.: 0.799333
+Connected IN-L1 frac.: 0.753239
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.551219
+Connected IN-L0 frac.: 0.8664
+Connected IN-L1 frac.: 0.610313
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+
+
+------------------------------------
+
+S   N   N      T r a c k i n g
+
+------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------
+Unsupervised search for tracks in 8-layer strip detector with spiking neural network
+T.Dorigo, 3/2023
+------------------------------------------------------------------------------------
+
+Run parameters:
+-----------------------------------
+L0 neurons: 6
+L1 neurons: 6
+Connected L0-L1 frac.: 0.709968
+Connected IN-L0 frac.: 0.650667
+Connected IN-L1 frac.: 0.791694
+Track classes: 6
+Total events: 30000
+Optimization loops: 1
+Optimize SNN params.: False
+Optimize delays: False
+Optimize connections: False
+Max mod. factor: 0.2
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.890044
+L1 threshold: 0.742679
+alpha: 0.46352
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.794086
+L1 threshold: 0.626183
+alpha: 0.534345
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.686729
+L1 threshold: 0.668313
+alpha: 0.231512
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.826077
+L1 threshold: 0.94632
+alpha: 0.573541
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.928932
+L1 threshold: 0.893422
+alpha: 0.416702
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.897032
+L1 threshold: 0.839141
+alpha: 0.7848
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.773694
+L1 threshold: 0.924113
+alpha: 0.81844
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.682753
+L1 threshold: 0.772276
+alpha: 0.33437
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.614234
+L1 threshold: 0.804373
+alpha: 0.803923
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.622522
+L1 threshold: 0.780786
+alpha: 0.354604
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.844176
+L1 threshold: 0.907788
+alpha: 0.134302
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.658053
+L1 threshold: 0.708312
+alpha: 0.428936
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.83977
+L1 threshold: 0.788717
+alpha: 0.393391
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.656272
+L1 threshold: 0.664387
+alpha: 0.482262
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.82466
+L1 threshold: 0.731757
+alpha: 0.674818
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.925163
+L1 threshold: 0.836906
+alpha: 0.20044
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.922678
+L1 threshold: 0.851255
+alpha: 0.459751
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.711966
+L1 threshold: 0.760764
+alpha: 0.341272
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.723975
+L1 threshold: 0.705778
+alpha: 0.550164
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.714353
+L1 threshold: 0.815894
+alpha: 0.625503
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.866766
+L1 threshold: 0.804636
+alpha: 0.163416
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.909318
+L1 threshold: 0.726498
+alpha: 0.785313
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.834169
+L1 threshold: 0.900928
+alpha: 0.231479
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.633822
+L1 threshold: 0.882254
+alpha: 0.815169
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.651934
+L1 threshold: 0.610527
+alpha: 0.583229
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.933098
+L1 threshold: 0.712421
+alpha: 0.284106
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.723205
+L1 threshold: 0.91553
+alpha: 0.748913
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.869185
+L1 threshold: 0.713906
+alpha: 0.135355
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+[--10%--20%--30%--40%--50%--60%-
+[--10%--20%--30%
+[--10%--20%--30%--40%
+[--
+[--10%--20%--30%--40%--50%--60%
+[--10%--20%--3
+[--10%
+[--10%--
+[--10%--20%-
+[--10%--20%
+[--1
+[--10%--20%--30%
+[--10%--2
+[--10%
+[--10%--20%--30%--40%--50%--60
+[--10
+[--10%--20%--30%--40%--5
+[--10%--20%--30%--40%--
+[--10%--20%--30%--40%--50%--60%--70%--80%
+[--10%--20%--30%--40%--50%--6
+[--10%-
+[--10%--20%--30%--40%--50%--60%--70%
+[--10%--20%--30
+[--10%--20%--30%--40%--
+[--10%--20%--30%-
+[--10%--20%--3
+[--10%--20%--30%--40%--50%--60%-
+[--10%--20%--30%--40%--50%--6
 Traceback (most recent call last):
-  File "/home/centos/CMS-SpikingNeuralNetwork/Code/algorithm.py", line 144, in <module>
+  File "/home/centos/CMS-SpikingNeuralNetwork/Code/algorithm.py", line 159, in <module>
     ga_instance.run()
   File "/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py", line 1914, in run
     self.last_generation_fitness = self.cal_pop_fitness()
@@ -22,10 +1310,6 @@ KeyboardInterrupt
   warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
 /home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
   warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
-/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
-  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
-/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
-  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
 
 
 ------------------------------------
@@ -46,11 +1330,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.650912
-Connected IN-L0 frac.: 0.680003
-Connected IN-L1 frac.: 0.808269
+Connected L0-L1 frac.: 0.573454
+Connected IN-L0 frac.: 0.710609
+Connected IN-L1 frac.: 0.745283
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -76,11 +1360,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.681329
-Connected IN-L0 frac.: 0.791077
-Connected IN-L1 frac.: 0.850992
+Connected L0-L1 frac.: 0.705117
+Connected IN-L0 frac.: 0.745342
+Connected IN-L1 frac.: 0.706673
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -106,11 +1390,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.64045
-Connected IN-L0 frac.: 0.815291
-Connected IN-L1 frac.: 0.839641
+Connected L0-L1 frac.: 0.806967
+Connected IN-L0 frac.: 0.527753
+Connected IN-L1 frac.: 0.616444
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -136,11 +1420,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.822842
-Connected IN-L0 frac.: 0.648571
-Connected IN-L1 frac.: 0.727758
+Connected L0-L1 frac.: 0.749744
+Connected IN-L0 frac.: 0.65457
+Connected IN-L1 frac.: 0.781748
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -166,11 +1450,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.715648
-Connected IN-L0 frac.: 0.534495
-Connected IN-L1 frac.: 0.561049
+Connected L0-L1 frac.: 0.862311
+Connected IN-L0 frac.: 0.791073
+Connected IN-L1 frac.: 0.838214
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -196,11 +1480,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.789484
-Connected IN-L0 frac.: 0.69935
-Connected IN-L1 frac.: 0.505197
+Connected L0-L1 frac.: 0.846958
+Connected IN-L0 frac.: 0.84963
+Connected IN-L1 frac.: 0.507598
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -226,11 +1510,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.612605
-Connected IN-L0 frac.: 0.516242
-Connected IN-L1 frac.: 0.719419
+Connected L0-L1 frac.: 0.558606
+Connected IN-L0 frac.: 0.863708
+Connected IN-L1 frac.: 0.615923
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -256,11 +1540,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.891565
-Connected IN-L0 frac.: 0.858311
-Connected IN-L1 frac.: 0.648075
+Connected L0-L1 frac.: 0.751167
+Connected IN-L0 frac.: 0.790404
+Connected IN-L1 frac.: 0.59908
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -286,11 +1570,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.686108
-Connected IN-L0 frac.: 0.804117
-Connected IN-L1 frac.: 0.693434
+Connected L0-L1 frac.: 0.577399
+Connected IN-L0 frac.: 0.808403
+Connected IN-L1 frac.: 0.599199
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -316,11 +1600,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.621939
-Connected IN-L0 frac.: 0.729653
-Connected IN-L1 frac.: 0.856983
+Connected L0-L1 frac.: 0.829254
+Connected IN-L0 frac.: 0.612727
+Connected IN-L1 frac.: 0.7818
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -346,11 +1630,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.639645
-Connected IN-L0 frac.: 0.720385
-Connected IN-L1 frac.: 0.780857
+Connected L0-L1 frac.: 0.576916
+Connected IN-L0 frac.: 0.621643
+Connected IN-L1 frac.: 0.858791
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -376,11 +1660,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.895781
-Connected IN-L0 frac.: 0.700807
-Connected IN-L1 frac.: 0.71108
+Connected L0-L1 frac.: 0.602935
+Connected IN-L0 frac.: 0.816945
+Connected IN-L1 frac.: 0.782363
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -406,11 +1690,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.554122
-Connected IN-L0 frac.: 0.834507
-Connected IN-L1 frac.: 0.696614
+Connected L0-L1 frac.: 0.60184
+Connected IN-L0 frac.: 0.59667
+Connected IN-L1 frac.: 0.56955
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -436,11 +1720,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.578249
-Connected IN-L0 frac.: 0.816779
-Connected IN-L1 frac.: 0.580465
+Connected L0-L1 frac.: 0.799218
+Connected IN-L0 frac.: 0.630453
+Connected IN-L1 frac.: 0.669464
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -466,11 +1750,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.863752
-Connected IN-L0 frac.: 0.64986
-Connected IN-L1 frac.: 0.615252
+Connected L0-L1 frac.: 0.71192
+Connected IN-L0 frac.: 0.603017
+Connected IN-L1 frac.: 0.69875
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -496,11 +1780,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.604665
-Connected IN-L0 frac.: 0.869458
-Connected IN-L1 frac.: 0.810273
+Connected L0-L1 frac.: 0.700563
+Connected IN-L0 frac.: 0.571333
+Connected IN-L1 frac.: 0.839366
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -526,11 +1810,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.861286
-Connected IN-L0 frac.: 0.531464
-Connected IN-L1 frac.: 0.716597
+Connected L0-L1 frac.: 0.683096
+Connected IN-L0 frac.: 0.688558
+Connected IN-L1 frac.: 0.856621
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -556,11 +1840,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.880189
-Connected IN-L0 frac.: 0.512287
-Connected IN-L1 frac.: 0.840489
+Connected L0-L1 frac.: 0.771509
+Connected IN-L0 frac.: 0.58737
+Connected IN-L1 frac.: 0.71163
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -586,11 +1870,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.889751
-Connected IN-L0 frac.: 0.599562
-Connected IN-L1 frac.: 0.684426
+Connected L0-L1 frac.: 0.527066
+Connected IN-L0 frac.: 0.754073
+Connected IN-L1 frac.: 0.587897
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -616,11 +1900,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.56365
-Connected IN-L0 frac.: 0.554289
-Connected IN-L1 frac.: 0.508092
+Connected L0-L1 frac.: 0.712187
+Connected IN-L0 frac.: 0.532749
+Connected IN-L1 frac.: 0.721811
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -646,11 +1930,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.877919
-Connected IN-L0 frac.: 0.827277
-Connected IN-L1 frac.: 0.757856
+Connected L0-L1 frac.: 0.645783
+Connected IN-L0 frac.: 0.793464
+Connected IN-L1 frac.: 0.828313
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -676,11 +1960,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.895427
-Connected IN-L0 frac.: 0.585089
-Connected IN-L1 frac.: 0.623514
+Connected L0-L1 frac.: 0.870524
+Connected IN-L0 frac.: 0.557458
+Connected IN-L1 frac.: 0.695987
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -706,11 +1990,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.541062
-Connected IN-L0 frac.: 0.505595
-Connected IN-L1 frac.: 0.583201
+Connected L0-L1 frac.: 0.500005
+Connected IN-L0 frac.: 0.589128
+Connected IN-L1 frac.: 0.789261
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -736,11 +2020,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.640586
-Connected IN-L0 frac.: 0.664532
-Connected IN-L1 frac.: 0.621866
+Connected L0-L1 frac.: 0.692722
+Connected IN-L0 frac.: 0.853491
+Connected IN-L1 frac.: 0.57164
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -766,11 +2050,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.702151
-Connected IN-L0 frac.: 0.85921
-Connected IN-L1 frac.: 0.692849
+Connected L0-L1 frac.: 0.80375
+Connected IN-L0 frac.: 0.620008
+Connected IN-L1 frac.: 0.732376
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -796,11 +2080,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.661095
-Connected IN-L0 frac.: 0.879011
-Connected IN-L1 frac.: 0.845781
+Connected L0-L1 frac.: 0.535327
+Connected IN-L0 frac.: 0.878148
+Connected IN-L1 frac.: 0.795547
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -826,11 +2110,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.725019
-Connected IN-L0 frac.: 0.617158
-Connected IN-L1 frac.: 0.74154
+Connected L0-L1 frac.: 0.692486
+Connected IN-L0 frac.: 0.590662
+Connected IN-L1 frac.: 0.753924
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -856,11 +2140,11 @@ Run parameters:
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.689328
-Connected IN-L0 frac.: 0.757385
-Connected IN-L1 frac.: 0.802561
+Connected L0-L1 frac.: 0.517716
+Connected IN-L0 frac.: 0.529315
+Connected IN-L1 frac.: 0.857053
 Track classes: 6
-Total events: 100000
+Total events: 30000
 Optimization loops: 1
 Optimize SNN params.: False
 Optimize delays: False
@@ -870,9 +2154,9 @@ Max mod. factor: 0.2
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.705938
-L1 threshold: 0.887956
-alpha: 0.665229
+L0 threshold: 0.879021
+L1 threshold: 0.779933
+alpha: 0.825354
 L1inhibit: 1
 K: 1
 K1: 2
@@ -885,9 +2169,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.680206
-L1 threshold: 0.934331
-alpha: 0.712376
+L0 threshold: 0.77538
+L1 threshold: 0.844433
+alpha: 0.546593
 L1inhibit: 1
 K: 1
 K1: 2
@@ -900,9 +2184,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.715843
-L1 threshold: 0.918027
-alpha: 0.26088
+L0 threshold: 0.937753
+L1 threshold: 0.719504
+alpha: 0.634642
 L1inhibit: 1
 K: 1
 K1: 2
@@ -915,9 +2199,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.65289
-L1 threshold: 0.7332
-alpha: 0.780925
+L0 threshold: 0.818837
+L1 threshold: 0.826857
+alpha: 0.466709
 L1inhibit: 1
 K: 1
 K1: 2
@@ -930,9 +2214,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.782244
-L1 threshold: 0.750954
-alpha: 0.942466
+L0 threshold: 0.804394
+L1 threshold: 0.936357
+alpha: 0.981228
 L1inhibit: 1
 K: 1
 K1: 2
@@ -945,9 +2229,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.891683
-L1 threshold: 0.69237
-alpha: 0.753678
+L0 threshold: 0.781801
+L1 threshold: 0.939723
+alpha: 0.822179
 L1inhibit: 1
 K: 1
 K1: 2
@@ -960,9 +2244,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.830172
-L1 threshold: 0.835238
-alpha: 0.101464
+L0 threshold: 0.642631
+L1 threshold: 0.939211
+alpha: 0.29951
 L1inhibit: 1
 K: 1
 K1: 2
@@ -975,9 +2259,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.682838
-L1 threshold: 0.887401
-alpha: 0.621764
+L0 threshold: 0.825292
+L1 threshold: 0.786317
+alpha: 0.970827
 L1inhibit: 1
 K: 1
 K1: 2
@@ -990,9 +2274,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.632373
-L1 threshold: 0.807734
-alpha: 0.846466
+L0 threshold: 0.925771
+L1 threshold: 0.775671
+alpha: 0.673267
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1005,9 +2289,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.940986
-L1 threshold: 0.631451
-alpha: 0.136501
+L0 threshold: 0.674416
+L1 threshold: 0.823302
+alpha: 0.204987
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1020,9 +2304,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.747516
-L1 threshold: 0.900225
-alpha: 0.964431
+L0 threshold: 0.885423
+L1 threshold: 0.622473
+alpha: 0.124465
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1035,9 +2319,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.812928
-L1 threshold: 0.807963
-alpha: 0.529539
+L0 threshold: 0.88821
+L1 threshold: 0.849109
+alpha: 0.247175
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1050,24 +2334,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-
-Starting values of parameters:
------------------------------------
-L0 threshold: 0.832014
-L1 threshold: 0.841881
-alpha: 0.664947
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
------------------------------------
-L0 threshold: 0.767727
-L1 threshold: 0.851351
-alpha: 0.312908
+L0 threshold: 0.609867
+L1 threshold: 0.887794
+alpha: 0.425568
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1080,9 +2349,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.641205
-L1 threshold: 0.891277
-alpha: 0.319685
+L0 threshold: 0.791431
+L1 threshold: 0.745633
+alpha: 0.506303
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1095,9 +2364,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.803831
-L1 threshold: 0.830692
-alpha: 0.421423
+L0 threshold: 0.666306
+L1 threshold: 0.924984
+alpha: 0.641206
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1110,9 +2379,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.687227
-L1 threshold: 0.690172
-alpha: 0.442274
+L0 threshold: 0.60495
+L1 threshold: 0.912212
+alpha: 0.226043
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1125,9 +2394,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.716954
-L1 threshold: 0.919232
-alpha: 0.392987
+L0 threshold: 0.656274
+L1 threshold: 0.671204
+alpha: 0.506294
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1140,9 +2409,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.809215
-L1 threshold: 0.712663
-alpha: 0.619072
+L0 threshold: 0.601267
+L1 threshold: 0.616436
+alpha: 0.824
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1155,9 +2424,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.80026
-L1 threshold: 0.77195
-alpha: 0.97718
+L0 threshold: 0.750408
+L1 threshold: 0.648238
+alpha: 0.347067
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1170,9 +2439,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.93728
-L1 threshold: 0.736851
-alpha: 0.291459
+L0 threshold: 0.949432
+L1 threshold: 0.886441
+alpha: 0.444882
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1185,9 +2454,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.825356
-L1 threshold: 0.780769
-alpha: 0.133815
+L0 threshold: 0.844879
+L1 threshold: 0.682496
+alpha: 0.486053
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1200,9 +2469,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.847988
-L1 threshold: 0.911246
-alpha: 0.298455
+L0 threshold: 0.82198
+L1 threshold: 0.663612
+alpha: 0.192217
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1215,9 +2484,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.948235
-L1 threshold: 0.857662
-alpha: 0.470953
+L0 threshold: 0.926959
+L1 threshold: 0.635274
+alpha: 0.460784
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1230,9 +2499,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.767768
-L1 threshold: 0.835351
-alpha: 0.919557
+L0 threshold: 0.636804
+L1 threshold: 0.905779
+alpha: 0.266523
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1245,9 +2514,9 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.823754
-L1 threshold: 0.929709
-alpha: 0.866654
+L0 threshold: 0.914303
+L1 threshold: 0.901715
+alpha: 0.862556
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1260,9 +2529,39 @@ IPSP dt dilation: 1
 
 Starting values of parameters:
 -----------------------------------
-L0 threshold: 0.619704
-L1 threshold: 0.679483
-alpha: 0.244267
+L0 threshold: 0.615588
+L1 threshold: 0.789631
+alpha: 0.832492
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.948731
+L1 threshold: 0.866667
+alpha: 0.861701
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.938082
+L1 threshold: 0.722849
+alpha: 0.772493
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1272,7 +2571,7 @@ IPSP dt dilation: 1
 -----------------------------------
 
 [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
 Q = 0 Old = 0 Best = 0 ib = 0
 Drawing histos
 
@@ -1281,9 +2580,9 @@ Run parameters
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.689328
-Connected IN-L0 frac.: 0.757385
-Connected IN-L1 frac.: 0.802561
+Connected L0-L1 frac.: 0.527066
+Connected IN-L0 frac.: 0.754073
+Connected IN-L1 frac.: 0.587897
 Track classes: 6
 
 Optimization results
@@ -1314,8 +2613,8 @@ Initializaing the plot SNN
 Opening the weight file
 Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
 [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.156598 L1 = 0.215346; Eff = 1 Acc = 0.9966; Firings: 170013 191006 203026 191269 203169 204327 138805 138980 127407 154744 126807 158593
-Q = 1.09787 Old = 0 Best = 0 ib = 0
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.16939 L1 = 0.224538; Eff = 0.997933 Acc = 1.00133; Firings: 60062 59831 62331 60962 61916 61803 50573 49588 51072 52302 49081 46724
+Q = 1.10106 Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -1323,23 +2622,23 @@ Run parameters
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.715648
-Connected IN-L0 frac.: 0.534495
-Connected IN-L1 frac.: 0.561049
+Connected L0-L1 frac.: 0.645783
+Connected IN-L0 frac.: 0.793464
+Connected IN-L1 frac.: 0.828313
 Track classes: 6
 
 Optimization results
 -----------------------------------
-Average efficiency: 1
-Average fake rate: 0.9966
-Maximum Q value: 1.09787
-L1 selectivity: 0.215346
+Average efficiency: 0.997933
+Average fake rate: 1.00133
+Maximum Q value: 1.10106
+L1 selectivity: 0.224538
 
 Optimized parameter values
 -----------------------------------
-L0 threshold: 0.715843
-L1 threshold: 0.918027
-alpha: 0.26088
+L0 threshold: 0.60495
+L1 threshold: 0.912212
+alpha: 0.226043
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1350,14 +2649,9 @@ IPSP dt dilation: 1
 
 Writing canvas
 Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
 [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.234754 L1 = 0.264739; Eff = 0.996039 Acc = 1.00133; Firings: 51563 46789 52688 50877 51536 52059 44986 41151 44462 46683 42657 40642
+Q = 1.13058 Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -1365,65 +2659,23 @@ Run parameters
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.863752
-Connected IN-L0 frac.: 0.64986
-Connected IN-L1 frac.: 0.615252
+Connected L0-L1 frac.: 0.705117
+Connected IN-L0 frac.: 0.745342
+Connected IN-L1 frac.: 0.706673
 Track classes: 6
 
 Optimization results
 -----------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
+Average efficiency: 0.996039
+Average fake rate: 1.00133
+Maximum Q value: 1.13058
+L1 selectivity: 0.264739
 
 Optimized parameter values
 -----------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.103094 L1 = 0.0843143; Eff = 1 Acc = 0.9966; Firings: 192440 217484 226980 204344 201460 202937 208027 207169 221328 212058 229847 226897
-Q = 0.997678 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.612605
-Connected IN-L0 frac.: 0.516242
-Connected IN-L1 frac.: 0.719419
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 1
-Average fake rate: 0.9966
-Maximum Q value: 0.997678
-L1 selectivity: 0.0843143
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.93728
-L1 threshold: 0.736851
-alpha: 0.291459
+L0 threshold: 0.674416
+L1 threshold: 0.823302
+alpha: 0.204987
 L1inhibit: 1
 K: 1
 K1: 2
@@ -1433,140 +2685,19 @@ IPSP dt dilation: 1
 -----------------------------------
 
 Writing canvas
+Creating the file for the potentials plot
+Initializaing the plot SNN
 Saving pdf
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
 Creating the file for the potentials plot
 Initializaing the plot SNN
 Initializaing the plot SNN
 Opening the weight file
 Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
 [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.345121 L1 = 0.43698; Eff = 0.973884 Acc = 0.9932; Firings: 113769 112563 112196 112460 112293 112363 82024 78801 79078 89461 80115 85138
-Q = 1.25334 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.604665
-Connected IN-L0 frac.: 0.869458
-Connected IN-L1 frac.: 0.810273
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0.973884
-Average fake rate: 0.9932
-                                                                                                                                                                                                                                                                                 Maximum Q value: 1.25334
-L1 selectivity: 0.43698
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.641205
-L1 threshold: 0.891277
-alpha: 0.319685
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.190368 L1 = 0.20912; Eff = 1 Acc = 0.9966; Firings: 157363 149995 151558 149559 161877 149690 147658 142605 124053 170676 138787 169579
-Q = 1.09311 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.554122
-Connected IN-L0 frac.: 0.834507
-Connected IN-L1 frac.: 0.696614
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 1
-Average fake rate: 0.9966
-Maximum Q value: 1.09311
-L1 selectivity: 0.20912
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.80026
-L1 threshold: 0.77195
-alpha: 0.97718
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.0549028 L1 = 0.0884093; Eff = 1 Acc = 0.9966; Firings: 262298 245618 257593 249439 292393 256292 220013 206028 210437 241047 199518 225672
-Q = 1.00081 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.639645
-Connected IN-L0 frac.: 0.720385
-Connected IN-L1 frac.: 0.780857
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 1
-Average fake rate: 0.9966
-Maximum Q value: 1.00081
-L1 selectivity: 0.0884093
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.65289
-L1 threshold: 0.7332
-alpha: 0.780925
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
 Q = 0 Old = 0 Best = 0 ib = 0
 Drawing histos
 
@@ -1575,9 +2706,9 @@ Run parameters
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.889751
-Connected IN-L0 frac.: 0.599562
-Connected IN-L1 frac.: 0.684426
+Connected L0-L1 frac.: 0.80375
+Connected IN-L0 frac.: 0.620008
+Connected IN-L1 frac.: 0.732376
 Track classes: 6
 
 Optimization results
@@ -1608,8 +2739,8 @@ Initializaing the plot SNN
 Opening the weight file
 Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
 [--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.272049 L1 = 0.275231; Eff = 0.999291 Acc = 1.00133; Firings: 41699 42725 43803 43802 43556 43846 42836 37644 42748 43155 42889 40396
+Q = 1.14047 Old = 0 Best = 0 ib = 0
 Drawing histos
 
 
@@ -1617,499 +2748,13 @@ Run parameters
 -----------------------------------
 L0 neurons: 6
 L1 neurons: 6
-Connected L0-L1 frac.: 0.822842
-Connected IN-L0 frac.: 0.648571
-Connected IN-L1 frac.: 0.727758
+Connected L0-L1 frac.: 0.558606
+Connected IN-L0 frac.: 0.863708
+Connected IN-L1 frac.: 0.615923
 Track classes: 6
 
 Optimization results
 -----------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.686108
-Connected IN-L0 frac.: 0.804117
-Connected IN-L1 frac.: 0.693434
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.541062
-Connected IN-L0 frac.: 0.505595
-Connected IN-L1 frac.: 0.583201
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.895781
-Connected IN-L0 frac.: 0.700807
-Connected IN-L1 frac.: 0.71108
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.702151
-Connected IN-L0 frac.: 0.85921
-Connected IN-L1 frac.: 0.692849
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.400058 L1 = 0.516209; Eff = 0.989459 Acc = 0.9966; Firings: 124807 125827 125167 78341 92468 121836 97696 67627 75740 5511 23735 79824
-Q = 1.32073 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.861286
-Connected IN-L0 frac.: 0.531464
-Connected IN-L1 frac.: 0.716597
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0.989459
-Average fake rate: 0.9966
-Maximum Q value: 1.32073
-L1 selectivity: 0.516209
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.632373
-L1 threshold: 0.807734
-alpha: 0.846466
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.56365
-Connected IN-L0 frac.: 0.554289
-Connected IN-L1 frac.: 0.508092
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.495408 L1 = 0.527731; Eff = 0.953506 Acc = 0.9962; Firings: 77700 65825 68732 39593 76250 161315 55421 30846 31668 81076 2846 9400
-Q = 1.30839 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.640586
-Connected IN-L0 frac.: 0.664532
-Connected IN-L1 frac.: 0.621866
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0.953506
-Average fake rate: 0.9962
-Maximum Q value: 1.30839
-L1 selectivity: 0.527731
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.747516
-L1 threshold: 0.900225
-alpha: 0.964431
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0.433048 L1 = 0.421684; Eff = 0.60318 Acc = 0.113; Firings: 54132 44481 45425 42525 47412 39520 242 49 23 4789 64 5768
-Q = 2.48899 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.661095
-Connected IN-L0 frac.: 0.879011
-Connected IN-L1 frac.: 0.845781
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0.60318
-Average fake rate: 0.113
-Maximum Q value: 2.48899
-L1 selectivity: 0.421684
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0.847988
-L1 threshold: 0.911246
-alpha: 0.298455
-L1inhibit: 1
-K: 1
-K1: 2
-K2: 4
-IE pot. constant: 1
-IPSP dt dilation: 1
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.725019
-Connected IN-L0 frac.: 0.617158
-Connected IN-L1 frac.: 0.74154
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 2 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.64045
-Connected IN-L0 frac.: 0.815291
-Connected IN-L1 frac.: 0.839641
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
-Q = 0 Old = 0 Best = 0 ib = 0
-Drawing histos
-
-
-Run parameters
------------------------------------
-L0 neurons: 6
-L1 neurons: 6
-Connected L0-L1 frac.: 0.578249
-Connected IN-L0 frac.: 0.816779
-Connected IN-L1 frac.: 0.580465
-Track classes: 6
-
-Optimization results
------------------------------------
-Average efficiency: 0
-Average fake rate: 0
-Maximum Q value: 0
-L1 selectivity: 0
-
-Optimized parameter values
------------------------------------
-L0 threshold: 0
-L1 threshold: 0
-alpha: 0
-L1inhibit: 0
-K: 0
-K1: 0
-K2: 0
-IE pot. constant: 0
-IPSP dt dilation: 0
------------------------------------
-
-Writing canvas
-Saving pdf
-Creating the file for the potentials plot
-Initializaing the plot SNN
-Initializaing the plot SNN
-Opening the weight file
-Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
-[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
-Ev. # 100000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0
+Average efficiency: 0.999291
+Average fake rate: 1.00133
+Maximum Q value: 1.14047

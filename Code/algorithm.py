@@ -17,9 +17,9 @@ import time
 import subprocess
 import re
 
-def run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1):
+def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2,IPSP_dt_dilation ):
     try:
-        command = f'./SNNT13.out --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1}'
+        command = f'./SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation}'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
 
@@ -65,10 +65,10 @@ def run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI
 
 # Fitness function for multi-objective optimization
 def fitness_func(ga_instance, solution, solution_idx):
-    N_ev = 100000
-    tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1 = solution
+    N_ev = 30000
+    NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation = solution
 
-    output_values = run_SNN(N_ev, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1)
+    output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation)
     
     if output_values is None:
         return [1000, 1000, 1000]  # Large values to indicate failure
@@ -81,18 +81,20 @@ def fitness_func(ga_instance, solution, solution_idx):
     fitness = [efficiency, 1/(fake_rate + 1e-6), selectivity]
 
     # Append the solution and its fitness to the CSV file, but save the real fake_rate
-    with open('values_ga_100k.csv', 'a') as file:
+    with open('values_ga_30k.csv', 'a') as file:
         file.write(','.join(map(str, solution)) + ',' + str(efficiency) + ',' + str(fake_rate) + ',' + str(selectivity) + '\n')
 
     return fitness
 
 
 # Create the values.csv and write the header
-with open('values_ga_100k.csv', 'w') as file:
-    file.write('tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,fitnessEff,fitnessFake,fitnessSel\n')
+with open('values_ga_30k.csv', 'w') as file:
+    file.write('NL0, NL1,tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,K,K1,K2,IPSP_dt_dilation,Efficiency,FakeRate,Selectivity\n')
 
 
 # Gene space --------------------------
+NLO_MIN, NLO_MAX = 5, 12
+NL1_MIN, NL1_MAX = 5, 12
 tau_m_MIN, tau_m_MAX = 1e-10, 1e-8
 tau_s_MIN, tau_s_MAX = 1e-10, 1e-8
 tau_r_MIN, tau_r_MAX = 1e-10, 1e-8
@@ -106,8 +108,14 @@ CFI1_MIN, CFI1_MAX = 0.5, 0.9
 alpha_MIN, alpha_MAX = 0.1, 1
 TH0_MIN, TH0_MAX = 0.6, 0.95
 TH1_MIN, TH1_MAX = 0.6, 0.95
+K_MIN, K_MAX = 1, 10
+K1_MIN, K1_MAX = 1, 10
+K2_MIN, K2_MAX = 1, 10
+IPSP_dt_dilation_MIN, IPSP_dt_dilation_MAX = 0.001, 1.0
 
 gene_space = [
+    {'low': NLO_MIN, 'high': NLO_MAX, 'step': 1},
+    {'low': NL1_MIN, 'high': NL1_MAX, 'step': 1},
     {'low': tau_m_MIN, 'high': tau_m_MAX},
     {'low': tau_s_MIN, 'high': tau_s_MAX},
     {'low': tau_r_MIN, 'high': tau_r_MAX},
@@ -120,7 +128,11 @@ gene_space = [
     {'low': CFI1_MIN, 'high': CFI1_MAX},
     {'low': alpha_MIN, 'high': alpha_MAX},
     {'low': TH0_MIN, 'high': TH0_MAX},
-    {'low': TH1_MIN, 'high': TH1_MAX}
+    {'low': TH1_MIN, 'high': TH1_MAX},
+    {'low': K_MIN, 'high': K_MAX},
+    {'low': K1_MIN, 'high': K1_MAX},
+    {'low': K2_MIN, 'high': K2_MAX},
+    {'low': IPSP_dt_dilation_MIN, 'high': IPSP_dt_dilation_MAX}
 ]
 # --------------------------
 
@@ -160,5 +172,5 @@ print(f"Fitness value of the best solution: {solution_fitness}")
 
 # Note: Saving the best solution separately is optional since all solutions are being saved during the run.
 # Save the best solution to the CSV file
-with open('values_ga_100k.csv', 'a') as file:
+with open('values_ga_30k.csv', 'a') as file:
     file.write(','.join(map(str, solution)) + ',' + ','.join(map(str, solution_fitness)) + '\n')
