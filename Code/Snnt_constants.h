@@ -17,7 +17,7 @@ static double max_angle = 2.0 * M_PI + delta; // max angle to scan
 static double frequency = 40e6;               // CMS tracker reading frequency [Hz]
 static double omega = max_angle * frequency;  // reading angular velocity
 
-static const short int N_bin_r = 11;
+static const short int N_bin_r = 10;
 static const int N_bin_z = 1;
 static float Left_Layers[10]  = {25, 55, 100, 140, 210, 335, 490, 655, 835, 1050}; //mm 
 static float Right_Layers[10] = {40, 75, 116, 158, 290, 400, 540, 720, 895, 1110}; //mm
@@ -37,9 +37,10 @@ struct Hit //holds info about one hit (position of a cluster)
     float z;
     float r, phi;
     short int id;
+    short int pclass;
 
-    Hit(float r_, float z_, float phi_, short int id_)
-        : r(r_), z(z_), phi(phi_), id(id_)
+    Hit(float r_, float z_, float phi_, short int id_, short int pclass_)
+        : r(r_), z(z_), phi(phi_), id(id_), pclass(pclass_)
     {
     }
 };
@@ -55,21 +56,6 @@ static const short int BGR = 1;
 static const short int SIG = 2;
 
 // -------------------------------------------
-// neural network constants
-// -------------------------------------------
-static const int MaxEvents = 10000000;
-static const double largenumber = 999999999.;
-static const double epsilon = 1. / largenumber;
-static const int MaxNeurons = 100;
-static float ProbWSwitchUp = 0.5;
-static float ProbWSwitchDown = 0.05;
-static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
-static float eff_target = 0.9;
-static float acc_target = 0.05;
-static bool learnDelays = false;
-static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
-
-// -------------------------------------------
 // tracking constants
 // -------------------------------------------
 
@@ -77,20 +63,22 @@ static int N_events = 20000;
 static int N_epochs = 1;
 static int NevPerEpoch = N_events / N_epochs;
 static bool batch = false;
-static char *rootInput = "Data/100k_100br.root";
-static int N_classes = 6;
+static string rootInput = "/Code/Data/muons_100k_100br.root";
+static int N_classes = 3;
+static int N_ev_classes = 9;
 static int TrainingCode = 0;
-static bool ReadPars = false;
+static string ReadPars = "none";
 static long int NROOT = 100000;                //number of events inside the root file
 static bool update9 = false;                // controls whether to optimize 7 network parameters
 static bool updateDelays = false;           // controls whether to optimize neuron delays
 static bool updateConnections = false;      // controls whether to optimize connections between streams and neurons
+
 // -------------------------------------------
 // class constants
 // -------------------------------------------
 
-static int _NL0 = 6;
-static int _NL1 = 6;
+static int _NL0 = 10;
+static int _NL1 = 10;
 static float _alpha = 0.5;
 static float _CFI0 = 1; 
 static float _CFI1 = 1; 
@@ -102,20 +90,46 @@ static float _K2 = 4;
 static float _IE_Pot_const = 1; 
 static double _IPSP_dt_dilation = 1;
 
-static double _tau_m = 1e-09 / 3;
-static double _tau_s =  0.25e-09 / 3;
-static double _tau_r = 0.5e-09 / 3;
-static double _tau_plus = 1.68e-09 /3;
-static double _tau_minus = 3.37e-09 /3;
-static double _MaxDelay =  _tau_m;
+static double _tau_m = 1.e-09 / 2;
+static double _tau_s =  0.25e-09 / 2;
+static double _tau_r = 0.5e-09 / 2;
+static double _tau_plus = 1.68e-09 /2;
+static double _tau_minus = 3.37e-09 /2;
+static double _MaxDelay =  3.e-09;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
+
+static double _d_plus = 1.e-11;
+static double _d_minus = 1.e-11; 
+static double _taud_plus = _tau_minus;
+static double _taud_minus = _tau_minus;
 
 static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
 
 static float _sparsity = 2;
+static bool _split_layer0 = true;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
+static string SNN_PATH = "";
+
+// -------------------------------------------
+// neural network constants
+// -------------------------------------------
+
+static const int MaxEvents = 10000000;
+static const double largenumber = 999999999.;
+static const double epsilon = 1. / largenumber;
+static const int MaxNeurons = 100;
+static float ProbWSwitchUp = 0.5;
+static float ProbWSwitchDown = 0.05;
+static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
+static float eff_target = 0.9;
+static float acc_target = 0.05;
+static bool learnDelays = false;
+static const bool nearest_spike_approx = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
+static int N_display = 500;
+static float Train_fraction = 0.9;
+static double window = _tau_m*7.;
 
 #endif // SNNT_CONSTANTS_H

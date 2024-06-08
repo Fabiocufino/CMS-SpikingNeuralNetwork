@@ -1,3 +1,4 @@
+#pragma cling optimize(0)
 #include "TH2.h"
 #include "TH1.h"
 #include "TProfile.h"
@@ -17,11 +18,12 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <string>
 
-//in the future 18
-static const int NFile = 6;
-static TRandom3 * myRNG = new TRandom3(232);
+//now three to generate just muonss
+static const int NFile = 3;
+static TRandom3 * myRNG = new TRandom3(65645);
 static TFile *files[NFile];
 static TDirectory *dirIT_list[NFile];
 static TDirectory *dirOT_list[NFile];
@@ -36,8 +38,6 @@ static int NOT;
 static int N_RandEvents;
 double scale = 1.e3;
 static float epsilon = 1.e-10;
-
-//myRNG->Uniform()
 
 using namespace std;
 
@@ -101,7 +101,7 @@ int Get_first_row_event(TTree *tree, float* field, int id_event_value)
     return id;
 }
 
-pair<std::vector<Event>, std::vector<Event>> GetEventFromMia(TTree *IT, TTree *OT, int id_event_value, float pclass, int new_id_event)
+pair<vector<Event>, vector<Event>> GetEventFromMia(TTree *IT, TTree *OT, int id_event_value, float pclass, int new_id_event)
 {
     vector<Event> event_IT = {};
     vector<Event> event_OT = {};
@@ -229,7 +229,7 @@ void ComputeCumulative(TTree *IT, TTree *OT){
     }
 }
 
-pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTree *OT, int new_id_event, float bkg_rate = 50)
+pair<vector<Event>, vector<Event>> GetBackgroundFromMia(TTree *IT, TTree *OT, int new_id_event, float bkg_rate = 100)
 {
     vector<Event> event_IT = {};
     vector<Event> event_OT = {};
@@ -286,17 +286,78 @@ pair<std::vector<Event>, std::vector<Event>> GetBackgroundFromMia(TTree *IT, TTr
     return make_pair(event_IT, event_OT);
 }
 
-void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.root", float bkg_rate = 100, bool random_ev = false, float bg_freq=1, string folder = "/Users/Fabio/Desktop/DATA/MuGun/", string file_name = "clusters_ntuple.root")
-{   
+//ACHTUNG: implemented just of Max_N_part = 1 and Max_N_part = 2. 
+vector<string> generateKeys(int N_classes, int Max_N_part) {
+    vector<string> keys;
+    
+    
+    for (int i = 0; i < N_classes; ++i) {
+        keys.push_back(string(1, '0' + i));
+    }
 
-    //momentaneamente j = 0 per gestire solo i file a 1GeV
+    if(Max_N_part == 1) return keys;
+
+    // Add double digit keys
+    for (int i = 0; i < N_classes; ++i) {
+        for (int j = i; j <N_classes; ++j) {
+            keys.push_back(string(1, '0' + i) + string(1, '0' + j));
+        }
+    }
+    return keys;
+}
+
+unordered_map<string, int> generateDictionary(int N_classes, int Max_N_part){
+    unordered_map<string, int> dictionary;
+    vector<string> keys = generateKeys(N_classes, Max_N_part);
+
+    // Build the dictionary
+    for (size_t i = 0; i < keys.size(); ++i) {
+        dictionary[keys[i]] = i;
+    }
+
+    return dictionary;
+}
+
+void create_event_particle_tree(TFile* inputFile, vector<int> eventClass) {
+    // Create the new TTree
+    TDirectory *dir_out = inputFile->mkdir("classification");
+    dir_out->cd();
+    TTree* outputTree = new TTree("event_tree", "Event and Particle Counts");
+
+    // Variables to hold the new tree data
+    int out_eventID;
+    int Class;
+
+    // Create branches in the new tree
+    outputTree->Branch("eventID", &out_eventID, "eventID/I");
+    outputTree->Branch("eventClass", &Class, "eventClass/I");
+
+    // Fill the new tree with the counted values
+    for(int ie = 0; ie < eventClass.size(); ie++){
+        out_eventID = ie;
+        Class = eventClass[ie];
+        outputTree->Fill();
+    }
+
+    // Write the new tree to the output file
+    outputTree->Write();
+}
+
+
+void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_100br_new.root",int Max_N_part = 1, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+{   
+    //prepare a vector of indices
+    //I'm choosing the number of classes by hand coherently with the file, could be automatized
+    int N_classes = 3;
+    unordered_map<string, int> dictionary = generateDictionary(N_classes, Max_N_part);
+    vector<int> eventClass = {};
+
     int combind = 0;
 
     for (int j=0; j < 3; j++)
     {   
         //open all root files and TTrees inside
-        //momentaneamente solo 1
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 1; i++)
         {
             string rootInput;
             if(i%2==0) rootInput = folder + P_name[j] + "GeV/SingleParticleEta0p4/" + file_name;
@@ -368,10 +429,10 @@ void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.r
             combind++;
         }   
     }
-    
+
     //opening output file
     TFile* out = new TFile(outRoot.c_str(), "RECREATE");
-
+    cout << "Open output file" << endl;
     TDirectory *dirIT_out = out->mkdir("clusterValidIT");
     TDirectory *dirOT_out = out->mkdir("clusterValidOT");    
     
@@ -415,95 +476,100 @@ void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.r
     
     //Computing the cumulative probability
     ComputeCumulative(IT_list[0], OT_list[0]);
+
+    //----------------- GENERATION -------------------
     
     //loop on the number of events
     for (int i = 0; i < N_events; i++)
     {
+
         if(i%(N_events/10)==0)
             cout << i/(N_events/10)*10 << "%" <<endl;
-        //cout << i << endl;
+
         //generate background
-        //cout << "Getting the background" << endl;
         pair <vector<Event>, vector<Event>> event = GetBackgroundFromMia(IT_list[0], OT_list[0], i+1, bkg_rate);
         vector<Event> event_IT = event.first;
         vector<Event> event_OT = event.second;
         
-        //cout << "Gen BKG" << endl;
         //generate only background or signal with 50% of probability
         bool signal = (myRNG->Uniform())<bg_freq;
         //last event is of background
+
         if (signal && random_ev){
             //add signal to the event
-            //select random an event from a random file
-            int ID_file = (int) (myRNG->Uniform(NFile-epsilon));
-            //int ID_file;
-            /*
-             do{
-                ID_file =(int) (myRNG->Uniform(NFile-epsilon));
-
-            }while(N_Events_list_id[ID_file].size()==0);
-            */
-           
-            
-            int ID_event =(int) (myRNG->Uniform(N_Events_list[ID_file]-epsilon))+1;
-            //int ID_event_id = (int) (myRNG)->Uniform(N_Events_list_id[ID_file].size()-epsilon);
-            //int ID_event = N_Events_list_id[ID_file][ID_event_id];
-            //N_Events_list_id[ID_file].erase(N_Events_list_id[ID_file].begin()+ID_event_id);
-            float pclass = ID_file;
-            //cout << ID_file << " " << ID_event << endl;
-            //cout << IT_list[ID_file] << " " << OT_list[ID_file] << endl;
-
-            pair <vector<Event>, vector<Event>> event_sig = GetEventFromMia(IT_list[ID_file], OT_list[ID_file], ID_event, pclass, i+1);
-            vector<Event> event_IT_sig = event_sig.first;
-            vector<Event> event_OT_sig = event_sig.second;
+            vector<int> track_class = {};
+            int N_part = (int) myRNG->Uniform(Max_N_part-epsilon)+1;
+            for (int ip = 0; ip < N_part; ip++)
+            {
+                //select random an event from a random file
+                int ID_file = (int) (myRNG->Uniform(NFile-epsilon));                
+                int ID_event =(int) (myRNG->Uniform(N_Events_list[ID_file]-epsilon))+1;
+              
+                float pclass = ID_file;
+                track_class.push_back(ID_file);
+                pair <vector<Event>, vector<Event>> event_sig = GetEventFromMia(IT_list[ID_file], OT_list[ID_file], ID_event, pclass, i+1);
+                vector<Event> event_IT_sig = event_sig.first;
+                vector<Event> event_OT_sig = event_sig.second;
 
 
-            //merge vectors
-            event_IT.insert(event_IT.end(), event_IT_sig.begin(), event_IT_sig.end());
-            event_OT.insert(event_OT.end(), event_OT_sig.begin(), event_OT_sig.end());
+                //merge vectors
+                event_IT.insert(event_IT.end(), event_IT_sig.begin(), event_IT_sig.end());
+                event_OT.insert(event_OT.end(), event_OT_sig.begin(), event_OT_sig.end());
+            }
+            sort(track_class.begin(), track_class.end());
+             // Create an ostringstream to hold the string representation
+            ostringstream key;
+
+            // Convert each number to a string and append to the ostringstream
+            for (int num : track_class) {
+                key << num;
+            }
+
+            eventClass.push_back(dictionary[key.str()]);
+
+
         }
 
+        //TODO: adapt also this part og the function
         else if (signal && !random_ev)
         {
              //add signal to the event
-            //select random an event from a random file
-            int ID_file =i%NFile;
-            //int ID_file;
-            /*
-             do{
-                ID_file =(int) (myRNG->Uniform(NFile-epsilon));
+            vector<int> track_class = {};
 
-            }while(N_Events_list_id[ID_file].size()==0);
-            */
-           
-            
-            int ID_event =(int) (myRNG->Uniform(N_Events_list[ID_file]-epsilon))+1;
-            //int ID_event_id = (int) (myRNG)->Uniform(N_Events_list_id[ID_file].size()-epsilon);
-            //int ID_event = N_Events_list_id[ID_file][ID_event_id];
-            //N_Events_list_id[ID_file].erase(N_Events_list_id[ID_file].begin()+ID_event_id);
-            float pclass = ID_file;
-            //cout << ID_file << " " << ID_event << endl;
-            //cout << IT_list[ID_file] << " " << OT_list[ID_file] << endl;
+            int N_part = (int) myRNG->Uniform(Max_N_part-epsilon)+1;
+            for (int ip = 0; ip < N_part; ip++)
+            {
+                int ID_file =i%NFile;           
+                int ID_event =(int) (myRNG->Uniform(N_Events_list[ID_file]-epsilon))+1;
+    
+                float pclass = ID_file;
+                track_class.push_back(ID_file);
 
-            pair <vector<Event>, vector<Event>> event_sig = GetEventFromMia(IT_list[ID_file], OT_list[ID_file], ID_event, pclass, i+1);
-            vector<Event> event_IT_sig = event_sig.first;
-            vector<Event> event_OT_sig = event_sig.second;
+                pair <vector<Event>, vector<Event>> event_sig = GetEventFromMia(IT_list[ID_file], OT_list[ID_file], ID_event, pclass, i+1);
+                vector<Event> event_IT_sig = event_sig.first;
+                vector<Event> event_OT_sig = event_sig.second;
 
+                //merge vectors
+                event_IT.insert(event_IT.end(), event_IT_sig.begin(), event_IT_sig.end());
+                event_OT.insert(event_OT.end(), event_OT_sig.begin(), event_OT_sig.end());
+            }
+            sort(track_class.begin(), track_class.end());
+             // Create an ostringstream to hold the string representation
+            ostringstream key;
 
-            //merge vectors
-            event_IT.insert(event_IT.end(), event_IT_sig.begin(), event_IT_sig.end());
-            event_OT.insert(event_OT.end(), event_OT_sig.begin(), event_OT_sig.end());
+            // Convert each number to a string and append to the ostringstream
+            for (int num : track_class) {
+                key << num;
+            }
+
+            eventClass.push_back(dictionary[key.str()]);
         }
+        else eventClass.push_back(-1);
         
         //write the root file
-
         int IT_size = event_IT.size();
         int OT_size = event_OT.size();
 
-        //cout << "IT_size " << IT_size << endl;
-        //cout << "OT_size " << OT_size << endl;
-
-        //cout << "Write IT" << endl;
         dirIT_out->cd();
 
         for(int j = 0; j < IT_size; j++){
@@ -544,6 +610,10 @@ void GenerateRootFromMia(int N_events = 6, string outRoot="Data/6ev_6cl_100bkg.r
     dirOT_out->cd();
     OT_out->Write();
 
+    create_event_particle_tree(out, eventClass);
+
     out->Close();
+
+
     
 }

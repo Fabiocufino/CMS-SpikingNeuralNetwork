@@ -19,7 +19,8 @@
             "name": "Ema",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/ema/root/include/**"
+                "/home/ema/root/include/**",
+                "${workspaceFolder}/Code/Class/single_include/nlohmann"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

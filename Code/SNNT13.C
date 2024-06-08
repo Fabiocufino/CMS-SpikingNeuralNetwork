@@ -33,192 +33,26 @@ static bool insert = true;
 static int N_part; // Number of generated particles in an event
 static double First_angle;
 static float *Eff; // Efficiency of each neuron to signals of different classes
+static float *Eff_window; // Efficiency of each neuron to signals of different classes
 static vector<double> PreSpike_Time;
 static vector<int> PreSpike_Stream;
 static vector<int> PreSpike_Signal; // 0 for background hit, 1 for signal hit, 2 for L1 neuron spike
+static vector<int> PreSpike_Class;
 static vector<int> neurons_index;   // contains neurons identifiers in random positions
-static float Q_best;
+static float Q_best_L0;
+static float SelL0_best;
+static float Eff_best_L0;
+static float Acc_best_L0;
+static float Q_best_L1;
 static float SelL1_best;
-static float Eff_best;
-static float Acc_best;
+static float Eff_best_L1;
+static float Acc_best_L1;
 static int indfile;
 static char progress[53] = "[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]"; // Progress bar
-static long int ievent;
+static int ievent;
 
 // New random number generator
 static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
-
-// Function that reads parameters from file, if you want to start from a previous optimization
-// ----------------------------------------
-/*
-int Read_Parameters()
-{
-    string Path = "./MODE/SNNT/";
-    ifstream tmpfile;
-    indfile = -1;
-    // Determine last available file number to read from, by attempting to open all files with same name and previous numbering
-    do
-    {
-        if (indfile > -1)
-            tmpfile.close();
-        indfile++;
-        stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
-        string tmpfilename = Path + tmpstring.str() + ".txt";
-        tmpfile.open(tmpfilename);
-    } while (tmpfile.is_open());
-
-    if (indfile == -1)
-    {
-        cout << "     Warning, no file to read parameters from. " << endl;
-        return -1;
-    }
-    ifstream parfile;
-    stringstream sstr;
-    char num[80];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile - 1); // we'll pick the last one in the list
-    sstr << "Params13_";
-    string nameparfile = Path + sstr.str() + num + ".txt";
-    parfile.open(nameparfile);
-    float e;
-    int ie;
-    parfile >> ie;
-    if (ie != N_neurons)
-        cout << "Warning, file " << nameparfile << " ie= " << ie << " N_neurons = " << N_neurons << " - input file not matching N_neurons" << endl;
-    parfile >> ie;
-    if (ie != N_streams)
-        cout << "Warning, file " << nameparfile << " ie= " << ie << " N_streams = " << N_streams << " - input file not matching N_streams" << endl;
-    parfile >> e;
-    Threshold[0] = e;
-    parfile >> e;
-    Threshold[1] = e;
-    parfile >> e;
-    alpha = e;
-    parfile >> e;
-    L1inhibitfactor = e;
-    parfile >> e;
-    K = e;
-    parfile >> e;
-    K1 = e;
-    parfile >> e;
-    K2 = e;
-    parfile >> e;
-    IE_Pot_const = e;
-    parfile >> e;
-    IPSP_dt_dilation = e;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile >> e;
-            Delay[in][is] = e;
-        }
-    }
-    bool b;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile >> b;
-            Void_weight[in][is] = b;
-            if (in < N_neuronsL[0] && is >= N_InputStreams)
-                Void_weight[in][is] = true; // just making sure
-        }
-    }
-    parfile.close();
-    return 0;
-}
-
-// Function that saves the layout data to file
-// -------------------------------------------
-void Write_Parameters()
-{
-
-    string Path = "./MODE/SNNT/";
-    ifstream tmpfile;
-    indfile = -1;
-    // Determine first available file number to write, by attempting to open all files with same name and previous numbering
-    do
-    {
-        if (indfile > -1)
-            tmpfile.close();
-        indfile++;
-        stringstream tmpstring;
-        tmpstring << "Params13_NL0=" << N_neuronsL[0] << "_NL1=" << N_neuronsL[1] << "_NCl=" << N_classes << "_CF01=" << CF01 << "_CFI0=" << CFI0 << "_CFI1=" << CFI1 << "_" << indfile;
-        string tmpfilename = Path + tmpstring.str() + ".txt";
-        tmpfile.open(tmpfilename);
-    } while (tmpfile.is_open());
-
-    ofstream parfile;
-    stringstream sstr;
-    char num[80];
-    sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", N_neuronsL[0], N_neuronsL[1], N_classes, CF01, CFI0, CFI1, alpha, indfile);
-    sstr << "Params13_";
-    string nameparfile = Path + sstr.str() + num + ".txt";
-    parfile.open(nameparfile);
-    parfile << N_neurons << " " << N_streams << endl;
-    parfile << T0_best << " " << T1_best << " " << A_best << " "
-            << L1if_best << " " << K_best << " " << K1_best << " " << K2_best << " " << IEPC_best << " " << IPSP_dt_dilation << endl;
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile << bestDelay[in][is] << endl;
-        }
-    }
-    for (int in = 0; in < N_neurons; in++)
-    {
-        for (int is = 0; is < N_streams; is++)
-        {
-            parfile << bestVoid_weight[in][is] << endl;
-        }
-    }
-
-    // Also write optimization output
-    parfile << Q_best << " "
-            << " " << Eff_best << " " << Acc_best << " " << SelL1_best << endl;
-
-    // Finally, write complete set of hyperparameters and settings
-    parfile << "                       L0 neurons: " << N_neuronsL[0] << endl;
-    parfile << "                       L1 neurons: " << N_neuronsL[1] << endl;
-    parfile << "            Connected L0-L1 frac.: " << CF01 << endl;
-    parfile << "            Connected IN-L0 frac.: " << CFI0 << endl;
-    parfile << "            Connected IN-L1 frac.: " << CFI1 << endl;
-    parfile << "                    Track classes: " << N_classes << endl;
-    parfile << "                     Total events: " << N_events << endl;
-    parfile << "               Optimization loops: " << N_epochs << endl;
-    parfile << "             Optimize SNN params.: ";
-    if (update9)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "                  Optimize delays: ";
-    if (updateDelays)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "             Optimize connections: ";
-    if (updateConnections)
-    {
-        parfile << "True" << endl;
-    }
-    else
-    {
-        parfile << "False" << endl;
-    }
-    parfile << "                  Max mod. factor: " << MaxFactor << endl;
-    parfile.close();
-    return;
-}
-*/
 
 // clear hits vector
 void Reset_hits()
@@ -234,13 +68,12 @@ int GetBinR(double r_hit)
         return N_bin_r - 1;
 
     // 10 bins are associated to a tracking layer
-    // The last bin is collecting hits outside the layers
     for (int i = 0; i < N_TrackingLayers; i++)
     {
         if (r_hit > Left_Layers[i] && r_hit < Right_Layers[i])
             return i;
-        else if (r_hit < Left_Layers[i])
-            return N_bin_r - 1;
+        else if (r_hit < Left_Layers[i+1])
+            return i;
     }
     return N_bin_r - 1;
 }
@@ -277,7 +110,8 @@ void Encode(double t_in)
 
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
-        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+        PreSpike_Signal.push_back(row.id); //1,2 -> respectively Backgroung, Signal
+        PreSpike_Class.push_back(row.pclass);
     }
 
     // rescan from [0, delta]
@@ -291,7 +125,8 @@ void Encode(double t_in)
 
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
-        PreSpike_Signal.push_back(row.id - 1); // 0,1,2 -> -1,0,1 respectively NoHit, Backgroung, Signal
+        PreSpike_Signal.push_back(row.id); // 1,2 -> respectively Backgroung, Signal
+        PreSpike_Class.push_back(row.pclass + N_classes); //ghost particle -> I indicate it with a shifted pclass
     }
 }
 
@@ -327,15 +162,15 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
             // select max efficiency class
             float maxeff = 0.;
             float sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                float e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_ev_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
             }
             if (sumeff > 0.)
-                S += maxeff * N_classes / sumeff;
+                S += maxeff * N_ev_classes / sumeff;
         }
         if (inmax - inmin > 0)
             S = S / (inmax - inmin);
@@ -348,9 +183,9 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
             // select max efficiency class
             float maxeff = 0.;
             float sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                float e = Eff[ic + N_classes * in];
+                float e = Eff[ic + N_ev_classes * in];
                 if (e > maxeff)
                     maxeff = e;
                 sumeff = sumeff + e;
@@ -360,46 +195,46 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
         }
     }
     else if (mode == 2)
-    { // compute mutual information
+    {   // compute mutual information
         // I(N_neurons,N_classes) = Sum_i^N_n Sum_j^N_c Eff(i,j) log_2 [Eff(i,j)/Eff_i Eff_j)]
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
         // average efficiency on class j over neurons
         S = 0.;
         float Effn[snn.N_neurons];
-        float Effc[N_classes];
+        float Effc[N_ev_classes];
         float sumeff = 0.;
         for (int in = inmin; in < inmax; in++)
         {
             sumeff = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
-                sumeff += Eff[ic + N_classes * in];
+                sumeff += Eff[ic + N_ev_classes * in];
             }
-            if (N_classes > 0)
-                Effn[in] = sumeff / N_classes;
+            if (N_ev_classes > 0)
+                Effn[in] = sumeff / N_ev_classes;
         }
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
             sumeff = 0.;
             for (int in = inmin; in < inmax; in++)
             {
-                sumeff += Eff[ic + N_classes * in];
+                sumeff += Eff[ic + N_ev_classes * in];
             }
             if (inmax > inmin)
                 Effc[ic] = sumeff / (inmax - inmin);
         }
         for (int in = inmin; in < inmax; in++)
         {
-            for (int ic = 0; ic < N_classes; ic++)
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
                 if (Effc[ic] * Effn[in] > 0.)
-                    S += Eff[ic + N_classes * in] *
-                         (log2(Eff[ic + N_classes * in] + epsilon) - log2(Effc[ic] * Effn[in]));
+                    S += Eff[ic + N_ev_classes * in] *
+                         (log2(Eff[ic + N_ev_classes * in] + epsilon) - log2(Effc[ic] * Effn[in]));
             }
         }
     }
     if (inmax > inmin)
-        S /= N_classes * (inmax - inmin);
+        S /= N_ev_classes * (inmax - inmin);
     return S;
 }
 
@@ -419,19 +254,30 @@ float Compute_Q(float eff, float acc, float sel)
 }
 
 // To read our preprocessed file
-void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
+void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, int id_event_value)
 {
     Reset_hits();
-    pclass = 0;
-    N_part = 0;
     First_angle = max_angle;
+
+    //retrieve the information about the eventClass
+    int eventClass;
+    ET->SetBranchAddress("eventClass", &eventClass);
+    ET->GetEntry(id_event_value-1);
+    pclass = eventClass;
+    
+    //TODO: generalize to more than 2 particles with an integer division
+    if(eventClass < 0) {N_part=0; pclass=0;}  
+    else if(eventClass >= 0 && eventClass < N_classes) N_part=1;
+    else N_part = 2;
+    
+    // Reading the Inner Tracker
 
     float z;
     float r, phi;
     float id_event;
     float type;
     float cluster_pclass;
-
+    
     IT->SetBranchAddress("cluster_z", &z);
     IT->SetBranchAddress("cluster_R", &r);
     IT->SetBranchAddress("cluster_phi", &phi);
@@ -446,11 +292,11 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
     }
 
     // Loop over entries and find rows with the specified id_event value
-    for (long int i = last_row_event_IT; i < IT->GetEntries(); ++i)
+    for (int i = last_row_event_IT; i < IT->GetEntries(); ++i)
     {
         IT->GetEntry(i);
 
-        if (static_cast<long int>(id_event) != id_event_value)
+        if (static_cast<int>(id_event) != id_event_value)
         {
             last_row_event_IT = i;
             break;
@@ -459,8 +305,6 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
         if (static_cast<int>(type) == 1)
         {
             type = SIG;
-            pclass = (int)cluster_pclass;
-            N_part = 1;
             phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
             if (phi >= 2. * M_PI)
                 phi -= 2. * M_PI;
@@ -474,7 +318,7 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
                 phi -= 2. * M_PI;
         }
 
-        hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
+        hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
     }
 
     // OUT Tracker
@@ -484,11 +328,12 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
     OT->SetBranchAddress("cluster_phi", &phi);
     OT->SetBranchAddress("eventID", &id_event);
     OT->SetBranchAddress("cluster_type", &type);
+    OT->SetBranchAddress("pclass", &cluster_pclass);
 
-    for (long int i = last_row_event_OT; i < OT->GetEntries(); ++i)
+    for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
     {
         OT->GetEntry(i);
-        if (static_cast<long int>(id_event) != id_event_value)
+        if (static_cast<int>(id_event) != id_event_value)
         {
             last_row_event_OT = i;
             break;
@@ -510,12 +355,11 @@ void ReadFromProcessed(TTree *IT, TTree *OT, long int id_event_value)
                 phi -= 2. * M_PI;
         }
 
-        hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
+        hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
     }
 }
 
 // Plot potential stuff
-
 void ReadWeights(TFile *file, SNN &P)
 {
     vector<TH1F *> Hvec;
@@ -552,7 +396,8 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 // plot neuron potentials as a function of time
-void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
+//TODO adapt it to multiple particles
+void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
 {
     insert = true;
     vector<int> neurons_index;
@@ -562,7 +407,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     N_events = _N_events;
 
     // vectors to plot
-    vector<float> Time[N_events];
+    vector<double> Time[N_events];
     vector<float> Potential[N_events][P.N_neurons];
     int fire_count[P.N_neurons];
     for (int ic = 0; ic < P.N_neurons; ic++)
@@ -588,7 +433,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     // we need to fecth the events and compute the plots
 
     // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput, "READ");
+    TFile *file = TFile::Open(rootInput.c_str(), "READ");
     if (!file || file->IsZombie())
     {
         cerr << "Error: Cannot open file " << rootInput << endl;
@@ -641,15 +486,16 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
     // Loop on events ----------------------------------------------
     do
     {
-        float previous_firetime = 0;
+        
+        double previous_firetime = 0;
 
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
+        PreSpike_Class.clear();
 
         Reset_hits();
 
-        // EMA check
         if (ievent % NROOT == 0)
         {
             last_row_event_IT = 0;
@@ -675,11 +521,11 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         IT->SetBranchAddress("pclass", &cluster_pclass);
 
         // Loop over entries and find rows with the specified id_event value
-        for (long int i = last_row_event_IT; i < IT->GetEntries(); ++i)
+        for (int i = last_row_event_IT; i < IT->GetEntries(); ++i)
         {
             IT->GetEntry(i);
 
-            if (static_cast<long int>(id_event) != id_event_value)
+            if (static_cast<int>(id_event) != id_event_value)
             {
                 last_row_event_IT = i;
                 break;
@@ -703,7 +549,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     phi -= 2. * M_PI;
             }
 
-            hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
+            hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
         }
 
         // OUT Tracker
@@ -714,10 +560,10 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         OT->SetBranchAddress("eventID", &id_event);
         OT->SetBranchAddress("cluster_type", &type);
 
-        for (long int i = last_row_event_OT; i < OT->GetEntries(); ++i)
+        for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
         {
             OT->GetEntry(i);
-            if (static_cast<long int>(id_event) != id_event_value)
+            if (static_cast<int>(id_event) != id_event_value)
             {
                 last_row_event_OT = i;
                 break;
@@ -739,7 +585,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     phi -= 2. * M_PI;
             }
 
-            hit_pos.emplace_back(r, z, phi, static_cast<int>(type));
+            hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
         }
         // ReadFromProcessed(IT, OT, ievent);--------------------
 
@@ -750,7 +596,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             continue;
         }
 
-        float t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        double t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
 
         // Loop on spikes and modify neuron and synapse potentials
@@ -758,11 +604,11 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
         for (int ispike = 0; ispike < PreSpike_Time.size(); ispike++)
         {
             // By looping to size(), we can insert along the way and still make it to the end
-            float t = PreSpike_Time[ispike];
+            double t = PreSpike_Time[ispike];
 
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
-            float min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
+            double min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
 
             // Loop on neurons, but not in order to not favor any neuron
@@ -776,7 +622,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             {
 
                 // Compute future fire times of neurons and their order
-                float fire_time = P.Neuron_firetime(in, t);
+                double fire_time = P.Neuron_firetime(in, t);
 
                 if (fire_time < min_fire_time)
                 {
@@ -789,8 +635,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             if (in_first == -1)
             {
                 // finish the plot for the previous spike
-                float t_prime;
-                float delta_t;
+                double t_prime;
+                double delta_t;
                 if (!insert)
                 {
                     t_prime = previous_firetime;
@@ -828,8 +674,8 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
             // --------------------------------------------------------------------
             else
             {
-                float t_prime;
-                float delta_t;
+                double t_prime;
+                double delta_t;
                 // handle firing of neuron in_first
                 // That means that we are handling the first neruon activation bewtween two EPSP spike
 
@@ -851,15 +697,9 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                         Potential[ievent - 1][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
                 }
 
-                P.Fire_time[in_first].push_back(min_fire_time);
-                // Reset history of this neuron
-                P.History_time[in_first].clear();
-                P.History_type[in_first].clear();
-                P.History_ID[in_first].clear();
-                P.History_time[in_first].push_back(min_fire_time);
-                P.History_type[in_first].push_back(0);
-                P.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
-
+                //Handle the activation of the neuron in_first
+                P.Activate_Neuron(in_first, min_fire_time);
+                
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < P.N_neurons; in2++)
                 {
@@ -867,9 +707,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         if (P.Neuron_layer[in2] == P.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            P.History_time[in2].push_back(min_fire_time);
-                            P.History_type[in2].push_back(2);
-                            P.History_ID[in2].push_back(P.N_InputStreams + in_first);
+                            P.insert_spike(in2, min_fire_time, P.IPSP, P.N_InputStreams + in_first, P.NOCLASS, ievent);
                         }
                     }
                 }
@@ -881,9 +719,7 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     {
                         int is = P.N_InputStreams + in_first;
                         if(!P.Void_weight[in][is]){
-                            P.History_time[in].push_back(min_fire_time+ P.Delay[in][is]);
-                            P.History_type[in].push_back(1);
-                            P.History_ID[in].push_back(is);
+                            P.insert_spike(in, min_fire_time+ P.Delay[in][is], P.EPSP, is, P.NOCLASS, ievent);
                         }
                         
                     }
@@ -904,11 +740,9 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
                     int is = PreSpike_Stream[ispike];
                     if (!P.Void_weight[in][is])
-                    { // otherwise stream "is" does not lead to neuron "in"
-                        P.History_time[in].push_back(t+ P.Delay[in][is]);
+                    {   // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
-                        P.History_type[in].push_back(1);
-                        P.History_ID[in].push_back(is);
+                        P.insert_spike(in, t+ P.Delay[in][is], P.EPSP, is, PreSpike_Class[ispike], ievent);
                     }
                 }
             }
@@ -956,31 +790,10 @@ void PlotPotentials(const char *rootInput, SNN &P, int _N_events, bool read_weig
 
 void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 {
-    // Pass parameters:
-    // ----------------
-    // N_ev:      total number of simulated events
-    // N_ep:      number of weight-learning cycles divido N_ev in N_ep gruppi e faccio girare il learning
-    // NL0, NL1:  number of neurons performing track pattern recognition, organized in 2 layers
-    // N_cl:      number of different signal classes (different particle momenta)
-    // rootInput: name of the root file if you want to load the data. If not provided it will simulate the events
-    // CF:        fraction of connected neurons between L0 and L1
-    // ipspdf:    IPSP time dilation factor (to increase effect of inhibition)
-    // Trainingcode: binary code to turn on updates of 9 pars, delays, voids
-    // ReadPars:  whether to read parameters in from file
-    // Thresh0:   threshold for firing at Layer 0
-    // Thresh1:   threshold for firing at Layer 1
-    // alpha:     parameter of signal model
-    // l1if:      L1 inhibit factor
-    // k, k1, k2: parameters of signal model
-    // IEPC:      inhibition-excitation potential constant
-    // IPSPdf:    IPSP dt dilation factor
-
     // The routine works as follows:
     // -----------------------------
     // Define tracker geometry ok
     // Initialize neuron potentials and synapse weights ok
-    // Simulate background hits
-    // Simulate hits from particle interactions
     // Encode hits in spike streams
     // Loop on optimization cycles (N_epochs)
     //   Loop on time steps in event-based fashion and modify neuron and synapse potentials
@@ -1010,7 +823,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     //  - The optimization strategy is naive and needs to be improved
     //  - In addition, rather than re-learning weights every time parameters are modified, some better
     //    way of handling this should be implemented
-    //  - IE spike model is to be improved
     // -----------------------------------------------------------------------------------------------
 
     // Pass parameters can't update static values, so we need to reassign the latter
@@ -1059,7 +871,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         cout << "  Sorry, too many neurons. Terminating." << endl;
         return;
     }
-    if (N_classes > MaxClasses)
+    if (N_ev_classes > MaxClasses)
     {
         cout << "  Sorry, too many classes (max is " << MaxClasses << "). Terminating." << endl;
         return;
@@ -1143,7 +955,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *HK2 = new TH1F("HK2", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH1F *HIEPC = new TH1F("HIEPC", "", N_epochs, 0.5, 0.5 + N_epochs);
     TH1F *HIPSPdf = new TH1F("HIPSPdf", "", N_epochs, 0.5, 0.5 + N_epochs);
-    TH2F *EffMap = new TH2F("EffMap", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_classes, -0.5, N_classes - 0.5);
+    TH2F *EffMap = new TH2F("EffMap", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_ev_classes, -0.5, N_ev_classes - 0.5);
+    TH2F *EffMap_window = new TH2F("EffMap_window", "", snn_in.N_neurons, -0.5, snn_in.N_neurons - 0.5, N_ev_classes, -0.5, N_ev_classes - 0.5);
     SelectivityL1->SetLineColor(kBlack);
     Qmax->SetLineColor(2);
     HEff->SetMaximum(1.1);
@@ -1163,7 +976,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     HIEPC->SetMinimum(0.);
     HIPSPdf->SetMinimum(0.);
     HL1IF->SetMinimum(0.);
-    TH1D *HDelays = new TH1D("HDelays", "", 50, 0., snn_in.MaxDelay);
+    TH1D *HistDelays = new TH1D("HistDelays", "", 50, 0., snn_in.MaxDelay);
     TH2F *HVoidWs = new TH2F("HVoidWs", "", snn_in.N_neurons, -0.5, -0.5 + snn_in.N_neurons, snn_in.N_streams, -0.5, -0.5 + snn_in.N_streams);
     TH2F *Q_12 = new TH2F("Q_12", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
     TH2F *Q_34 = new TH2F("Q_34", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
@@ -1179,21 +992,24 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH2F *N_MV = new TH2F("N_MV", "", 20, -MaxFactor, MaxFactor, 20, -MaxFactor, MaxFactor);
 
     int N_bins = 100;
-    TH2D *Latency[snn_in.N_neurons * N_classes];
+    TH2D *Latency[snn_in.N_neurons * N_ev_classes];
     char name[50];
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         sprintf(name, "Latency%d", i);
         Latency[i] = new TH2D(name, name, N_bins, 0., (double)NevPerEpoch, max_angle + Empty_buffer, 0., (max_angle + Empty_buffer) / omega);
     }
     TH1F *HWeight[snn_in.N_neurons * snn_in.N_streams];
+    TH1D *HDelay[snn_in.N_neurons * snn_in.N_streams];
     TH1F *HRMSWeight[snn_in.N_neurons];
     TH1F *HMaxWeight[snn_in.N_neurons];
     TH1F *HMinWeight[snn_in.N_neurons];
-    TH1F *Efficiency[snn_in.N_neurons * N_classes];
+    TH1F *Efficiency[snn_in.N_neurons * N_ev_classes];
+    TH1F *Efficiency_window[snn_in.N_neurons * N_ev_classes];
     TH1F *FakeRate[snn_in.N_neurons];
-    TH1F *Eff_totL0[N_classes];
-    TH1F *Eff_totL1[N_classes];
+    TH1F *FakeRate_window[snn_in.N_neurons];
+    TH1F *Eff_totL0[N_ev_classes];
+    TH1F *Eff_totL1[N_ev_classes];
     TH2D *StreamsS[10];
     TH2D *StreamsB[10];
     TH2D *StreamsN[10];
@@ -1205,6 +1021,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     {
         sprintf(name, "HWeight%d", i);
         HWeight[i] = new TH1F(name, name, N_bins, 0., (float)NevPerEpoch);
+        sprintf(name, "HDelay%d", i);
+        HDelay[i] = new TH1D(name, name, N_bins, 0., (float)NevPerEpoch);
     }
     for (int i = 0; i < snn_in.N_neurons; i++)
     {
@@ -1221,55 +1039,48 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         sprintf(name, "HRMSWeight%d", i);
         HMinWeight[i] = new TH1F(name, name, N_bins, 0., (float)NevPerEpoch);
     }
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         sprintf(name, "Efficiency%d", i);
         Efficiency[i] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        sprintf(name, "Efficiency_window%d", i);
+        Efficiency_window[i] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
     }
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         sprintf(name, "FakeRate%d", in);
         FakeRate[in] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        sprintf(name, "FakeRate_window%d", in);
+        FakeRate_window[in] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
     }
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         sprintf(name, "BestEff%d", in);
-        BestEff[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestEff[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
         sprintf(name, "BestFR%d", in);
-        BestFR[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestFR[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
         sprintf(name, "BestEtot%d", in);
-        BestEtot[in] = new TH1F(name, name, N_classes, -0.5, -0.5 + N_classes);
+        BestEtot[in] = new TH1F(name, name, N_ev_classes, -0.5, -0.5 + N_ev_classes);
     }
-    for (int ic = 0; ic < N_classes; ic++)
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         sprintf(name, "Eff_totL0%d", ic);
         Eff_totL0[ic] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
         sprintf(name, "Eff_totL1%d", ic);
         Eff_totL1[ic] = new TH1F(name, name, N_epochs, 0.5, 0.5 + N_epochs);
+        
     }
 
     for (int i = 0; i < 10; i++)
     {
         sprintf(name, "StreamsS%d", i);
-        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsS[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsB%d", i);
-        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
+        StreamsB[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_InputStreams, 0.5, snn_in.N_InputStreams + 0.5);
         sprintf(name, "StreamsN%d", i);
-        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * 500, 0., (max_angle + Empty_buffer) * 50. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
+        StreamsN[i] = new TH2D(name, name, (max_angle + Empty_buffer) * N_display, 0., (max_angle + Empty_buffer) * N_display/10. / omega, snn_in.N_neurons, 0.5, snn_in.N_neurons + 0.5);
     }
 
-    // If requested, read in parameters
-    /*
-
-
-        int okfile;
-        if (ReadPars)
-        {
-            okfile = Read_Parameters();
-            if (okfile == -1)
-                return;
-        }
-    */
     // Final part of initial printout
     cout << "         -----------------------------------" << endl;
     cout << endl;
@@ -1296,116 +1107,81 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         N_fires[in] = 0.;
         LastP[in] = 0.;
     }
-    int fired_sum[N_classes][snn_in.N_neurons];
+    int fired_sum[N_ev_classes][snn_in.N_neurons];
     int random_fire[snn_in.N_neurons];
+    int fired_sum_window[N_ev_classes][snn_in.N_neurons];
+    int random_fire_window[snn_in.N_neurons];
+
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
         random_fire[in] = 0;
-        for (int ic = 0; ic < N_classes; ic++)
+        random_fire_window[in] = 0;
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
             fired_sum[ic][in] = 0;
+            fired_sum_window[ic][in] = 0;
         }
     }
+    
     bool not_fired_bgr = true;
+    bool not_fired_bgr_L0 = true;
     int atleastonefired = 0;
-    int gen_sum[N_classes];
-    int fired_anyL0[N_classes];
-    int fired_anyL1[N_classes];
-    for (int ic = 0; ic < N_classes; ic++)
+    int atleastonefired_L0 = 0;
+
+    int gen_sum[N_ev_classes];
+    int fired_anyL0[N_ev_classes];
+    int fired_anyL1[N_ev_classes];
+    
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         gen_sum[ic] = 0;
         fired_anyL0[ic] = 0;
         fired_anyL1[ic] = 0;
     }
-    bool doneL0[N_classes];
-    bool doneL1[N_classes];
-    bool Seen[N_classes][snn_in.N_neurons];
+    bool doneL0[N_ev_classes];
+    bool doneL1[N_ev_classes];
+    bool Seen[N_ev_classes][snn_in.N_neurons];
     float selectivityL0 = 0.;
     float selectivityL1 = 0.;
+    float averefftotL0 = 0.;
+    float averacctotL0 = 0.;
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
-    Eff = new float[snn_in.N_neurons * N_classes];
+    vector<pair<int, int>> *History_ev_class = new vector<pair <int, int>>[snn_in.N_neurons];
+
+    Eff = new float[snn_in.N_neurons * N_ev_classes];
+    Eff_window = new float[snn_in.N_neurons * N_ev_classes];
     float SumofSquaresofWeight[snn_in.N_neurons] = {0};  // sum of squares synaptic weights for each neuron for RMS calc
     float MeanofSquaresofWeight[snn_in.N_neurons] = {0}; // mean of squares of synaptic weights for each neuron for RMS calc
     float MaxWeight[snn_in.N_neurons];
     float MinWeight[snn_in.N_neurons];
     float RMSWeight[snn_in.N_neurons];
 
+    int count_classes[N_ev_classes+1] = {}; 
+
     // TODO: implement clone method
-    SNN snn_best(_NL0, _NL1,
-                 _alpha,
-                 _CFI0, _CFI1, _CF01,
-                 _L1inhibitfactor,
-                 _K, _K1, _K2,
-                 _IE_Pot_const, _IPSP_dt_dilation,
-                 _MaxDelay,
-
-                 _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-                 _a_plus, _a_minus,
-
-                 _N_InputStreams,
-                 _Threshold0, _Threshold1, _sparsity);
-    SNN snn_old(_NL0, _NL1,
-                _alpha,
-                _CFI0, _CFI1, _CF01,
-                _L1inhibitfactor,
-                _K, _K1, _K2,
-                _IE_Pot_const, _IPSP_dt_dilation,
-                _MaxDelay,
-
-                _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-                _a_plus, _a_minus,
-
-                _N_InputStreams,
-                _Threshold0, _Threshold1, _sparsity);
+    SNN snn_best;
+    SNN snn_old;
 
     // Storing parameters subjected to random search
-    snn_old.Threshold[0] = snn_in.Threshold[0];
-    snn_old.Threshold[1] = snn_in.Threshold[1];
-    snn_old.alpha = snn_in.alpha;
-    snn_old.L1inhibitfactor = snn_in.L1inhibitfactor;
-    snn_old.K = snn_in.K;
-    snn_old.K1 = snn_in.K1;
-    snn_old.K2 = snn_in.K2;
-    snn_old.IE_Pot_const = snn_in.IE_Pot_const;
-    snn_old.IPSP_dt_dilation = snn_in.IPSP_dt_dilation;
-
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_in.N_streams; is++)
-        {
-            snn_old.Delay[in][is] = snn_in.Delay[in][is];
-            snn_best.Delay[in][is] = snn_in.Delay[in][is];
-        }
-    }
-
-    for (int in = 0; in < snn_in.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_in.N_streams; is++)
-        {
-            snn_old.Void_weight[in][is] = snn_in.Void_weight[in][is];
-            snn_best.Void_weight[in][is] = snn_in.Void_weight[in][is];
-
-            snn_old.Weight[in][is] = snn_in.Weight[in][is];
-            snn_best.Weight[in][is] = snn_in.Weight[in][is];
-        }
-    }
+    snn_old.copy_from(snn_in);
+    snn_best.copy_from(snn_in);
+    
+    
     float Q = 0.;
-    float Q_old = 0.;
-    Q_best = 0.;
-    SelL1_best = 0.;
-    Eff_best = 0.;
-    Acc_best = 0.;
+    float Q_L0 = 0.;
 
-    snn_best.Threshold[0] = 0.;
-    snn_best.Threshold[1] = 0.;
-    snn_best.alpha = 0.;
-    snn_best.L1inhibitfactor = 0.;
-    snn_best.K = 0.;
-    snn_best.K1 = 0.;
-    snn_best.K2 = 0.;
-    snn_best.IE_Pot_const = 0.;
-    snn_best.IPSP_dt_dilation = 0.;
+    float Q_old = 0.;
+    
+    Q_best_L0 = 0.;
+    SelL0_best = 0.;
+    Eff_best_L0 = 0.;
+    Acc_best_L0 = 0.;
+
+    Q_best_L1 = 0.;
+    SelL1_best = 0.;
+    Eff_best_L1 = 0.;
+    Acc_best_L1 = 0.;
 
     float Optvar[9];
     float max_dx[9];
@@ -1437,7 +1213,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             OptvarD[id] = snn_in.Delay[in][is];
         }
     }
-    int MaxdQHist = 50; // we do not want the full history, because we are moving in the par space; only last 10 points.
+    int MaxdQHist = N_display/10; // we do not want the full history, because we are moving in the par space; only last 10 points.
     vector<float> dQHist;
     vector<float> OptvarHist[9];
     vector<float> OptvarDHist[snn_in.N_neurons * snn_in.N_streams];
@@ -1459,7 +1235,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int ind_qbest = 0;
 
     // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput, "READ");
+    TFile *file = TFile::Open(rootInput.c_str(), "READ");
     if (!file || file->IsZombie())
     {
         cerr << "Error: Cannot open file " << rootInput << endl;
@@ -1468,6 +1244,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
     TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
+    TDirectoryFile *dirEV = dynamic_cast<TDirectoryFile *>(file->Get("classification"));
 
     if (!dirIT)
     {
@@ -1483,8 +1260,16 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         return;
     }
 
+    if (!dirEV)
+    {
+        cerr << "Error: Cannot access directory classification" << endl;
+        file->Close();
+        return;
+    }
+
     TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
     TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
+    TTree *ET = dynamic_cast<TTree *>(dirEV->Get("event_tree"));
 
     if (!IT)
     {
@@ -1500,26 +1285,38 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         return;
     }
 
+    if (!ET)
+    {
+        cerr << "Error: Cannot access tree in classification" << endl;
+        file->Close();
+        return;
+    }
+
     IT->SetMaxVirtualSize(250000000);
     IT->LoadBaskets();
 
     OT->SetMaxVirtualSize(250000000);
     OT->LoadBaskets();
 
-    // End of reading ----------------------------------------------
+    ET->SetMaxVirtualSize(250000000);
+    ET->LoadBaskets();
 
+    // End of reading ----------------------------------------------
+    
     // Create csv fout file
+    //TODO: RETHINK THE CSV
+    /*
     ofstream fout;
     char csv_name[80];
     if (file_id_GS == -1)
-        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
+        sprintf(csv_name, "MODE/CSV/NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_output.csv", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_ev_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha);
     else
     {
         sprintf(csv_name, "%i.csv", file_id_GS);
     }
     fout.open(csv_name);
     fout << "Event,ID,Stream,Time,Pclass" << endl;
-
+    */
     // Loop on events ----------------------------------------------
     bool insert = true;
     do
@@ -1531,7 +1328,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             if (iev_thisepoch % block == 0)
             {
                 cout << progress[currchar] << flush;
-                ;
                 currchar++;
             }
         }
@@ -1542,7 +1338,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             last_row_event_OT = 0;
         }
 
-        ReadFromProcessed(IT, OT, ievent % NROOT);
+        ReadFromProcessed(IT, OT, ET, ievent % NROOT + 1);
 
         // See if we find with track with positive latency by at least one neuron
         for (int in = 0; in < snn_in.N_neurons; in++)
@@ -1552,14 +1348,17 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         doneL0[pclass] = false;
         doneL1[pclass] = false;
         not_fired_bgr = true;
+        not_fired_bgr_L0 = true;
 
         // Encode hits in spike streams
         // Here we encode the position of hits through the timing of a spike,
         // In the future we might think at how the analog charge readout in the hits could also be added
         double previous_firetime = 0;
+
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
+        PreSpike_Class.clear();
 
         double t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
@@ -1614,16 +1413,23 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.Fire_time[in_first].push_back(min_fire_time);
 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                if(ievent < N_events * Train_fraction){
+                    snn_in.Compute_LTD(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                    snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                } 
+                //we are in the test phase
+                else{
+                    //TODO: continue here
+                    //loop back on the history of spikes to check if the neuron is reacting to noise or signal
+                    auto PreActivation_History = snn_in.Inspect_History(in_first, min_fire_time, window);
+                    History_ev_class[in_first].reserve(History_ev_class[in_first].size() + PreActivation_History.size());
+                    History_ev_class[in_first].insert(History_ev_class[in_first].end(), PreActivation_History.begin(), PreActivation_History.end());
 
+                }
+                
                 // Reset history of this neuron
-                snn_in.History_time[in_first].clear();
-                snn_in.History_type[in_first].clear();
-                snn_in.History_ID[in_first].clear();
-                snn_in.History_time[in_first].push_back(min_fire_time);
-                snn_in.History_type[in_first].push_back(0);
-                snn_in.History_ID[in_first].push_back(0); // ID is not used for type 0 history events
-
+                snn_in.Activate_Neuron(in_first, min_fire_time);
+                
                 // IPSP for all others at relevant layer
                 for (int in2 = 0; in2 < snn_in.N_neurons; in2++)
                 {
@@ -1631,9 +1437,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         if (snn_in.Neuron_layer[in2] == snn_in.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            snn_in.History_time[in2].push_back(min_fire_time);
-                            snn_in.History_type[in2].push_back(2);
-                            snn_in.History_ID[in2].push_back(snn_in.N_InputStreams + in_first);
+                            snn_in.insert_spike(in2, min_fire_time, snn_in.IPSP, snn_in.N_InputStreams + in_first, snn_in.NOCLASS, ievent);
                         }
                     }
                 }
@@ -1645,23 +1449,24 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         int is = snn_in.N_InputStreams + in_first;
                         if(!snn_in.Void_weight[in][is]){
-                            snn_in.History_time[in].push_back(min_fire_time + snn_in.Delay[in][is]);
-                            snn_in.History_type[in].push_back(1);
-                            snn_in.History_ID[in].push_back(is);
-                            snn_in.LTD(in, is, min_fire_time+ snn_in.Delay[in][in_first], nearest_spike_approx, snn_old);
+                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], snn_in.EPSP, is, snn_in.NOCLASS, ievent);
+
+                            //cout << "call ltd2 " << min_fire_time << " " << snn_in.Delay[in][is]<<endl;
+
+                            if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, min_fire_time + snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                         }
                     }
                 }
 
                 // Fill spikes train histogram
-                if (ievent >= N_events - 500.)
+                if (ievent >= N_events - N_display)
                 {
-                    int is = (ievent - N_events + 500) / 50;
-                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    int is = (ievent - N_events + N_display) / (N_display/10);
+                    double time = min_fire_time - (max_angle + Empty_buffer) / omega * (ievent / (N_display/10)) * (N_display/10);
                     StreamsN[is]->Fill(time, in_first + 1);
                     if (N_part > 0)
                     {
-                        fout << ievent << ", " << 2 << ", " << in_first << "," << time << "," << pclass << endl;
+                        //fout << ievent << ", " << 2 << ", " << in_first << "," << time << "," << pclass << endl;
                     }
                 }
 
@@ -1673,19 +1478,19 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (latency >= 0. && not_filled[in_first])
                     {
                         if (iepoch == N_epochs - 1)
-                            Latency[in_first * N_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
+                            Latency[in_first * N_ev_classes + pclass]->Fill(0.5 + iev_thisepoch, latency);
                         Seen[pclass][in_first] = true;
                         not_filled[in_first] = false;
                     }
                 }
                 else
                 {
-                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * 0.9)
+                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * Train_fraction)
                     {
                         random_fire[in_first]++;
                         not_filled[in_first] = false;
                     }
-                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * 0.9)
+                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
                     { // for Q-value calculations
                         if (not_fired_bgr)
                         {
@@ -1693,6 +1498,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             not_fired_bgr = false;
                         }
                     }
+                    else if (in_first <= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
+                    { // for Q-value calculations
+                        if (not_fired_bgr_L0)
+                        {
+                            atleastonefired_L0++;
+                            not_fired_bgr_L0 = false;
+                        }
+                    }
+                    
                 }
 
                 ispike -= 1;
@@ -1705,21 +1519,21 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             // insert the new spike for the next iteration
             if (insert)
             {
-                // Save information on hit-based streams for last 500 events to histograms
-                if (ievent >= N_events - 500.)
+                // Save information on hit-based streams for last N_display events to histograms
+                if (ievent >= N_events - N_display)
                 {
                     // dividing N_events in 10 groups
-                    int is = (ievent - N_events + 500) / 50;
+                    int is = (ievent - N_events + N_display) / (N_display/10);
                     // time = tin + thit - tin(First event of the group)
-                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / 50) * 50;
+                    double time = PreSpike_Time[ispike] - (max_angle + Empty_buffer) / omega * (ievent / (N_display/10)) * (N_display/10);
 
                     // Histograms
-                    if (PreSpike_Signal[ispike] == 1)
+                    if (PreSpike_Signal[ispike] == SIG)
                     {
                         StreamsS[is]->Fill(time, PreSpike_Stream[ispike] + 1);
-                        fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
+                        //fout << ievent << ", " << PreSpike_Signal[ispike] << ", " << PreSpike_Stream[ispike] + 1 << "," << time << "," << pclass << endl;
                     }
-                    else if (PreSpike_Signal[ispike] == 0)
+                    else if (PreSpike_Signal[ispike] == BGR)
                     {
                         StreamsB[is]->Fill(time, PreSpike_Stream[ispike] + 1);
                     }
@@ -1731,12 +1545,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     //  Add to neuron history, masking out L1 spikes for L0 neurons
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
-                        snn_in.History_time[in].push_back(t+ snn_in.Delay[in][is]);
                         // All input spikes lead to EPSP
-                        snn_in.History_type[in].push_back(1);
-                        snn_in.History_ID[in].push_back(is);
+                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], snn_in.EPSP, is, PreSpike_Class[ispike], ievent);
 
-                        snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
+                        //cout << "call ltd2 " << t <<" " << snn_in.Delay[in][is]<<endl;
+                        if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
             }
@@ -1746,8 +1559,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         if (N_part > 0)
         {
             // efficiency calculations only in the last 10% of the epoch
-            if (iev_thisepoch > NevPerEpoch * 0.9)
+            if (iev_thisepoch > NevPerEpoch * Train_fraction)
             {
+                //second stat way
+                
+                //TODO: MODIFY STAT
                 gen_sum[pclass]++;
                 for (int in = 0; in < snn_in.N_neurons; in++)
                 {
@@ -1791,14 +1607,18 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (!snn_in.Void_weight[in][is])
                     {
                         HWeight[in * snn_in.N_streams + is]->SetBinContent(bin, snn_in.Weight[in][is]);
+                        HDelay[in * snn_in.N_streams + is]->SetBinContent(bin, snn_in.Delay[in][is]);
                         SumofSquaresofWeight[in] += snn_in.Weight[in][is] * snn_in.Weight[in][is]; // for RMS calculation
                         if (snn_in.Weight[in][is] > MaxWeight[in])
                             MaxWeight[in] = snn_in.Weight[in][is]; // finding maxima
                         else if (snn_in.Weight[in][is] < MinWeight[in])
                             MinWeight[in] = snn_in.Weight[in][is]; // finding minima
                     }
-                    else
+                    else{
                         HWeight[in * snn_in.N_streams + is]->SetBinContent(bin, -1);
+                        HDelay[in * snn_in.N_streams + is]->SetBinContent(bin, -1);
+                    }
+                        
                 }
 
                 // RMS Plot
@@ -1817,13 +1637,15 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         // prespike_time.push_back(time) -> time associated to an hit or to a spike coming from L0
         // prespike_Stream -> stream id associated to the hit bin or to the L0 neuron
         // prespike_Signal -> spike type: 0 if BKG, 1 if Track, 2 if NeuronFire
+        // PreSpike_Class  -> particle class of the hit
 
         // Fill efficiency histograms every NevPerEpoch events, compute Q value and Selectivity, modify parameters
         // ---------------------------------------------------------------------------------------------------
 
         if (iev_thisepoch == NevPerEpoch)
         { // we did NevPerEpoch events
-
+            
+            //classic efficiency calculations
             // Reset counter that inhibits efficiency and Q calculations until we reach steady state with weights
             iev_thisepoch = 0;
             iepoch++;
@@ -1831,22 +1653,33 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             if (doprogress)
                 cout << progress[51] << endl;
 
+            cout << "Efficiency calculation" << endl;
+            cout << "Fired sum" << endl;
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
-                for (int ic = 0; ic < N_classes; ic++)
-                {
-                    int combind = ic + N_classes * in;
+                cout << "Neuron " << in << endl;
+                for (int ic = 0; ic < N_ev_classes; ic++)
+                {   
+                    cout << "   - " << ic << " " << fired_sum[ic][in] << endl;
+                    int combind = ic + N_ev_classes * in;
                     Eff[combind] = fired_sum[ic][in];
                     if (gen_sum[ic] > 0)
                         Eff[combind] /= gen_sum[ic];
                     Efficiency[combind]->SetBinContent(iepoch, Eff[combind]);
                 }
-                float fakerate = random_fire[in] * 2. / NevPerEpoch; // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
+                
+                float fakerate = random_fire[in] * 2. / NevPerEpoch / (1.-Train_fraction); // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
+                cout << "   - Fake rate: " << random_fire[in] << endl << endl;
             }
-            float Efftot[N_classes];
-            for (int ic = 0; ic < N_classes; ic++)
+            float Efftot[N_ev_classes];
+            float Efftot_L0[N_ev_classes];
+            
+            cout << "Efficiency calculation" << endl;
+            cout << "Gen sum" << endl;
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
+                cout << ic << "   " <<  gen_sum[ic] << endl;
                 float etl0 = fired_anyL0[ic];
                 if (gen_sum[ic] > 0)
                     etl0 /= gen_sum[ic];
@@ -1856,24 +1689,100 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     etl1 /= gen_sum[ic];
                 Eff_totL1[ic]->SetBinContent(iepoch, etl1);
                 Efftot[ic] = etl1;
+                Efftot_L0[ic] = etl0;
             }
 
             selectivityL0 = Compute_Selectivity(0, 2, snn_in);
-            SelectivityL0->Fill(iepoch, selectivityL0);
+            SelectivityL0-> Fill(iepoch, selectivityL0);
             selectivityL1 = Compute_Selectivity(1, 2, snn_in);
-            SelectivityL1->Fill(iepoch, selectivityL1);
+            SelectivityL1-> Fill(iepoch, selectivityL1);
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
-            averacctotL1 = atleastonefired * (2. / NevPerEpoch * 10.); // total acceptance, computed with 0.1*NevPerEpoch/2 events with no tracks
-            averefftotL1 = 0.;
-            for (int ic = 0; ic < N_classes; ic++)
+            averacctotL1 = atleastonefired *    (2. / NevPerEpoch / (1.-Train_fraction)); // total acceptance, computed with N_Test*NevPerEpoch/2 events with no tracks
+            averacctotL0 = atleastonefired_L0 * (2. / NevPerEpoch / (1.-Train_fraction));
+            
+            for (int ic = 0; ic < N_ev_classes; ic++)
             {
                 averefftotL1 += Efftot[ic];
+                averefftotL0 += Efftot_L0[ic];
             }
-            averefftotL1 /= N_classes;
+            averefftotL1 /= N_ev_classes;
+            averefftotL0 /= N_ev_classes;
 
             Q = Compute_Q(averefftotL1, averacctotL1, selectivityL1);
+            Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
+
+            //--------------- New method to calculate efficiency, fake rate, Q value ----------------
+            bool Check_class[N_ev_classes];
+            fill_n(Check_class, N_ev_classes, false);
+            for(int in = 0; in < snn_in.N_neurons; in++){
+                
+                int current_event = History_ev_class[in].front().first;
+                bool fake_fire = true;
+                //just to don't loose the last test event
+                History_ev_class[in].push_back({-1, snn_in.NOCLASS});
+                //scan back the history to calculate efficiencies
+                for(auto &&ev_class: History_ev_class[in]){
+                    if (ev_class.first != current_event){
+                        //if just background hits -> it's a false positive
+                        if(fake_fire) random_fire_window[in]++;
+                        //prepare for the next event
+                        fake_fire = true;
+                        fill_n(Check_class, N_ev_classes, false);
+                        current_event = ev_class.first;
+                    }
+                    int id_class = ev_class.second;
+
+                    //the past of the neuron contains background hits
+                    if (id_class==snn_in.BKGCLASS) fake_fire = true;
+                    else if(id_class>=snn_in.SIGCLASS){
+                        //the neuron has fired after a particle
+                        //if it's a ghost, let's check if has already seen the particle
+                        if(id_class > N_classes-1){
+                            id_class-= N_classes;
+                            if (!Check_class[id_class])
+                            {
+                                Check_class[id_class] = true;
+                                fired_sum_window[id_class][in]++;
+                            }                            
+                        }
+                        else{
+                            if(!Check_class[id_class]){
+                                if(id_class<0 || id_class>2) cout << id_class << endl;
+                                Check_class[id_class] = true;
+                                fired_sum_window[id_class][in]++;
+                                
+                            }
+                        }
+                        fake_fire = false;
+                    }                   
+                }
+
+                //produce the metrics
+                int total_fire = 0;
+                for (int ic = 0; ic < N_ev_classes; ic++)
+                {
+
+                    total_fire+=fired_sum_window[ic][in];
+                    int combind = ic + N_ev_classes * in;
+                    Eff_window[combind] = fired_sum_window[ic][in];
+                    if (gen_sum[ic] > 0)
+                        Eff_window[combind] /= gen_sum[ic];
+                    Efficiency_window[combind]->SetBinContent(iepoch, Eff_window[combind]);
+                }
+                float FP_rate = 0;
+                total_fire+=random_fire_window[in];
+                if(total_fire>0) FP_rate = 1.*random_fire_window[in]/total_fire;
+                FakeRate_window[in]->SetBinContent(iepoch, FP_rate);
+
+                cout << "Neuron " << in << ":" << endl;
+                cout << "   - Fake fires: " << random_fire_window[in] << endl;
+                cout << "   - FP rate : " << FP_rate  << endl;
+
+            }
+            
+            // ------------------------------------------------------------------------
 
             // Fix maximum excursion of parameters with a schedule
             LR = LR_Scheduler(MaxFactor, iepoch, N_epochs);
@@ -1886,18 +1795,25 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 max_dxD[id] = 0.1 * LR;
             }
 
+
+            
             // Re-initialize neurons
-            snn_in.Init_neurons();
+            snn_in.Init_neurons(ievent);
             // Reset hits
             Reset_hits();
+
+            /*
+            ACHTUNG: SHOULDN'T THIS BE PUT AFTER ALL?
+
             // Reset weights to initial conditions before new investigation
             snn_in.Reset_weights();
             // Init delays
             if (!updateDelays && !ReadPars && !learnDelays)
-                snn_in.Init_delays(); // This unlike void connections, because we can opt to learn these at each cycle too
+                snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
+            */
 
             cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
-                 << "; Eff = " << averefftotL1 << " Acc = " << averacctotL1 << "; Firings: ";
+                 << "; Eff L0 = " << averefftotL0 << " Acc L0 = " << averacctotL0 << "; Eff L1 = " << averefftotL1 << " Acc L1 = " << averacctotL1 << "; Firings: ";
 
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
@@ -2070,13 +1986,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             }
 
             // Fill histograms with delays
-            HDelays->Reset();
+            HistDelays->Reset();
             HVoidWs->Reset();
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
                 for (int is = 0; is < snn_in.N_streams; is++)
                 {
-                    HDelays->Fill(snn_in.Delay[in][is]);
+                    HistDelays->Fill(snn_in.Delay[in][is]);
                     if (snn_in.Void_weight[in][is])
                     {
                         HVoidWs->SetBinContent(in + 1, is + 1, 0.);
@@ -2089,18 +2005,23 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             }
 
             // Is this Q factor not larger than before?
-            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best << " ib = " << ibad << endl;
+            cout << "         Q = " << Q << " Old = " << Q_old << " Best = " << Q_best_L1 << " ib = " << ibad << endl;
 
             // Update histograms with current parameter values and optimization metrics
             Qvalue->SetBinContent(iepoch, Q);
-            if (Q > Q_best)
+            if (Q > Q_best_L1)
             {
                 ind_qbest = iepoch;
-                Q_best = Q;
+                Q_best_L1 = Q;
+                Q_best_L0 = Q_L0;
+
+                SelL0_best = selectivityL0;
+                Eff_best_L0 = averefftotL0;
+                Acc_best_L0 = averacctotL0;
 
                 SelL1_best = selectivityL1;
-                Eff_best = averefftotL1;
-                Acc_best = averacctotL1;
+                Eff_best_L1 = averefftotL1;
+                Acc_best_L1 = averacctotL1;
 
                 snn_best.Threshold[0] = snn_in.Threshold[0];
                 snn_best.Threshold[1] = snn_in.Threshold[1];
@@ -2120,7 +2041,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     }
                 }
             }
-            Qmax->SetBinContent(iepoch, Q_best);
+            Qmax->SetBinContent(iepoch, Q_best_L1);
             HEff->SetBinContent(iepoch, averefftotL1);
             HAcc->SetBinContent(iepoch, averacctotL1);
             HT0->SetBinContent(iepoch, snn_in.Threshold[0]);
@@ -2184,7 +2105,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             CU->cd(7);
             HIPSPdf->Draw();
             CU->cd(8);
-            HDelays->Draw();
+            HistDelays->Draw();
             CU->cd(9);
             HVoidWs->Draw("COL4");
             CU->cd(10);
@@ -2478,7 +2399,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                                 }
                             }
                         }
-                        Q_old = Q_best;
+                        Q_old = Q_best_L1;
                         ibad = 0;
                     }
                 }
@@ -2580,18 +2501,22 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 for (int in = 0; in < snn_in.N_neurons; in++)
                 {
                     random_fire[in] = 0;
-                    for (int ic = 0; ic < N_classes; ic++)
+                    for (int ic = 0; ic < N_ev_classes; ic++)
                     {
                         fired_sum[ic][in] = 0;
                     }
                 }
-                for (int ic = 0; ic < N_classes; ic++)
+                for (int ic = 0; ic < N_ev_classes; ic++)
                 {
                     gen_sum[ic] = 0;
                     fired_anyL0[ic] = 0;
                     fired_anyL1[ic] = 0;
                 }
                 atleastonefired = 0;
+                atleastonefired_L0 = 0;
+
+                not_fired_bgr = true;
+                not_fired_bgr_L0 = true;
 
                 // Reset progress bar
                 if (doprogress)
@@ -2611,9 +2536,31 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     delete dirIT;
     delete dirOT;
 
-    fout.close();
+    //fout.close();
     file->Close();
     delete file;
+
+    // copy the best parameters inside snn_in
+    /*
+    snn_in.Threshold[0] = snn_best.Threshold[0];
+    snn_in.Threshold[1] = snn_best.Threshold[1];
+    snn_in.alpha = snn_best.alpha;
+    snn_in.L1inhibitfactor = snn_best.L1inhibitfactor;
+    snn_in.K = snn_best.K;
+    snn_in.K1 = snn_best.K1;
+    snn_in.K2 = snn_best.K2;
+    snn_in.IE_Pot_const = snn_best.IE_Pot_const;
+    snn_in.IPSP_dt_dilation = snn_best.IPSP_dt_dilation;
+    for (int in = 0; in < snn_best.N_neurons; in++)
+    {
+        for (int is = 0; is < snn_best.N_streams; is++)
+        {
+            snn_in.Delay[in][is] = snn_best.Delay[in][is];
+            snn_in.Void_weight[in][is] = snn_best.Void_weight[in][is];
+        }
+    }
+    */
+    
 
     // Draw histograms
     cout << "Drawing histos" << endl;
@@ -2641,26 +2588,27 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     }
 
     TCanvas *C = new TCanvas("C", "", 1000, 1000);
-    C->Divide(N_classes, snn_in.N_neurons);
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    C->Divide(N_ev_classes, snn_in.N_neurons);
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
         C->cd(i + 1);
         Latency[i]->Draw("COL4");
     }
 
     TCanvas *E0 = new TCanvas("E0", "", 800, 800);
-    E0->Divide(N_classes, snn_in.N_neuronsL[0]);
-    for (int i = 0; i < snn_in.N_neuronsL[0] * N_classes; i++)
+    E0->Divide(N_ev_classes, snn_in.N_neuronsL[0]);
+    for (int i = 0; i < snn_in.N_neuronsL[0] * N_ev_classes; i++)
     {
         E0->cd(i + 1);
         Efficiency[i]->SetMaximum(1.1);
         Efficiency[i]->SetMinimum(0.);
         Efficiency[i]->Draw("");
-        int in = i / N_classes;
+        
+        int in = i / N_ev_classes;
         FakeRate[in]->SetMarkerColor(2);
         FakeRate[in]->SetLineColor(2);
         FakeRate[in]->Draw("SAME");
-        int ic = i % N_classes;
+        int ic = i % N_ev_classes;
         Eff_totL0[ic]->SetMarkerColor(3);
         Eff_totL0[ic]->SetLineColor(3);
         Eff_totL0[ic]->Draw("SAME");
@@ -2668,30 +2616,59 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     }
 
     TCanvas *E1 = new TCanvas("E1", "", 800, 800);
-    E1->Divide(N_classes, snn_in.N_neuronsL[1]);
-    for (int i = snn_in.N_neuronsL[0] * N_classes; i < snn_in.N_neurons * N_classes; i++)
+    E1->Divide(N_ev_classes, snn_in.N_neuronsL[1]);
+    for (int i = snn_in.N_neuronsL[0] * N_ev_classes; i < snn_in.N_neurons * N_ev_classes; i++)
     {
-        E1->cd(i + 1 - snn_in.N_neuronsL[0] * N_classes);
+        E1->cd(i + 1 - snn_in.N_neuronsL[0] * N_ev_classes);
         Efficiency[i]->SetMaximum(1.1);
         Efficiency[i]->SetMinimum(0.);
         Efficiency[i]->Draw("");
-        int in = i / N_classes;
+        int in = i / N_ev_classes;
         FakeRate[in]->SetMarkerColor(2);
         FakeRate[in]->SetLineColor(2);
         FakeRate[in]->Draw("SAME");
-        int ic = i % N_classes;
+        int ic = i % N_ev_classes;
         Eff_totL1[ic]->SetMarkerColor(3);
         Eff_totL1[ic]->SetLineColor(3);
         Eff_totL1[ic]->Draw("SAME");
         Efficiency[i]->Draw("SAME");
     }
 
+    TCanvas *E0_window = new TCanvas("E0_window", "", 800, 800);
+    E0_window->Divide(N_ev_classes, snn_in.N_neuronsL[0]);
+    for (int i = 0; i < snn_in.N_neuronsL[0] * N_ev_classes; i++)
+    {
+        E0_window->cd(i + 1);
+        Efficiency_window[i]->SetMaximum(1.1);
+        Efficiency_window[i]->SetMinimum(0.);
+        Efficiency_window[i]->Draw("");
+        
+        int in = i / N_ev_classes;
+        FakeRate_window[in]->SetMarkerColor(2);
+        FakeRate_window[in]->SetLineColor(2);
+        FakeRate_window[in]->Draw("SAME");
+    }
+
+    TCanvas *E1_window = new TCanvas("E1_window", "", 800, 800);
+    E1_window->Divide(N_ev_classes, snn_in.N_neuronsL[1]);
+    for (int i = snn_in.N_neuronsL[0] * N_ev_classes; i < snn_in.N_neurons * N_ev_classes; i++)
+    {
+        E1_window->cd(i + 1 - snn_in.N_neuronsL[0] * N_ev_classes);
+        Efficiency_window[i]->SetMaximum(1.1);
+        Efficiency_window[i]->SetMinimum(0.);
+        Efficiency_window[i]->Draw("");
+        int in = i / N_ev_classes;
+        FakeRate_window[in]->SetMarkerColor(2);
+        FakeRate_window[in]->SetLineColor(2);
+        FakeRate_window[in]->Draw("SAME");
+    }
+
     // Plot the efficiencies and acceptances for the best q-value run
     // --------------------------------------------------------------
-    for (int i = 0; i < snn_in.N_neurons * N_classes; i++)
+    for (int i = 0; i < snn_in.N_neurons * N_ev_classes; i++)
     {
-        int in = i / N_classes;
-        int ic = i % N_classes;
+        int in = i / N_ev_classes;
+        int ic = i % N_ev_classes;
         BestEff[in]->SetBinContent(ic + 1, Efficiency[i]->GetBinContent(ind_qbest));
         BestFR[in]->SetBinContent(ic + 1, FakeRate[in]->GetBinContent(ind_qbest));
         if (in < snn_in.N_neuronsL[0])
@@ -2759,10 +2736,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         {
             HWeight[in * snn_in.N_streams + is]->SetMaximum((HMaxWeight[in]->GetMaximum()) * 1.1);
             HWeight[in * snn_in.N_streams + is]->SetMinimum(0.);
+
             int color = is + 1;
             if (color == 8)
                 color = 9;
             HWeight[in * snn_in.N_streams + is]->SetLineColor(color);
+
             if (is == 0)
             {
                 HWeight[in * snn_in.N_streams + is]->Draw();
@@ -2774,17 +2753,93 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         }
     }
 
+    TCanvas *D = new TCanvas("D", "", 500, 800);
+
+    D->Divide(2, nrow);
+    for (int in = 0; in < snn_in.N_neurons; in++)
+    {
+        D->cd(in + 1);
+        for (int is = 0; is < snn_in.N_streams; is++)
+        {
+            HDelay[in * snn_in.N_streams + is]->SetMaximum(snn_in.MaxDelay * 1.1);
+            HDelay[in * snn_in.N_streams + is]->SetMinimum(0.);
+            int color = is + 1;
+            if (color == 8)
+                color = 9;
+            HDelay[in * snn_in.N_streams + is]->SetLineColor(color);
+            if (is == 0)
+            {
+                HDelay[in * snn_in.N_streams + is]->Draw();
+            }
+            else
+            {
+                HDelay[in * snn_in.N_streams + is]->Draw("SAME");
+            }
+        }
+    }
+
+
     // Draw final Efficiency and acceptance maps
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
-            EffMap->SetBinContent(in + 1, ic + 1, Efficiency[ic + in * N_classes]->GetBinContent(ind_qbest));
+            EffMap->SetBinContent(in + 1, ic + 1, Efficiency[ic + in * N_ev_classes]->GetBinContent(ind_qbest));
         }
     }
     TCanvas *Y = new TCanvas("Y", "", 600, 900);
     Y->cd();
     EffMap->Draw("COL4");
+
+    // Draw final Efficiency and acceptance maps
+    for (int in = 0; in < snn_in.N_neurons; in++)
+    {
+        for (int ic = 0; ic < N_ev_classes; ic++)
+        {
+            EffMap_window->SetBinContent(in + 1, ic + 1, Efficiency_window[ic + in * N_ev_classes]->GetBinContent(ind_qbest));
+        }
+    }
+    TCanvas *Y_window = new TCanvas("Y_window", "", 600, 900);
+    Y_window->cd();
+    EffMap_window->Draw("COL4");
+
+    //Draw delays
+
+    // Create a 2D histogram to store the delays
+    TH2D* delayHistogram = new TH2D("Delay Histogram", "Delay Histogram", snn_in.N_neurons, 0, snn_in.N_neurons, snn_in.N_streams, 0, snn_in.N_streams);
+
+    // Fill the histogram with delay values
+    for (int in = 0; in < snn_in.N_neurons; in++) {
+        for (int is = 0; is < snn_in.N_streams; is++) {
+            delayHistogram->SetBinContent(in + 1, is + 1, snn_in.Delay[in][is]);
+        }
+    }
+
+    // Create a canvas to draw the histogram
+    TCanvas* delay_canvas = new TCanvas("Delay", "Delay", 800, 600);
+    delay_canvas->cd();
+    gStyle->SetOptStat(0);
+    delayHistogram->SetOption("goff");
+    delayHistogram->Draw("colz"); // Draw the histogram with a color palette
+    
+    //Draw delta delays
+    // Create a 2D histogram to store the delays
+    TH2D* delta_delayHistogram = new TH2D("Delta Delay Histogram", "Delta Delay Histogram", snn_in.N_neurons, 0, snn_in.N_neurons, snn_in.N_streams, 0, snn_in.N_streams);
+
+    // Fill the histogram with delay values
+    for (int in = 0; in < snn_in.N_neurons; in++) {
+        for (int is = 0; is < snn_in.N_streams; is++) {
+            delta_delayHistogram->SetBinContent(in + 1, is + 1, snn_in.Delay[in][is] - snn_in.Delay_initial[in][is]);
+        }
+    }
+
+    // Create a canvas to draw the histogram
+    TCanvas* delta_delay_canvas = new TCanvas("Delta Delay", "Delta Delay", 800, 600);
+    delta_delay_canvas->cd();
+    gStyle->SetOptStat(0);
+    delta_delayHistogram->SetOption("goff");
+    delta_delayHistogram->Draw("colz"); // Draw the histogram with a color palette
+
 
     // Final Statistics
     // ----------------
@@ -2801,9 +2856,14 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     cout << endl;
     cout << "         Optimization results" << endl;
     cout << "         -----------------------------------" << endl;
-    cout << "               Average efficiency: " << Eff_best << endl;
-    cout << "                Average fake rate: " << Acc_best << endl;
-    cout << "                  Maximum Q value: " << Q_best << endl;
+    cout << "               Average efficiency L0: " << Eff_best_L0 * 100 << endl;
+    cout << "                Average fake rate L0: " << Acc_best_L0 * 100 << endl;
+    cout << "                  Maximum Q value L0: " << Q_best_L0 << endl;
+    cout << "                   L0 selectivity: " << SelL0_best << endl;
+    cout << endl;
+    cout << "               Average efficiency L1: " << Eff_best_L1 * 100 << endl;
+    cout << "                Average fake rate L1: " << Acc_best_L1 * 100 << endl;
+    cout << "                  Maximum Q value L1: " << Q_best_L1 << endl;
     cout << "                   L1 selectivity: " << SelL1_best << endl;
     cout << endl;
     cout << "         Optimized parameter values" << endl;
@@ -2829,23 +2889,30 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         Write_Parameters(); // This also defines indfile, used below
     }
     */
-
-    // Dump histograms to root file
-    string Path = "./MODE/SNNT/";
-    std::stringstream sstr;
+    // Dump SNN parameters to JSON file
+    string Path = SNN_PATH + "/Code/MODE/JSON/";
+    stringstream sstr;
     char num[80];
 
     if (file_id_GS == -1)
-        sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
+        sprintf(num, "NL0=%d_NL1=%d_NCl=%d_CF01=%.2f_CFI0=%.2f_CFI1=%.2f_alfa=%.2f_%d", snn_in.N_neuronsL[0], snn_in.N_neuronsL[1], N_ev_classes, snn_in.CF01, snn_in.CFI0, snn_in.CFI1, snn_in.alpha, indfile);
     else
         sprintf(num, "%i", file_id_GS);
 
-
+    sstr << "Parameters_";
+    string namejsonfile = Path + sstr.str() + num + ".json";
+    
+    snn_in.dumpToJson(namejsonfile);
+    
+    // Dump histograms to root file
+    Path = SNN_PATH + "/Code/MODE/SNNT/";
+    sstr.str(string());
+    
     sstr << "Histos13_";
     string namerootfile = Path + sstr.str() + num + ".root";
     TFile *rootfile = new TFile(namerootfile.c_str(), "RECREATE");
     rootfile->cd();
-
+    
     // Write canvases first
     cout << "Writing canvas" << endl;
     S->Write();
@@ -2855,19 +2922,28 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     BE->Write();
     SE->Write();
     W->Write();
+    D->Write();
     Y->Write();
     MW->Write();
+    E0_window->Write();
+    E1_window->Write();
+    Y_window->Write();
+    delay_canvas->Write();
+    delta_delay_canvas->Write();
 
     cout << "Saving pdf" << endl;
-    S->SaveAs("./pdf/S.pdf", "pdf");
-    C->SaveAs("./pdf/C.pdf", "pdf");
-    E0->SaveAs("./pdf/E0.pdf", "pdf");
-    E1->SaveAs("./pdf/E1.pdf", "pdf");
-    BE->SaveAs("./pdf/BE.pdf", "pdf");
-    SE->SaveAs("./pdf/SE.pdf", "pdf");
-    W->SaveAs("./pdf/W.pdf", "pdf");
-    Y->SaveAs("./pdf/Y.pdf", "pdf");
-    MW->SaveAs("./pdf/MWlog.pdf", "pdf");
+    S->SaveAs((SNN_PATH + "/Code/pdf/S.pdf").c_str(), "pdf");
+    C->SaveAs((SNN_PATH + "/Code/pdf/C.pdf").c_str(), "pdf");
+    E0->SaveAs((SNN_PATH + "/Code/pdf/E0.pdf").c_str(), "pdf");
+    E1->SaveAs((SNN_PATH + "/Code/pdf/E1.pdf").c_str(), "pdf");
+    BE->SaveAs((SNN_PATH + "/Code/pdf/BE.pdf").c_str(), "pdf");
+    SE->SaveAs((SNN_PATH + "/Code/pdf/SE.pdf").c_str(), "pdf");
+    W->SaveAs((SNN_PATH + "/Code/pdf/W.pdf").c_str(), "pdf");
+    D->SaveAs((SNN_PATH + "/Code/pdf/D.pdf").c_str(), "pdf");
+    Y->SaveAs((SNN_PATH + "/Code/pdf/Y.pdf").c_str(), "pdf");
+    MW->SaveAs((SNN_PATH + "/Code/pdf/MWlog.pdf").c_str(), "pdf");
+    delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delay_canvas.pdf").c_str(), "pdf");
+    delta_delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delta_delay_canvas.pdf").c_str(), "pdf");
 
     // Then histograms
     SelectivityL0->Write();
@@ -2876,6 +2952,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     Qmax->Write();
     HEff->Write();
     HAcc->Write();
+    delayHistogram->Write();
+    delta_delayHistogram->Write();
     HT0->Write();
     HT1->Write();
     HA->Write();
@@ -2885,7 +2963,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     HK2->Write();
     HIEPC->Write();
     HVoidWs->Write();
-    HDelays->Write();
+    HistDelays->Write();
     Q_12->Write();
     Q_34->Write();
     Q_56->Write();
@@ -2898,18 +2976,21 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     N_MV->Write();
     for (int in = 0; in < snn_in.N_neurons; in++)
     {
-        for (int ic = 0; ic < N_classes; ic++)
+        for (int ic = 0; ic < N_ev_classes; ic++)
         {
-            int id = in * N_classes + ic;
+            int id = in * N_ev_classes + ic;
             Latency[id]->Write();
             Efficiency[id]->Write();
+            Efficiency_window[id]->Write();
         }
         for (int is = 0; is < snn_in.N_streams; is++)
         {
             int id = in * snn_in.N_streams + is;
             HWeight[id]->Write();
+            HDelay[id]->Write();
         }
         FakeRate[in]->Write();
+        FakeRate_window[in]->Write();
         BestEff[in]->Write();
         BestFR[in]->Write();
         BestEtot[in]->Write();
@@ -2917,7 +2998,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         HMaxWeight[in]->Write();
         HMinWeight[in]->Write();
     }
-    for (int ic = 0; ic < N_classes; ic++)
+    for (int ic = 0; ic < N_ev_classes; ic++)
     {
         Eff_totL0[ic]->Write();
         Eff_totL1[ic]->Write();
@@ -2929,6 +3010,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         StreamsN[i]->Write();
     }
     EffMap->Write();
+    EffMap_window->Write();
 
     MW->Write();
     rootfile->Write();
@@ -2936,25 +3018,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // End of program
     rootfile->Close();
     gROOT->Time();
-
-    // copy the best parameters inside snn_in
-    snn_in.Threshold[0] = snn_best.Threshold[0];
-    snn_in.Threshold[1] = snn_best.Threshold[1];
-    snn_in.alpha = snn_best.alpha;
-    snn_in.L1inhibitfactor = snn_best.L1inhibitfactor;
-    snn_in.K = snn_best.K;
-    snn_in.K1 = snn_best.K1;
-    snn_in.K2 = snn_best.K2;
-    snn_in.IE_Pot_const = snn_best.IE_Pot_const;
-    snn_in.IPSP_dt_dilation = snn_best.IPSP_dt_dilation;
-    for (int in = 0; in < snn_best.N_neurons; in++)
-    {
-        for (int is = 0; is < snn_best.N_streams; is++)
-        {
-            snn_in.Delay[in][is] = snn_best.Delay[in][is];
-            snn_in.Void_weight[in][is] = snn_best.Void_weight[in][is];
-        }
-    }
 
     return;
 }
@@ -2970,6 +3033,7 @@ void PrintHelp()
     cout << "   --CF01" << endl;
     cout << "   --CFI0" << endl;
     cout << "   --CFI1" << endl;
+    cout << "   --split_layer0" << endl;
 
     cout << endl;
 
@@ -2987,6 +3051,7 @@ void PrintHelp()
     cout << "   --tau_r" << endl;
     cout << "   --TH0" << endl;
     cout << "   --TH1" << endl;
+    cout << "   --sparsity" << endl;
 
     cout << endl;
 
@@ -2995,6 +3060,10 @@ void PrintHelp()
     cout << "   --a_minus" << endl;
     cout << "   --tau_plus" << endl;
     cout << "   --tau_minus" << endl;
+    cout << "   --d_plus" << endl;
+    cout << "   --d_minus" << endl;
+    cout << "   --taud_plus" << endl;
+    cout << "   --taud_minus" << endl;
 
     cout << endl;
 
@@ -3004,9 +3073,13 @@ void PrintHelp()
     cout << "   --batch" << endl;
     cout << "   --rootInput" << endl;
     cout << "   --N_classes" << endl;
+    cout << "   --N_ev_classes" << endl;
     cout << "   --TrainingCode" << endl;
     cout << "   --ReadPars" << endl;
     cout << "   --NROOT" << endl;
+    cout << "   --N_display" << endl;
+    cout << "   --Train_fraction" << endl;
+    cout << "   --window" << endl;           
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
@@ -3014,6 +3087,7 @@ void PrintHelp()
 // ------------
 int main(int argc, char *argv[])
 {
+    SNN_PATH = string(getenv("SNN_PATH"));
     int file_id_GS = -1;
     // Loop through the command-line arguments
     for (int i = 1; i < argc; i++)
@@ -3069,6 +3143,16 @@ int main(int argc, char *argv[])
         else if (strcmp(arg, "--a_minus") == 0)
             _a_minus = stof(argv[i + 1]);
 
+        else if (strcmp(arg, "--taud_plus") == 0)
+            _taud_plus = stof(argv[i + 1]);
+        else if (strcmp(arg, "--taud_minus") == 0)
+            _taud_minus = stof(argv[i + 1]);
+
+        else if (strcmp(arg, "--d_plus") == 0)
+            _d_plus = stof(argv[i + 1]);
+        else if (strcmp(arg, "--d_minus") == 0)
+            _d_minus = stof(argv[i + 1]);
+
         else if (strcmp(arg, "--TH0") == 0)
             _Threshold0 = stof(argv[i + 1]);
         else if (strcmp(arg, "--TH1") == 0)
@@ -3079,29 +3163,42 @@ int main(int argc, char *argv[])
             N_events = stoi(argv[i + 1]);
         else if (strcmp(arg, "--N_ep") == 0)
             N_epochs = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--N_display") == 0)
+            N_display = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--Train_fraction") == 0)
+            Train_fraction = stof(argv[i + 1]);
         else if (strcmp(arg, "--batch") == 0)
             batch = stoi(argv[i + 1]);
         else if (strcmp(arg, "--rootInput") == 0)
             rootInput = argv[i + 1];
+        else if (strcmp(arg, "--window") == 0)
+            window = stof(argv[i + 1]);
 
         else if (strcmp(arg, "--N_classes") == 0)
             N_classes = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--N_ev_classes") == 0)
+            N_ev_classes = stoi(argv[i + 1]);
         else if (strcmp(arg, "--TrainingCode") == 0)
             TrainingCode = stoi(argv[i + 1]);
         else if (strcmp(arg, "--ReadPars") == 0)
-            ReadPars = stoi(argv[i + 1]);
+            ReadPars = argv[i + 1];
         else if (strcmp(arg, "--NROOT") == 0)
             NROOT = stoi(argv[i + 1]);
         else if (strcmp(arg, "--file_id_GS") == 0)
             file_id_GS = stoi(argv[i + 1]);
         else if (strcmp(arg, "--sparsity") == 0)
             _sparsity = stof(argv[i + 1]);
+        else if (strcmp(arg, "--split_layer0") == 0)
+            _split_layer0 = stoi(argv[i + 1]);
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
             exit(0);
         }
+        
     }
+    rootInput = SNN_PATH + rootInput;
+    cout << rootInput << endl;
 
     SNN S(_NL0, _NL1,
           _alpha,
@@ -3114,30 +3211,21 @@ int main(int argc, char *argv[])
           _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
           _a_plus, _a_minus,
 
+          _taud_plus, _taud_minus,
+          _d_plus, _d_minus,
+
           _N_InputStreams,
-          _Threshold0, _Threshold1, _sparsity);
+          _Threshold0, _Threshold1, _sparsity, _split_layer0);
 
-    SNN_Tracking(S,file_id_GS);
-
+    if (ReadPars != "none") {
+        cout << "Retrieving parameters from file" << endl;
+        S.loadFromJson(ReadPars);
+    }
     // preparing the file to plot the neuron potentials of the best configurations
+    SNN_Tracking(S, file_id_GS);
     cout << "Creating the file for the potentials plot" << endl;
-    PlotPotentials("Data/ordered.root", S, 12);
+    //S.Init_neurons(ievent+1);
+    //PlotPotentials("Data/ordered.root", S, 12);
 
-    // to prepare the file to plot the neuron potentials reading the weights written in a root file from a previous run
-    /* SNN P(_NL0, _NL1,
-          _alpha,
-          _CFI0, _CFI1, _CF01,
-          _L1inhibitfactor,
-          _K, _K1, _K2,
-          _IE_Pot_const, _IPSP_dt_dilation,
-          _MaxDelay,
-
-          _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-          _a_plus, _a_minus,
-
-          _N_InputStreams,
-          _Threshold0, _Threshold1, _sparsity);
-    PlotPotentials("Data/ordered.root", P, 12, true, "MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root");
-    */
     return 0;
 }
