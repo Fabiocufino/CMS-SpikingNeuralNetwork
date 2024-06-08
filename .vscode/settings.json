@@ -81,7 +81,8 @@
         "optional": "cpp",
         "ranges": "cpp",
         "valarray": "cpp",
-        "SNNT13_old.C": "cpp"
+        "SNNT13_old.C": "cpp",
+        "modify_canvas.C": "cpp"
     },
     "cmake.configureOnOpen": true
 }
