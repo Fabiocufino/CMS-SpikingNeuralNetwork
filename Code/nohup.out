@@ -92765,3 +92765,675 @@ IPSP dt dilation: 1
 -----------------------------------
 
 Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.1
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.910361
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.194671
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+-----------------------------------
+
+Starting values of parameters:
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+Q = 0 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 10
+Connected L0-L1 frac.: 0.821905
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.670848
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0
+Average fake rate: 0
+Maximum Q value: 0
+L1 selectivity: 0
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0
+L1 threshold: 0
+alpha: 0
+L1inhibit: 0
+K: 0
+K1: 0
+K2: 0
+IE pot. constant: 0
+IPSP dt dilation: 0
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0 L1 = 0; Eff = 0 Acc = 0; Firings: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+Q = 0 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 10
+L1 neurons: 11
+Connected L0-L1 frac.: 0.5
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.754697
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0
+Average fake rate: 0
+Maximum Q value: 0
+L1 selectivity: 0
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0
+L1 threshold: 0
+alpha: 0
+L1inhibit: 0
+K: 0
+K1: 0
+K2: 0
+IE pot. constant: 0
+IPSP dt dilation: 0
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.303999 L1 = 0.526977; Eff = 0.88224 Acc = 0.124667; Firings: 53003 51335 36712 16089 37898 5428 11528 6486 21184 7276
+Q = 3.82915 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 5
+L1 neurons: 5
+Connected L0-L1 frac.: 0.5
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.754697
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.88224
+Average fake rate: 0.124667
+Maximum Q value: 3.82915
+L1 selectivity: 0.526977
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.194671
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.481332 L1 = 0.264742; Eff = 0.301378 Acc = 0.0166667; Firings: 48437 41817 18029 7265 23164 30358 5091 50603 2126 616 5077 114 923 125
+Q = 1.77148 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 5
+Connected L0-L1 frac.: 0.821905
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.5
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.301378
+Average fake rate: 0.0166667
+Maximum Q value: 1.77148
+L1 selectivity: 0.264742
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.383545 L1 = 0.224069; Eff = 0.194741 Acc = 0.006; Firings: 54099 50682 29513 10414 33846 36044 13170 53730 6024 111 1627 88 792 1412
+Q = 1.14224 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 5
+Connected L0-L1 frac.: 0.54412
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.194741
+Average fake rate: 0.006
+Maximum Q value: 1.14224
+L1 selectivity: 0.224069
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.383545 L1 = 0.224069; Eff = 0.194741 Acc = 0.006; Firings: 54099 50682 29513 10414 33846 36044 13170 53730 6024 111 1627 88 792 1412
+Q = 1.14224 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 5
+Connected L0-L1 frac.: 0.54412
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.194741
+Average fake rate: 0.006
+Maximum Q value: 1.14224
+L1 selectivity: 0.224069
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Saving pdf
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.383978 L1 = 0.112447; Eff = 0.0784373 Acc = 0.002; Firings: 54101 50677 29509 10408 33858 36052 13182 53731 6023 93 1085 14 268 103
+Q = 0.42868 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 5
+Connected L0-L1 frac.: 0.738859
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.0784373
+Average fake rate: 0.002
+Maximum Q value: 0.42868
+L1 selectivity: 0.112447
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.392036 L1 = 0.527789; Eff = 0.993516 Acc = 0.764667; Firings: 49193 51912 30771 10230 30106 32644 23472 42533 1228 574 280 106 14732 10382 10654 51 27962 1231
+Q = 1.52889 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 9
+Connected L0-L1 frac.: 0.54412
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.993516
+Average fake rate: 0.764667
+Maximum Q value: 1.52889
+L1 selectivity: 0.527789
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.344208
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.439053 L1 = 0.374727; Eff = 0.790067 Acc = 0.09; Firings: 45334 46033 24345 6101 31479 32595 4491 28787 31 3754 13481 2496 3072 143 4018 14 45 121
+Q = 3.64947 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 8
+L1 neurons: 10
+Connected L0-L1 frac.: 0.821905
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.5
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.790067
+Average fake rate: 0.09
+Maximum Q value: 3.64947
+L1 selectivity: 0.374727
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.358896 L1 = 0.245471; Eff = 0.34262 Acc = 0.018; Firings: 54474 57076 33599 15990 39255 31480 26159 47496 2120 146 493 195 1262 1141 5334 1 1818 108 1478
+Q = 1.98715 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 10
+Connected L0-L1 frac.: 0.821905
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.5
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.34262
+Average fake rate: 0.018
+Maximum Q value: 1.98715
+L1 selectivity: 0.245471
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.1
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.486823 L1 = 0.165932; Eff = 0.265364 Acc = 0.0106667; Firings: 45295 48519 20637 6160 25856 18123 10178 36060 150 58 128 101 305 465 3795 0 786 40 899
+Q = 1.47584 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 10
+Connected L0-L1 frac.: 0.821905
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.5
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.265364
+Average fake rate: 0.0106667
+Maximum Q value: 1.47584
+L1 selectivity: 0.165932
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.6
+alpha: 0.668817
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+Initializaing the plot SNN
+Opening the weight file
+Error: Cannot open file MODE/SNNT/Histos13_NL0=6_NL1=6_NCl=6_CF01=0.60_CFI0=0.60_CFI1=0.60_alfa=0.50_0.root
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.500194 L1 = 0.0329729; Eff = 0.0288103 Acc = 0; Firings: 44331 47241 19632 4455 23861 15061 6580 35204 103 0 102 5 15 44 233 26 192 40 8
+Q = 0.149798 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 10
+Connected L0-L1 frac.: 0.738859
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.0288103
+Average fake rate: 0
+Maximum Q value: 0.149798
+L1 selectivity: 0.0329729
+
+Optimized parameter values
+-----------------------------------
+L0 threshold: 0.6
+L1 threshold: 0.865096
+alpha: 0.910361
+L1inhibit: 1
+K: 1
+K1: 2
+K2: 4
+IE pot. constant: 1
+IPSP dt dilation: 1
+-----------------------------------
+
+Writing canvas
+Saving pdf
+Creating the file for the potentials plot
+Initializaing the plot SNN
+[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]
+Ev. # 30000 - LR = 0.0245173; Selectivity L0 = 0.516714 L1 = 0.0320897; Eff = 0.0275133 Acc = 0; Firings: 41655 45507 16247 4809 21125 15013 6911 31739 103 0 99 5 12 45 219 27 184 42 8
+Q = 0.14296 Old = 0 Best = 0 ib = 0
+Drawing histos
+
+
+Run parameters
+-----------------------------------
+L0 neurons: 9
+L1 neurons: 10
+Connected L0-L1 frac.: 0.738859
+Connected IN-L0 frac.: 0.5
+Connected IN-L1 frac.: 0.621347
+Track classes: 6
+
+Optimization results
+-----------------------------------
+Average efficiency: 0.0275133
+Average fake rate: 0
+Maximum Q value: 0.14296
+L1 selectivity: 0.0320897
+
+Optimized parameter values
+-----------------------------------
