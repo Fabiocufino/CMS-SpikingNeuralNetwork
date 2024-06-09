@@ -766,6 +766,8 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             isp--;
         } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
         
+        isp = History_time[in].size() - 1;
+        
         do
         {   
             double delta_t = History_time[in][isp] - fire_time;
@@ -871,8 +873,10 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp++;
         } while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7. * tau_minus && History_time[in][isp]<fire_time);
         
+        isp = 1;
+
         do
-        {
+        { 
             double delta_t = History_time[in][isp] - previous_firetime;
             if (History_ID[in][isp] == is && History_type[in][isp]==EPSP && delta_t >= 0) 
             {

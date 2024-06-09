@@ -19,7 +19,7 @@ import re
 
 def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2,IPSP_dt_dilation ):
     try:
-        command = f'./SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation}'
+        command = f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation}'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
 
@@ -65,7 +65,7 @@ def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_m
 
 # Fitness function for multi-objective optimization
 def fitness_func(ga_instance, solution, solution_idx):
-    N_ev = 30000
+    N_ev = 1000
     NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation = solution
 
     output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation)
@@ -141,8 +141,8 @@ gene_space = [
 
 # GA Configuration
 num_generations = 10000
-num_parents_mating = 12
-sol_per_pop = 28
+num_parents_mating = 2
+sol_per_pop = 2
 num_genes = len(gene_space)
 
 
