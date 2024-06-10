@@ -19,7 +19,7 @@ import re
 
 def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2,IPSP_dt_dilation ):
     try:
-        command = f'./SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --d_plus {a_plus} --d_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation} --a_plus 0 --a_minus 0'
+        command = f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation}'
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
 
@@ -145,8 +145,8 @@ gene_space = [
 
 # GA Configuration
 num_generations = 10000
-num_parents_mating = 6
-sol_per_pop = 12
+num_parents_mating = 8
+sol_per_pop = 16
 num_genes = len(gene_space)
 
 
