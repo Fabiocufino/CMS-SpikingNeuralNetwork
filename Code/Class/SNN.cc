@@ -918,7 +918,7 @@ void SNN::Renorm(int in, SNN &old) {
         // Normalize the weights for the 'in' neuron
         for (int is = 0; is < N_streams; is++) {
             if(!Void_weight[in][is]){
-                Weight[in][is] = Weight[in][is]/weight_sum;
+                // Weight[in][is] = Weight[in][is]/weight_sum; \\ TODO: We think that this line is not necessary because it causes the weights to diverge.
                 old.Weight[in][is] = Weight[in][is];
            }
            Delay[in][is]/=delay_factor;
