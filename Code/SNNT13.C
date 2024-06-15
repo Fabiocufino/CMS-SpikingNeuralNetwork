@@ -1594,7 +1594,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         // Write histograms of weights
         if (iepoch == N_epochs - 1)
         {
-            int bin = (int)(1000. * (float)iev_thisepoch / NevPerEpoch);
+            int bin = (int)(N_bins * (float)iev_thisepoch / NevPerEpoch);
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
                 SumofSquaresofWeight[in] = 0;
@@ -1644,7 +1644,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
         if (iev_thisepoch == NevPerEpoch)
         { // we did NevPerEpoch events
-            
             //classic efficiency calculations
             // Reset counter that inhibits efficiency and Q calculations until we reach steady state with weights
             iev_thisepoch = 0;
@@ -2529,7 +2528,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         }         // if ievent+1%NevPerEpoch = 0
         ievent++; // only go to next event if we did a backward pass too
     } while (ievent < N_events);
-
     // closing the input file
     delete IT;
     delete OT;

@@ -628,7 +628,7 @@ void SNN::Activate_Neuron(int in, double t) {
     auto it = upper_bound(History_time[in].begin(), History_time[in].end(), t);
     if (it != History_time[in].begin()) {
         int position = distance(History_time[in].begin(), it);
-        
+       
         // Erase elements before the position found by binary search
         History_time[in].erase(History_time[in].begin(), it);
         History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
@@ -638,7 +638,7 @@ void SNN::Activate_Neuron(int in, double t) {
     
     // Insert the spike at time t
     if (!History_ev_class[in].empty()) {
-        insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].back().first);
+        insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].front().first);
     } else {
         // Handle the case when the history is empty
         insert_spike(in, t, SPIKE, 0, NOCLASS, 0); // Assuming default value for last event class
@@ -670,7 +670,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
     int len = History_time[in].size();
     if (len > 1)
     {
-        double last_spike = History_time[in][0];
+        double last_spike = History_time[in].front();
         for (int ih = 1; ih < len; ih++)
         {
             delta_t = t - History_time[in][ih];
@@ -681,7 +681,7 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += Weight[in][History_ID[in][ih]] * EPS_potential(delta_t);
                 }
-                else if (delete_history && (t - last_spike) > 7. * tau_minus)
+                else if (delete_history && (History_time[in][ih] - last_spike) > 7. * max(tau_minus, taud_minus) && delta_t > 7. * max(tau_plus, taud_plus))
                 {
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
@@ -752,7 +752,6 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t <= 0) 
             {
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
-                
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
 
@@ -774,8 +773,7 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] += d_plus * exp(delta_t / taud_plus);
-                
+                    Delay[in][is] += d_plus * exp(delta_t / taud_plus)*(-delta_t / taud_plus);
                     if (Delay[in][is] > MaxDelay)
                         Delay[in][is] = MaxDelay;
                 }
@@ -807,7 +805,7 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
         return;
     }
     
-    double delta_t = spike_time - Fire_time[in].back();
+    double delta_t = spike_time - Fire_time[in].front();
     // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
     if (nearest_spike_approx)
         check_LTD[in][is] = false;
@@ -841,12 +839,12 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
 void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
     if (Fire_time[in].size() == 0){
-        //cout <<"skip" << endl; 
+        cout <<"skip" << endl; 
         return;
     }
 
     int isp = 1;
-    double previous_firetime = Fire_time[in].back();
+    double previous_firetime = History_time[in].front();
 
     for (int is = 0; is < N_streams; is++)
     {
@@ -856,7 +854,7 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
         bool no_prespikes = true;  // Moved inside the loop to reset for each stream
         isp = 1;  // Reset isp for each stream
 
-        while (isp < History_time[in].size() && History_time[in][isp] < fire_time)
+        while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * tau_minus && History_time[in][isp] < fire_time)
         {
             double delta_t = History_time[in][isp] - previous_firetime;
             if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t >= 0) 
@@ -875,15 +873,14 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
         }
 
         isp = 1;  // Reset isp again for the second loop
-        while (isp < History_time[in].size() && History_time[in][isp] < fire_time)
+        while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * taud_minus && History_time[in][isp] < fire_time)
         { 
             double delta_t = History_time[in][isp] - previous_firetime;
             if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t >= 0) 
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
-                    
+                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus)*(delta_t / taud_minus);
                     if (Delay[in][is] < 0.)
                         Delay[in][is] = 0.;
                 }
@@ -918,7 +915,7 @@ void SNN::Renorm(int in, SNN &old) {
         // Normalize the weights for the 'in' neuron
         for (int is = 0; is < N_streams; is++) {
             if(!Void_weight[in][is]){
-                Weight[in][is] = Weight[in][is]/weight_sum;
+                // Weight[in][is] = Weight[in][is]/weight_sum; \\ TODO: We think that this line is not necessary because it causes the weights to diverge.
                 old.Weight[in][is] = Weight[in][is];
            }
            Delay[in][is]/=delay_factor;
@@ -951,6 +948,19 @@ void SNN::PrintWeights(){
         {
             if (!Void_weight[in][is]){
             cout << Weight[in][is] << ", ";
+            }
+        }
+        cout << endl <<endl;
+    }
+}
+
+void SNN::PrintDelays(){
+    for(int in = 0; in<N_neurons; in++){
+        cout << "Neuron " << in << endl;
+        for (int is = 0; is < N_streams; is++)
+        {
+            if (!Void_weight[in][is]){
+            cout << Delay[in][is] << ", ";
             }
         }
         cout << endl <<endl;

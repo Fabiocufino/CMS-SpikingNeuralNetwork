@@ -152,6 +152,7 @@ public:
     void Renorm(int in, SNN &old);
     void Renorm_Opt(int in, float delta_weight, SNN &old);
     void PrintWeights();
+    void PrintDelays();
     void PrintSNN();
     void copy_from(const SNN& other);
     void dumpToJson(const string& filename);
