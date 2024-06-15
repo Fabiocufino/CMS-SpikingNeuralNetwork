@@ -1713,11 +1713,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
 
             //--------------- New method to calculate efficiency, fake rate, Q value ----------------
+            /*
             bool Check_class[N_ev_classes];
             fill_n(Check_class, N_ev_classes, false);
             for(int in = 0; in < snn_in.N_neurons; in++){
                 
-                int current_event = History_ev_class[in].front().first;
+                int current_event = History_ev_class[in].back().first;
                 bool fake_fire = true;
                 //just to don't loose the last test event
                 History_ev_class[in].push_back({-1, snn_in.NOCLASS});
@@ -1780,7 +1781,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 cout << "   - FP rate : " << FP_rate  << endl;
 
             }
-            
+            */
             // ------------------------------------------------------------------------
 
             // Fix maximum excursion of parameters with a schedule

@@ -141,8 +141,8 @@ gene_space = [
 
 # GA Configuration
 num_generations = 10000
-num_parents_mating = 2
-sol_per_pop = 2
+num_parents_mating = 4
+sol_per_pop = 4
 num_genes = len(gene_space)
 
 

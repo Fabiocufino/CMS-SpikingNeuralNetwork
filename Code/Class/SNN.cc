@@ -3,8 +3,6 @@
 using json = nlohmann::json;
 using namespace std;
 
-SNN::SNN() : alpha(0.0f), CFI0(0.0f), CFI1(0.0f), CF01(0.0f), L1inhibitfactor(0.0f), K(0.0f), K1(0.0f), K2(0.0f), IE_Pot_const(0.0f), IPSP_dt_dilation(0.0), MaxDelay(0.0), tau_m(0.0), tau_s(0.0), tau_r(0.0), tau_plus(0.0), tau_minus(0.0), a_plus(0.0), a_minus(0.0), taud_plus(0.0), taud_minus(0.0), d_plus(0.0), d_minus(0.0), N_InputStreams(0), sparsity(0.0f), split_layer0(false), N_neuronsL{0, 0}, N_neurons(0), N_streams(0), tmax(0.0), MaxDeltaT(0.0), fire_granularity(0.0), fire_precision(0.0f), myRNG(nullptr), largenumber(0.0), epsilon(0.0), Weight(nullptr), Weight_initial(nullptr), check_LTD(nullptr), Void_weight(nullptr), Delay(nullptr), Delay_initial(nullptr), EnableIPSP(nullptr), History_time(nullptr), History_type(nullptr), History_ID(nullptr), History_ev_class(nullptr), Fire_time(nullptr), Neuron_layer(nullptr), sumweight(nullptr), sumdelays(nullptr), Delta_delay(0.0), Mean_delay(0.0) {}
-
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
          float _CFI0, float _CFI1, float _CF01,
@@ -116,7 +114,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_weights();
     Init_delays_uniform();
 }
-
+SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
 SNN::~SNN() {
     // Release memory for dynamically allocated arrays
     for (int i = 0; i < N_neurons; ++i) {
@@ -900,30 +898,51 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
 
 
 void SNN::Renorm(int in, SNN &old) {
+    if (in < 0 || in >= N_neurons) {
+        std::cerr << "Error: Index 'in' out of bounds in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
+    if (N_streams <= 0) {
+        std::cerr << "Error: N_streams is non-positive in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
+    if (!Void_weight || !Weight || !Delay || !sumdelays || !old.Weight) {
+        std::cerr << "Error: Null pointer encountered in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
     float weight_sum = 0.0;
-    double delay_factor = 0.;
+    double delay_factor = 0.0;
 
     // Calculate the sum of weights for the 'in' neuron
     for (int is = 0; is < N_streams; is++) {
-        if(!Void_weight[in][is]) weight_sum += Weight[in][is];
-        delay_factor+=Delay[in][is];
+        if (is < N_neurons && !Void_weight[in][is]) {
+            weight_sum += Weight[in][is];
+            delay_factor += Delay[in][is];
+        }
     }
-    //cout << "delay factor " << in << "  " << delay_factor << endl;
+
+    if (sumdelays[in] == 0.0) {
+        std::cerr << "Error: sumdelays[" << in << "] is zero. Aborting operation to avoid division by zero." << std::endl;
+        return;
+    }
+
     delay_factor /= sumdelays[in];
+
     // Check if the sum is greater than 0 to avoid division by zero
     if (weight_sum > 0.0) {
         // Normalize the weights for the 'in' neuron
         for (int is = 0; is < N_streams; is++) {
-            if(!Void_weight[in][is]){
-                // Weight[in][is] = Weight[in][is]/weight_sum; \\ TODO: We think that this line is not necessary because it causes the weights to diverge.
+            if (is < N_neurons && !Void_weight[in][is]) {
                 old.Weight[in][is] = Weight[in][is];
-           }
-           Delay[in][is]/=delay_factor;
-           //TODO: maybe I should recheck the boundary conditions for the delays.
+            }
+            if (is < N_neurons) {
+                Delay[in][is] /= delay_factor;
+            }
         }
     }
-
-    return;    
 }
 
 
@@ -1007,7 +1026,40 @@ void SNN::PrintSNN(){
     cout << "-------------------------------------" << endl;
 }
 
+#include <iostream>
+#include <cstring> // for std::memset, std::memcpy
+
 void SNN::copy_from(const SNN& other) {
+    // Deallocate previously allocated memory
+    for (int i = 0; i < N_neurons; ++i) {
+        delete[] Weight[i];
+        delete[] Weight_initial[i];
+        delete[] check_LTD[i];
+        delete[] Void_weight[i];
+        delete[] Delay[i];
+        delete[] Delay_initial[i];
+        delete[] EnableIPSP[i];
+    }
+    delete[] Weight;
+    delete[] Weight_initial;
+    delete[] check_LTD;
+    delete[] Void_weight;
+    delete[] Delay;
+    delete[] Delay_initial;
+    delete[] EnableIPSP;
+
+    // Deallocate and reallocate vector arrays
+    delete[] History_time;
+    delete[] History_type;
+    delete[] History_ID;
+    delete[] History_ev_class;
+    delete[] Fire_time;
+
+    delete[] sumdelays;
+    delete[] Neuron_layer;
+    delete[] sumweight;
+
+    // Copy scalar values
     alpha = other.alpha;
     CFI0 = other.CFI0;
     CFI1 = other.CFI1;
@@ -1044,7 +1096,7 @@ void SNN::copy_from(const SNN& other) {
     tmax = other.tmax;
     MaxDeltaT = other.MaxDeltaT;
 
-    // Allocate memory for arrays
+    // Allocate memory for new arrays
     Weight = new float*[N_neurons];
     Weight_initial = new float*[N_neurons];
     check_LTD = new bool*[N_neurons];
@@ -1054,29 +1106,33 @@ void SNN::copy_from(const SNN& other) {
     EnableIPSP = new bool*[N_neurons];
 
     for (int i = 0; i < N_neurons; ++i) {
-        Weight[i] = new float[N_neurons];
-        Weight_initial[i] = new float[N_neurons];
-        check_LTD[i] = new bool[N_neurons];
-        Void_weight[i] = new bool[N_neurons];
-        Delay[i] = new double[N_neurons];
-        Delay_initial[i] = new double[N_neurons];
+        Weight[i] = new float[N_streams];
+        Weight_initial[i] = new float[N_streams];
+        check_LTD[i] = new bool[N_streams];
+        Void_weight[i] = new bool[N_streams];
+        Delay[i] = new double[N_streams];
+        Delay_initial[i] = new double[N_streams];
         EnableIPSP[i] = new bool[N_neurons];
 
-        copy(other.Weight[i], other.Weight[i] + N_neurons, Weight[i]);
-        copy(other.Weight_initial[i], other.Weight_initial[i] + N_neurons, Weight_initial[i]);
-        copy(other.check_LTD[i], other.check_LTD[i] + N_neurons, check_LTD[i]);
-        copy(other.Void_weight[i], other.Void_weight[i] + N_neurons, Void_weight[i]);
-        copy(other.Delay[i], other.Delay[i] + N_neurons, Delay[i]);
-        copy(other.Delay_initial[i], other.Delay_initial[i] + N_neurons, Delay_initial[i]);
-        copy(other.EnableIPSP[i], other.EnableIPSP[i] + N_neurons, EnableIPSP[i]);
+        // Manually copy elements in a for loop
+        for (int j = 0; j < N_streams; ++j) {
+            Weight[i][j] = other.Weight[i][j];
+            Weight_initial[i][j] = other.Weight_initial[i][j];
+            check_LTD[i][j] = other.check_LTD[i][j];
+            Void_weight[i][j] = other.Void_weight[i][j];
+            Delay[i][j] = other.Delay[i][j];
+            Delay_initial[i][j] = other.Delay_initial[i][j];
+        }
+        for (int j = 0; j< N_neurons; ++j)
+            EnableIPSP[i][j] = other.EnableIPSP[i][j];
     }
 
-    // Deep copy for vectors
-    History_time = new vector<double>[N_neurons];
-    History_type = new vector<int>[N_neurons];
-    History_ID = new vector<int>[N_neurons];
-    History_ev_class = new vector<pair<int, int>>[N_neurons];
-    Fire_time = new vector<double>[N_neurons];
+
+    History_time = new std::vector<double>[N_neurons];
+    History_type = new std::vector<int>[N_neurons];
+    History_ID = new std::vector<int>[N_neurons];
+    History_ev_class = new std::vector<std::pair<int, int>>[N_neurons];
+    Fire_time = new std::vector<double>[N_neurons];
 
     for (int i = 0; i < N_neurons; ++i) {
         History_time[i] = other.History_time[i];
@@ -1086,26 +1142,39 @@ void SNN::copy_from(const SNN& other) {
         Fire_time[i] = other.Fire_time[i];
     }
 
+    // Copy the Neuron_layer array
     Neuron_layer = new int[N_neurons];
-    copy(other.Neuron_layer, other.Neuron_layer + N_neurons, Neuron_layer);
+    for (int i = 0; i < N_neurons; ++i) {
+        Neuron_layer[i] = other.Neuron_layer[i];
+    }
 
+    // Copy the sumweight array
     sumweight = new float[N_neurons];
-    copy(other.sumweight, other.sumweight + N_neurons, sumweight);
+    for (int i = 0; i < N_neurons; ++i) {
+        sumweight[i] = other.sumweight[i];
+    }
 
+    // Copy the sumdelays array
     sumdelays = new double[N_neurons];
-    copy(other.sumdelays, other.sumdelays + N_neurons, sumdelays);
+    for (int i = 0; i < N_neurons; ++i) {
+        sumdelays[i] = other.sumdelays[i];
+    }
 
+    // Copy the N_neuronsL array
     N_neuronsL[0] = other.N_neuronsL[0];
     N_neuronsL[1] = other.N_neuronsL[1];
 
+    // Copy the random number generator
     if (myRNG) {
         delete myRNG;
     }
     myRNG = new TRandom3(*other.myRNG);
 
+    // Copy the remaining scalar values
     largenumber = other.largenumber;
     epsilon = other.epsilon;
 }
+
 
 
 void SNN::dumpToJson(const string& filename) {
@@ -1163,15 +1232,17 @@ void SNN::dumpToJson(const string& filename) {
         json delay_initial_row;
         json enable_ipsp_row;
 
-        for (int j = 0; j < N_neurons; ++j) {
+        for (int j = 0; j < N_streams; ++j) {
             weight_row.push_back(Weight[i][j]);
             weight_initial_row.push_back(Weight_initial[i][j]);
             check_ltd_row.push_back(check_LTD[i][j]);
             void_weight_row.push_back(Void_weight[i][j]);
             delay_row.push_back(Delay[i][j]);
             delay_initial_row.push_back(Delay_initial[i][j]);
-            enable_ipsp_row.push_back(EnableIPSP[i][j]);
         }
+
+        for (int j = 0; j < N_neurons; j++)
+            enable_ipsp_row.push_back(EnableIPSP[i][j]);
 
         weights[to_string(i)] = weight_row;
         weight_initials[to_string(i)] = weight_initial_row;
@@ -1283,12 +1354,12 @@ void SNN::loadFromJson(const string& filename) {
     EnableIPSP = new bool*[N_neurons];
 
     for (int i = 0; i < N_neurons; ++i) {
-        Weight[i] = new float[N_neurons];
-        Weight_initial[i] = new float[N_neurons];
-        check_LTD[i] = new bool[N_neurons];
-        Void_weight[i] = new bool[N_neurons];
-        Delay[i] = new double[N_neurons];
-        Delay_initial[i] = new double[N_neurons];
+        Weight[i] = new float[N_streams];
+        Weight_initial[i] = new float[N_streams];
+        check_LTD[i] = new bool[N_streams];
+        Void_weight[i] = new bool[N_streams];
+        Delay[i] = new double[N_streams];
+        Delay_initial[i] = new double[N_streams];
         EnableIPSP[i] = new bool[N_neurons];
     }
 
