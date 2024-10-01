@@ -107,7 +107,8 @@ void Encode(double t_in)
     {
         double time = t_in + row.phi / omega;
         int itl = GetStreamID(GetBinR(row.r), GetBinZ(row.z));
-
+        //if(row.id == SIG)
+        //    cout << itl << " " << time << endl;
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
         PreSpike_Signal.push_back(row.id); //1,2 -> respectively Backgroung, Signal
@@ -597,6 +598,7 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
         }
 
         double t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
+        cout << ievent << endl;
         Encode(t_in);
 
         // Loop on spikes and modify neuron and synapse potentials
@@ -1409,13 +1411,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             else
             {
                 double latency = 0.;
-                N_fires[in_first]++;
-                snn_in.Fire_time[in_first].push_back(min_fire_time);
-
+                
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
                 if(ievent < N_events * Train_fraction){
-                    snn_in.Compute_LTD(in_first, min_fire_time, nearest_spike_approx, snn_old);
-                    snn_in.LTP(in_first, min_fire_time, nearest_spike_approx, snn_old);
+                    snn_in.LTD_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
+                    snn_in.LTP_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
+                    snn_in.LTD_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
+                    snn_in.LTP_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
                 } 
                 //we are in the test phase
                 else{
@@ -1426,6 +1428,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     History_ev_class[in_first].insert(History_ev_class[in_first].end(), PreActivation_History.begin(), PreActivation_History.end());
 
                 }
+
+                N_fires[in_first]++;
+                snn_in.Fire_time[in_first].push_back(min_fire_time);
                 
                 // Reset history of this neuron
                 snn_in.Activate_Neuron(in_first, min_fire_time);
@@ -1451,9 +1456,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                         if(!snn_in.Void_weight[in][is]){
                             snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], snn_in.EPSP, is, snn_in.NOCLASS, ievent);
 
-                            //cout << "call ltd2 " << min_fire_time << " " << snn_in.Delay[in][is]<<endl;
-
-                            if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, min_fire_time + snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                         }
                     }
                 }
@@ -1547,9 +1549,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     { // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
                         snn_in.insert_spike(in, t+ snn_in.Delay[in][is], snn_in.EPSP, is, PreSpike_Class[ispike], ievent);
-
-                        //cout << "call ltd2 " << t <<" " << snn_in.Delay[in][is]<<endl;
-                        if(ievent < N_events * Train_fraction) snn_in.LTD(in, is, t+ snn_in.Delay[in][is], nearest_spike_approx, snn_old);
                     }
                 }
             }

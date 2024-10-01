@@ -1,4 +1,6 @@
 #include "SNN.h"
+#include <iostream>
+#include <cstring>
 
 using json = nlohmann::json;
 using namespace std;
@@ -732,7 +734,7 @@ float SNN::IE_potential(double delta_t, int in, int is)
 }
 
 //LTP rule for weights
-void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
+void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
     for (int is = 0; is < N_streams; is++)
     {            
@@ -742,7 +744,6 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
         check_LTD[in][is] = true;
         bool no_prespikes = true;
         int isp = History_time[in].size() - 1;
-        float delta_weight = 0;
 
         while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus)
         {
@@ -754,15 +755,28 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
                     Weight[in][is] = 1.;
 
                 no_prespikes = false;
-                delta_weight += Weight[in][is] - old.Weight[in][is];
-
+    
                 if (nearest_spike_approx)
                     break;
             }
             isp--;
         }
 
-        isp = History_time[in].size() - 1;
+        if (!no_prespikes)
+            Renorm_weights(in, old);
+    }
+    return;
+}
+
+void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &old)
+{
+    for (int is = 0; is < N_streams; is++)
+    {            
+        if (Void_weight[in][is])
+            continue;
+        
+        bool no_prespikes = true;
+        int isp = History_time[in].size() - 1;
         
         while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus)
         {
@@ -771,7 +785,7 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] += d_plus * exp(delta_t / taud_plus)*(-delta_t / taud_plus);
+                    Delay[in][is] += d_plus * exp(delta_t / taud_plus);
                     if (Delay[in][is] > MaxDelay)
                         Delay[in][is] = MaxDelay;
                 }
@@ -784,73 +798,25 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
         }
 
         if (!no_prespikes)
-            Renorm(in, old);
+            Renorm_delays(in, old);
     }
     return;
 }
 
-
-void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN &old)
+void SNN::LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
-    return;
-    if(!check_LTD[in][is]) return;
-    if (Fire_time[in].size() == 0){
-        //cout <<"skip" << endl; 
-        return;
-    }
-    if (Void_weight[in][is]){
-        //cout << "void skip" <<endl;
-        return;
-    }
-    
-    double delta_t = spike_time - Fire_time[in].front();
-    // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
-    if (nearest_spike_approx)
-        check_LTD[in][is] = false;
-
-    //cout << "Go " << delta_t << " " << spike_time<< " " << Fire_time[in].back() << endl;
-    if (delta_t >= 0 && delta_t < 7. * tau_minus)
-    {
-        Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
-                    
-        if (Weight[in][is] < 0.)
-            Weight[in][is] = 0.;
-     
-    }
-    if (delta_t >= 0 && delta_t < 7. * taud_minus)
-    {
-        if(is<N_InputStreams){
-            Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
-            
-            if (Delay[in][is] < 0.)
-                Delay[in][is] = 0.; 
-        }                    
-    }
-    Renorm(in, old);
-    if(delta_t >= 0 && delta_t < 7. * max(taud_minus, tau_minus)){
-        Fire_time[in].clear();
-    }
-    return;
-}
-
-//different approach: compute ltd bewtween two consecutive spikes
-void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &old)
-{
-    if (Fire_time[in].size() == 0){
-        cout <<"skip" << endl; 
-        return;
-    }
+    if (Fire_time[in].empty()) return;
 
     int isp = 1;
-    double previous_firetime = History_time[in].front();
+    double previous_firetime = Fire_time[in].back();
 
     for (int is = 0; is < N_streams; is++)
     {
         if (Void_weight[in][is])
             continue;
         
-        bool no_prespikes = true;  // Moved inside the loop to reset for each stream
-        isp = 1;  // Reset isp for each stream
+        bool no_prespikes = true; 
+        isp = 1; 
 
         while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * tau_minus && History_time[in][isp] < fire_time)
         {
@@ -870,7 +836,26 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp++;
         }
 
-        isp = 1;  // Reset isp again for the second loop
+        if (!no_prespikes)
+            Renorm_weights(in, old);
+    }
+    return;
+}
+
+void SNN::LTD_delays(int in, double fire_time, bool nearest_spike_approx, SNN &old)
+{
+    if (Fire_time[in].empty()) return;
+
+    int isp = 1;
+    double previous_firetime = Fire_time[in].back();
+
+    for (int is = 0; is < N_streams; is++)
+    {
+        if (Void_weight[in][is])
+            continue;
+        
+        bool no_prespikes = true;  
+
         while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * taud_minus && History_time[in][isp] < fire_time)
         { 
             double delta_t = History_time[in][isp] - previous_firetime;
@@ -878,7 +863,7 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus)*(delta_t / taud_minus);
+                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus); 
                     if (Delay[in][is] < 0.)
                         Delay[in][is] = 0.;
                 }
@@ -891,13 +876,12 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
         }
         
         if (!no_prespikes)
-            Renorm(in, old);
+            Renorm_delays(in, old);
     }
     return;
 }
 
-
-void SNN::Renorm(int in, SNN &old) {
+void SNN::Renorm_weights(int in, SNN &old) {
     if (in < 0 || in >= N_neurons) {
         std::cerr << "Error: Index 'in' out of bounds in Renorm. Aborting operation." << std::endl;
         return;
@@ -908,18 +892,51 @@ void SNN::Renorm(int in, SNN &old) {
         return;
     }
 
-    if (!Void_weight || !Weight || !Delay || !sumdelays || !old.Weight) {
+    if (!Void_weight || !Weight || !old.Weight) {
         std::cerr << "Error: Null pointer encountered in Renorm. Aborting operation." << std::endl;
         return;
     }
 
     float weight_sum = 0.0;
-    double delay_factor = 0.0;
-
     // Calculate the sum of weights for the 'in' neuron
     for (int is = 0; is < N_streams; is++) {
         if (is < N_neurons && !Void_weight[in][is]) {
             weight_sum += Weight[in][is];
+        }
+    }
+
+    // Check if the sum is greater than 0 to avoid division by zero
+    if (weight_sum > 0.0) {
+        // Normalize the weights for the 'in' neuron
+        for (int is = 0; is < N_streams; is++) {
+            if (is < N_neurons && !Void_weight[in][is]) {
+                Weight[in][is] =  Weight[in][is]/weight_sum;
+                old.Weight[in][is] = Weight[in][is];
+            }
+        }
+    }
+}
+
+void SNN::Renorm_delays(int in, SNN &old) {
+    if (in < 0 || in >= N_neurons) {
+        std::cerr << "Error: Index 'in' out of bounds in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
+    if (N_streams <= 0) {
+        std::cerr << "Error: N_streams is non-positive in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
+    if (!Delay || !sumdelays) {
+        std::cerr << "Error: Null pointer encountered in Renorm. Aborting operation." << std::endl;
+        return;
+    }
+
+    double delay_factor = 0.0;
+
+    for (int is = 0; is < N_streams; is++) {
+        if (is < N_neurons && !Void_weight[in][is]) {
             delay_factor += Delay[in][is];
         }
     }
@@ -932,32 +949,14 @@ void SNN::Renorm(int in, SNN &old) {
     delay_factor /= sumdelays[in];
 
     // Check if the sum is greater than 0 to avoid division by zero
-    if (weight_sum > 0.0) {
+    if (delay_factor > 0.0) {
         // Normalize the weights for the 'in' neuron
         for (int is = 0; is < N_streams; is++) {
-            if (is < N_neurons && !Void_weight[in][is]) {
-                old.Weight[in][is] = Weight[in][is];
-            }
             if (is < N_neurons) {
                 Delay[in][is] /= delay_factor;
             }
         }
     }
-}
-
-
-void SNN::Renorm_Opt(int in, float delta_weight, SNN &old)
-{
-    float norm_factor = 1. + delta_weight;
-    for (int is = 0; is < N_streams; is++)
-    {
-        if (!Void_weight[in][is])
-        {
-            Weight[in][is] /= norm_factor;
-            old.Weight[in][is] = Weight[in][is];
-        }
-    }
-    return;
 }
 
 void SNN::PrintWeights(){
@@ -1025,9 +1024,6 @@ void SNN::PrintSNN(){
     cout << "split layer0 = " << split_layer0 << endl;
     cout << "-------------------------------------" << endl;
 }
-
-#include <iostream>
-#include <cstring> // for std::memset, std::memcpy
 
 void SNN::copy_from(const SNN& other) {
     // Deallocate previously allocated memory
@@ -1174,8 +1170,6 @@ void SNN::copy_from(const SNN& other) {
     largenumber = other.largenumber;
     epsilon = other.epsilon;
 }
-
-
 
 void SNN::dumpToJson(const string& filename) {
     json j;
