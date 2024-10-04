@@ -130,7 +130,6 @@ public:
     void Set_weights();
     void Reset_weights();
 
-    void Init_delays_PERT();
     void Init_delays_man();
     void Init_delays_gauss();
     void Init_delays_uniform();

@@ -1161,7 +1161,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     int count_classes[N_ev_classes+1] = {}; 
 
-    // TODO: implement clone method
     SNN snn_best;
     SNN snn_old;
 
@@ -1421,7 +1420,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 } 
                 //we are in the test phase
                 else{
-                    //TODO: continue here
                     //loop back on the history of spikes to check if the neuron is reacting to noise or signal
                     auto PreActivation_History = snn_in.Inspect_History(in_first, min_fire_time, window);
                     History_ev_class[in_first].reserve(History_ev_class[in_first].size() + PreActivation_History.size());
@@ -1711,8 +1709,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             Q = Compute_Q(averefftotL1, averacctotL1, selectivityL1);
             Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
 
+            // TODO: Something to be fixed: we find acceptance greater than 1
             //--------------- New method to calculate efficiency, fake rate, Q value ----------------
-            /*
             bool Check_class[N_ev_classes];
             fill_n(Check_class, N_ev_classes, false);
             for(int in = 0; in < snn_in.N_neurons; in++){
@@ -1776,11 +1774,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 FakeRate_window[in]->SetBinContent(iepoch, FP_rate);
 
                 cout << "Neuron " << in << ":" << endl;
-                cout << "   - Fake fires: " << random_fire_window[in] << endl;
-                cout << "   - FP rate : " << FP_rate  << endl;
+                cout << "   - FP rate : " << FP_rate * 100 << endl;
 
             }
-            */
+
             // ------------------------------------------------------------------------
 
             // Fix maximum excursion of parameters with a schedule

@@ -131,6 +131,6 @@ static const bool nearest_spike_approx_weights = false; // Used to turn on the n
 static const bool nearest_spike_approx_delays = true; // Used to turn on the nearest spike approximation inside LTD and LTP functions
 static int N_display = 500;
 static float Train_fraction = 0.9;
-static double window = _tau_m*7.;
+static double window = _tau_m*3.;
 
 #endif // SNNT_CONSTANTS_H

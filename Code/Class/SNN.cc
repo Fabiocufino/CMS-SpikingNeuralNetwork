@@ -596,6 +596,9 @@ double SNN::Neuron_firetime(int in, double t)
 
 //function to extract the unique values in a subset of a vector
 vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs, int start_idx, int end_idx) {
+    if (start_idx < 0 || end_idx >= my_pairs.size() || start_idx > end_idx) {
+        throw std::out_of_range("Index out of bounds in uniquePairsInRange");
+    }
     vector<pair<int, int>> range_subset(my_pairs.begin() + start_idx, my_pairs.begin() + end_idx + 1);
 
     // Sort the subrange
@@ -617,7 +620,9 @@ vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double wi
     //find the position of the fire_time and the first spike in the window
     int start_pos = distance(History_time[in].begin(), lower_bound(History_time[in].begin(), History_time[in].end(), fire_time - window));
     int end_pos   = distance(History_time[in].begin(), upper_bound(History_time[in].begin(), History_time[in].end(), fire_time));
-
+    if (end_pos >= History_ev_class[in].size()) {
+        end_pos = History_ev_class[in].size() - 1;
+    }
     return (uniquePairsInRange(History_ev_class[in], start_pos, end_pos));
     
 }
