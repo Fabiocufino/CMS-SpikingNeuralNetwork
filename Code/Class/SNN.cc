@@ -68,7 +68,8 @@ SNN::SNN(int _NL0, int _NL1,
     N_neuronsL[1] = _NL1;
     N_neurons = N_neuronsL[0] + N_neuronsL[1];
     N_streams = N_InputStreams + _NL0;
-    tmax = tau_s * tau_m / (tau_m - tau_s) * (log(tau_m) - log(tau_s));
+    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
+
     MaxDeltaT = 7. * tau_m;
 
     fire_granularity = tau_s / 5.;
@@ -204,6 +205,7 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, function
 // ----------------------------
 void SNN::Init_neurons(int ievent)
 {
+
     for (int in = 0; in < N_neurons; in++)
     {
         // Set first event in history of this neuron
@@ -767,8 +769,9 @@ void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp--;
         }
 
-        if (!no_prespikes)
-            Renorm_weights(in, old);
+        // Decomment if you want to renormalize the weights
+        //if (!no_prespikes)
+        //    Renorm_weights(in, old);
     }
     return;
 }
@@ -786,13 +789,20 @@ void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
         while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus)
         {
             double delta_t = History_time[in][isp] - fire_time;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t <= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t < 0) 
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] += d_plus * exp(delta_t / taud_plus);
-                    if (Delay[in][is] > MaxDelay)
-                        Delay[in][is] = MaxDelay;
+                    if(delta_t < -tmax){
+                        Delay[in][is] += d_plus * exp(delta_t / taud_plus);
+                        if (Delay[in][is] > MaxDelay)
+                            Delay[in][is] = MaxDelay;
+                    }
+                    else{
+                        Delay[in][is] -= d_minus * exp(delta_t / taud_minus); 
+                        if (Delay[in][is] < 0.)
+                            Delay[in][is] = 0.;
+                    } 
                 }
                 no_prespikes = false;
 
@@ -841,8 +851,9 @@ void SNN::LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp++;
         }
 
-        if (!no_prespikes)
-            Renorm_weights(in, old);
+        // Decomment if you want to renormalize the weights
+        //if (!no_prespikes)
+        //    Renorm_weights(in, old);
     }
     return;
 }
@@ -860,15 +871,16 @@ void SNN::LTD_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
             continue;
         
         bool no_prespikes = true;  
+        isp = 1;
 
         while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * taud_minus && History_time[in][isp] < fire_time)
         { 
             double delta_t = History_time[in][isp] - previous_firetime;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t >= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t > 0) 
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus); 
+                    Delay[in][is] -= d_minus * exp(- delta_t / taud_minus); 
                     if (Delay[in][is] < 0.)
                         Delay[in][is] = 0.;
                 }

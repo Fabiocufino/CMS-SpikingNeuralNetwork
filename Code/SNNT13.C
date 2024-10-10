@@ -127,7 +127,8 @@ void Encode(double t_in)
         PreSpike_Time.push_back(time);
         PreSpike_Stream.push_back(itl);
         PreSpike_Signal.push_back(row.id); // 1,2 -> respectively Backgroung, Signal
-        PreSpike_Class.push_back(row.pclass + N_classes); //ghost particle -> I indicate it with a shifted pclass
+        if(row.pclass >= 0) PreSpike_Class.push_back(row.pclass + N_classes); //ghost particle -> I indicate it with a shifted pclass
+        else PreSpike_Class.push_back(row.pclass);
     }
 }
 
@@ -536,7 +537,6 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
             {
                 type = SIG;
                 pclass = (int)cluster_pclass;
-                N_part = 1;
                 phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
                 if (phi >= 2. * M_PI)
                     phi -= 2. * M_PI;
@@ -1133,6 +1133,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int gen_sum[N_ev_classes];
     int fired_anyL0[N_ev_classes];
     int fired_anyL1[N_ev_classes];
+    int N_train = NevPerEpoch * Train_fraction;
+    int N_test  = NevPerEpoch - N_train;
     
     for (int ic = 0; ic < N_ev_classes; ic++)
     {
@@ -1149,7 +1151,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     float averacctotL0 = 0.;
     float averefftotL1 = 0.;
     float averacctotL1 = 0.;
-    vector<pair<int, int>> *History_ev_class = new vector<pair <int, int>>[snn_in.N_neurons];
+    vector<vector<vector<pair<int, int>>>> History_ev_class(snn_in.N_neurons);
 
     Eff = new float[snn_in.N_neurons * N_ev_classes];
     Eff_window = new float[snn_in.N_neurons * N_ev_classes];
@@ -1412,7 +1414,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 double latency = 0.;
                 
                 // Learn weights with spike-time-dependent plasticity: long-term synaptic potentiation
-                if(ievent < N_events * Train_fraction){
+                if(iev_thisepoch < N_train){
                     snn_in.LTD_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
                     snn_in.LTP_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
                     snn_in.LTD_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
@@ -1422,8 +1424,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 else{
                     //loop back on the history of spikes to check if the neuron is reacting to noise or signal
                     auto PreActivation_History = snn_in.Inspect_History(in_first, min_fire_time, window);
-                    History_ev_class[in_first].reserve(History_ev_class[in_first].size() + PreActivation_History.size());
-                    History_ev_class[in_first].insert(History_ev_class[in_first].end(), PreActivation_History.begin(), PreActivation_History.end());
+
+                    // Use push_back() to add the retrieved history as a new activation entry
+                    History_ev_class[in_first].push_back(PreActivation_History);
 
                 }
 
@@ -1440,7 +1443,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         if (snn_in.Neuron_layer[in2] == snn_in.Neuron_layer[in_first])
                         { // inhibitions within layer or across
-                            snn_in.insert_spike(in2, min_fire_time, snn_in.IPSP, snn_in.N_InputStreams + in_first, snn_in.NOCLASS, ievent);
+                            snn_in.insert_spike(in2, min_fire_time, snn_in.IPSP, snn_in.N_InputStreams + in_first, snn_in.NOCLASS, iev_thisepoch);
                         }
                     }
                 }
@@ -1452,7 +1455,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     {
                         int is = snn_in.N_InputStreams + in_first;
                         if(!snn_in.Void_weight[in][is]){
-                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], snn_in.EPSP, is, snn_in.NOCLASS, ievent);
+                            snn_in.insert_spike(in, min_fire_time + snn_in.Delay[in][is], snn_in.EPSP, is, snn_in.NOCLASS, iev_thisepoch);
 
                         }
                     }
@@ -1485,12 +1488,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 }
                 else
                 {
-                    if (not_filled[in_first] && iev_thisepoch > NevPerEpoch * Train_fraction)
+                    if (not_filled[in_first] && iev_thisepoch >= N_train)
                     {
                         random_fire[in_first]++;
                         not_filled[in_first] = false;
                     }
-                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
+                    if (in_first >= snn_in.N_neuronsL[0] && iev_thisepoch >= N_train)
                     { // for Q-value calculations
                         if (not_fired_bgr)
                         {
@@ -1498,7 +1501,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                             not_fired_bgr = false;
                         }
                     }
-                    else if (in_first <= snn_in.N_neuronsL[0] && iev_thisepoch > NevPerEpoch * Train_fraction)
+                    else if (in_first <= snn_in.N_neuronsL[0] && iev_thisepoch >= N_train)
                     { // for Q-value calculations
                         if (not_fired_bgr_L0)
                         {
@@ -1546,7 +1549,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                     if (!snn_in.Void_weight[in][is])
                     { // otherwise stream "is" does not lead to neuron "in"
                         // All input spikes lead to EPSP
-                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], snn_in.EPSP, is, PreSpike_Class[ispike], ievent);
+                        snn_in.insert_spike(in, t+ snn_in.Delay[in][is], snn_in.EPSP, is, PreSpike_Class[ispike], iev_thisepoch);
                     }
                 }
             }
@@ -1556,7 +1559,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         if (N_part > 0)
         {
             // efficiency calculations only in the last 10% of the epoch
-            if (iev_thisepoch > NevPerEpoch * Train_fraction)
+            if (iev_thisepoch >= N_train)
             {
                 //second stat way
                 
@@ -1710,57 +1713,46 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             Q_L0 = Compute_Q(averefftotL0, averacctotL0, selectivityL0);
 
             // TODO: Something to be fixed: we find acceptance greater than 1
-            //--------------- New method to calculate efficiency, fake rate, Q value ----------------
-            bool Check_class[N_ev_classes];
-            fill_n(Check_class, N_ev_classes, false);
+            //--------------- New method to calculate efficiency, fake rate, Q value ----------------ù
+            
             for(int in = 0; in < snn_in.N_neurons; in++){
+                vector<vector<bool>> Check_class(N_test, vector<bool>(N_ev_classes, false));
                 
-                int current_event = History_ev_class[in].back().first;
-                bool fake_fire = true;
-                //just to don't loose the last test event
-                History_ev_class[in].push_back({-1, snn_in.NOCLASS});
-                //scan back the history to calculate efficiencies
-                for(auto &&ev_class: History_ev_class[in]){
-                    if (ev_class.first != current_event){
-                        //if just background hits -> it's a false positive
-                        if(fake_fire) random_fire_window[in]++;
-                        //prepare for the next event
-                        fake_fire = true;
-                        fill_n(Check_class, N_ev_classes, false);
-                        current_event = ev_class.first;
-                    }
-                    int id_class = ev_class.second;
+                for (int iactivation = 0; iactivation < History_ev_class[in].size(); ++iactivation) {
+                    bool fake_fire = true;
 
-                    //the past of the neuron contains background hits
-                    if (id_class==snn_in.BKGCLASS) fake_fire = true;
-                    else if(id_class>=snn_in.SIGCLASS){
-                        //the neuron has fired after a particle
-                        //if it's a ghost, let's check if has already seen the particle
-                        if(id_class > N_classes-1){
-                            id_class-= N_classes;
-                            if (!Check_class[id_class])
-                            {
-                                Check_class[id_class] = true;
-                                fired_sum_window[id_class][in]++;
-                            }                            
+                    for (auto&& ev_class : History_ev_class[in][iactivation]) {
+                        int event_index = ev_class.first - N_train;
+                        int id_class = ev_class.second;
+
+                        // Check if the event index is within the valid range
+                        if (event_index < 0 || event_index >= N_test) {
+                            cout << "Warning: event_index " << event_index << " is out of range for neuron " << in << endl;
+                            continue; // Skip to the next event if it's out of range
                         }
-                        else{
-                            if(!Check_class[id_class]){
-                                if(id_class<0 || id_class>2) cout << id_class << endl;
-                                Check_class[id_class] = true;
+
+                        if(id_class >= snn_in.SIGCLASS){
+                            if (id_class >= N_classes) id_class-=N_classes;
+                            fake_fire = false;
+                            //If it's the first time that he's firing for this class
+                            if(!Check_class[event_index][id_class]){
+                                //Update the flag
+                                Check_class[event_index][id_class] = true;
+                                //Increment for the efficiency
                                 fired_sum_window[id_class][in]++;
-                                
                             }
-                        }
-                        fake_fire = false;
-                    }                   
+                        }                    
+                    }
+                    //If it didn't receive any particle hit in the window -> increment Fake Fire
+                    if(fake_fire) random_fire_window[in]++;
                 }
 
+                cout << "Fired sum window " << in << endl;    
                 //produce the metrics
                 int total_fire = 0;
                 for (int ic = 0; ic < N_ev_classes; ic++)
                 {
-
+                    cout << ic << ": " << fired_sum_window[ic][in] << endl;
                     total_fire+=fired_sum_window[ic][in];
                     int combind = ic + N_ev_classes * in;
                     Eff_window[combind] = fired_sum_window[ic][in];
@@ -1794,7 +1786,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
             
             // Re-initialize neurons
-            snn_in.Init_neurons(ievent);
+            snn_in.Init_neurons(iev_thisepoch);
             // Reset hits
             Reset_hits();
 
