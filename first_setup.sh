@@ -57,4 +57,9 @@ else
     echo "SNN_PATH is set to current directory."
 fi
 
+
+if ! [[ -e "Code/Data/muons_100k_100br_new.root" ]];then
+    wget -o - -O Code/Data/muons_100k_100br_new.root "https://www.dropbox.com/scl/fi/w7rgcgnv4pd9gusy70yt5/muons_100k_100br_new.root?rlkey=tmxrj8ckqjgcaidwdssph9w2e&st=zbch3kpb&dl=0"
+fi
+
 echo "Execution terminated"

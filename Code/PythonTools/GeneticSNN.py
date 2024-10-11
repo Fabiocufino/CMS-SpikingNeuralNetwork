@@ -5,15 +5,10 @@ import operator
 from array import *
 import sys 
 import os
-
 import subprocess
 import re
-
 import pygad
-
-
 import time
-
 import subprocess
 import re
 
