@@ -769,8 +769,9 @@ void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp--;
         }
 
-        if (!no_prespikes)
-            Renorm_weights(in, old);
+        // Decomment if you want to renormalize the weights
+        //if (!no_prespikes)
+        //    Renorm_weights(in, old);
     }
     return;
 }
@@ -798,7 +799,7 @@ void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
                             Delay[in][is] = MaxDelay;
                     }
                     else{
-                        Delay[in][is] -= d_minus * exp(delta_t / taud_minus); //* exp(-is/10)
+                        Delay[in][is] -= d_minus * exp(delta_t / taud_minus); 
                         if (Delay[in][is] < 0.)
                             Delay[in][is] = 0.;
                     } 
@@ -850,8 +851,9 @@ void SNN::LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
             isp++;
         }
 
-        if (!no_prespikes)
-            Renorm_weights(in, old);
+        // Decomment if you want to renormalize the weights
+        //if (!no_prespikes)
+        //    Renorm_weights(in, old);
     }
     return;
 }
@@ -878,7 +880,7 @@ void SNN::LTD_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] -= d_minus * exp(- delta_t / taud_minus); //* exp(-is/10)
+                    Delay[in][is] -= d_minus * exp(- delta_t / taud_minus); 
                     if (Delay[in][is] < 0.)
                         Delay[in][is] = 0.;
                 }
