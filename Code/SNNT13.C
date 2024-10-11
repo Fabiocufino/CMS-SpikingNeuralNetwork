@@ -2843,13 +2843,13 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     cout << endl;
     cout << "         Optimization results" << endl;
     cout << "         -----------------------------------" << endl;
-    cout << "               Average efficiency L0: " << Eff_best_L0 * 100 << endl;
-    cout << "                Average fake rate L0: " << Acc_best_L0 * 100 << endl;
+    cout << "               Average efficiency L0: " << Eff_best_L0 << endl;
+    cout << "                Average fake rate L0: " << Acc_best_L0 << endl;
     cout << "                  Maximum Q value L0: " << Q_best_L0 << endl;
     cout << "                   L0 selectivity: " << SelL0_best << endl;
     cout << endl;
-    cout << "               Average efficiency L1: " << Eff_best_L1 * 100 << endl;
-    cout << "                Average fake rate L1: " << Acc_best_L1 * 100 << endl;
+    cout << "               Average efficiency L1: " << Eff_best_L1 << endl;
+    cout << "                Average fake rate L1: " << Acc_best_L1 << endl;
     cout << "                  Maximum Q value L1: " << Q_best_L1 << endl;
     cout << "                   L1 selectivity: " << SelL1_best << endl;
     cout << endl;

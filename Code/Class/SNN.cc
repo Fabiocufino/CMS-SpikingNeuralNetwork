@@ -599,7 +599,10 @@ double SNN::Neuron_firetime(int in, double t)
 //function to extract the unique values in a subset of a vector
 vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs, int start_idx, int end_idx) {
     if (start_idx < 0 || end_idx >= my_pairs.size() || start_idx > end_idx) {
+        cout << "start_idx: " << start_idx << " end_idx: " << end_idx << " my_pairs.size(): " << my_pairs.size() << endl;
         throw std::out_of_range("Index out of bounds in uniquePairsInRange");
+        //print start_idx, end_idx e my_pairs.size()
+        
     }
     vector<pair<int, int>> range_subset(my_pairs.begin() + start_idx, my_pairs.begin() + end_idx + 1);
 
