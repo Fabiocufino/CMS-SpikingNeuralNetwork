@@ -1,0 +1,16 @@
+--------------------------- 400
+Command: ../SNNT13.out --NL0 5.0 --NL1 9.0 --N_ev 1000 --tau_m 2.3580382939499478e-09 --tau_s 5.29453733063951e-09 --tau_r 5.713217852922286e-09 --tau_plus 3.955399752966471e-09 --tau_minus 3.281658800370261e-09 --a_plus 3.3137330285075864e-05 --a_minus 6.72482003963588e-05 --CFI0 0.6303126550654692 --CF01 0.6104608580404224 --CFI1 0.7640033789774957 --alpha 0.5689785467097767 --TH0 0.6586971117116692 --TH1 0.6476152303458822 --K 5.702758309341667 --K1 6.972890545226726 --K2 2.100276868364444 --IPSP_dt_dilation 0.12290196234769375 --file_id_GS 400
+--------------------------- 400
+Command: ../SNNT13.out --NL0 9.0 --NL1 8.0 --N_ev 1000 --tau_m 9.739532665715354e-09 --tau_s 8.245427684901917e-09 --tau_r 3.2543641698863885e-09 --tau_plus 6.4660542088787695e-09 --tau_minus 4.350222799676593e-09 --a_plus 7.633210344294625e-05 --a_minus 8.250057494522306e-05 --CFI0 0.5481968393256504 --CF01 0.6476660301178212 --CFI1 0.6949769168648754 --alpha 0.6190374847631986 --TH0 0.7694996109668037 --TH1 0.9331554550088786 --K 1.2358102348454083 --K1 9.914127857293119 --K2 4.8307840334412155 --IPSP_dt_dilation 0.10549786451519994 --file_id_GS 400
+--------------------------- 400
+Command: ../SNNT13.out --NL0 10.0 --NL1 6.0 --N_ev 1000 --tau_m 7.874906304707861e-09 --tau_s 9.966189831984617e-09 --tau_r 1.4231803288398232e-09 --tau_plus 2.0695866274554051e-10 --tau_minus 6.596099255420045e-09 --a_plus 5.586362564329073e-05 --a_minus 6.623863241682994e-05 --CFI0 0.8087583776458959 --CF01 0.8875655866569169 --CFI1 0.7570786191152457 --alpha 0.40013321568397864 --TH0 0.8158554948808409 --TH1 0.8014786599067951 --K 7.8718373975502685 --K1 8.614058677491574 --K2 5.691222269589575 --IPSP_dt_dilation 0.22516326444680554 --file_id_GS 400
+--------------------------- 400
+Command: ../SNNT13.out --NL0 5.0 --NL1 7.0 --N_ev 1000 --tau_m 6.4297254136136455e-09 --tau_s 5.407219853897175e-09 --tau_r 9.692192735752864e-09 --tau_plus 7.386040276615035e-09 --tau_minus 7.857819673335603e-09 --a_plus 2.069574163744215e-05 --a_minus 7.727738908530218e-05 --CFI0 0.6539566579078142 --CF01 0.8003663488060855 --CFI1 0.8793447369729364 --alpha 0.31226069882262514 --TH0 0.603546047930565 --TH1 0.8265606298520074 --K 1.7727002780668257 --K1 5.548314519263112 --K2 5.101153493610665 --IPSP_dt_dilation 0.6625765198523945 --file_id_GS 400
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_400.json'
+Error during the execution of SNN: 'NoneType' object is not subscriptable
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_400.json'
+Error during the execution of SNN: 'NoneType' object is not subscriptable
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_400.json'
+Error during the execution of SNN: 'NoneType' object is not subscriptable
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_400.json'
+Error during the execution of SNN: 'NoneType' object is not subscriptable

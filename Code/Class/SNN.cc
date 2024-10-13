@@ -1309,6 +1309,17 @@ void SNN::dumpToJson(const string& filename) {
     j["largenumber"] = largenumber;
     j["epsilon"] = epsilon;
 
+    // dump the efficiency
+    int efficiency = -999;
+    int fake_rate = -999;
+    int Q_val = -999;
+    int selectivity = -999;
+
+    j["Efficiency"] = efficiency;
+    j["Fake_rate"] = fake_rate;
+    j["Q"] = Q_val;
+    j["Selectivity"] = selectivity;
+
     ofstream file(filename);
     file << j.dump(4);
 }

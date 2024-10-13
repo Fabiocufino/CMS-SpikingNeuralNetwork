@@ -9,15 +9,29 @@ import subprocess
 import re
 import pygad
 import time
-import subprocess
-import re
+import json
 
-def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2,IPSP_dt_dilation ):
+# PATHS
+PATH_JSON = '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/'
+
+# Function to read JSON files
+def read_json_file(file_path):
     try:
-        command = f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --{K} --{K1} --{K2} --{IPSP_dt_dilation}'
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+            return data
+    except Exception as e:
+        print(f"Error during the reading of the JSON file: {e}")
+        return None
+
+# Function to run SNN with the given parameters and file ID
+def run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation, file_id_GS):
+    try:
+        command = f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --K {K} --K1 {K1} --K2 {K2} --IPSP_dt_dilation {IPSP_dt_dilation} --file_id_GS {file_id_GS}'
+
+        print(f"Command: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
-
         values = {
             'Eff': 0,
             'Fr': 0,
@@ -25,45 +39,52 @@ def run_SNN(N_ev,NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_m
             'Selectivity': 0,
         }
 
-        for line in iter(process.stdout.readline, ''):
-            line = line.strip()
-
-            print(line)
-            if 'Average efficiency:' in line:
-                match = re.search(r'Average efficiency: (\d+\.?\d*)', line)
-                if match:
-                    values['Eff'] = float(match.group(1))
-                else:
-                    values['Eff'] = 0
-                    
-            elif 'Average fake rate:' in line:
-                match = re.search(r'Average fake rate: (\d+\.?\d*)', line)
-                if match:
-                    values['Fr'] = float(match.group(1))
-            elif 'Maximum Q value:' in line:
-                match = re.search(r'Maximum Q value: (\d+\.?\d*)', line)
-                if match:
-                    values['Q'] = float(match.group(1))
-            elif 'L1 selectivity:' in line:
-                match = re.search(r'L1 selectivity: (\d+\.?\d*)', line)
-                if match:
-                    values['Selectivity'] = float(match.group(1))
-        
-        process.stdout.close()
+        #wait for the process to terminate
         process.wait()
-        
+
+        # Read the output of the SNN
+        data_js = read_json_file(PATH_JSON + 'Parameters_' + file_id_GS + '.json')
+
+        values['Eff'] = data_js['Efficiency']
+        values['Fr'] = data_js['Fake_rate']
+        values['Q'] = data_js['Q']
+        values['Selectivity'] = data_js['Selectivity']
+
         return values
     
     except Exception as e:
         print(f"Error during the execution of SNN: {e}")
         return None
 
-# Fitness function for multi-objective optimization
+# Function to generate solution index
+def generate_solution_idx(population_size, generation_number):
+    """
+    Generates a solution index based on the population size and generation number.
+
+    Args:
+        population_size (int): The total size of the population.
+        generation_number (int): The current generation number.
+
+    Returns:
+        int: The solution index as a four-digit integer.
+    """
+    population_digits = str(population_size)[:2]  # Get the first two digits of the population size
+    generation_digits = str(generation_number).zfill(2)  # Get the last two digits of the generation number
+    solution_idx = int(population_digits + generation_digits)  # Combine and convert to integer
+    return solution_idx
+
+# Your original fitness function
 def fitness_func(ga_instance, solution, solution_idx):
+    # Extract the current generation and population size from the GA instance
+    current_generation = ga_instance.generations_completed
+    population_size = len(ga_instance.population)
+
     N_ev = 1000
+    print("---------------------------", solution_idx)
+
     NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation = solution
 
-    output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation)
+    output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation, str(solution_idx))
     
     if output_values is None:
         return [1000, 1000, 1000]  # Large values to indicate failure
@@ -75,17 +96,20 @@ def fitness_func(ga_instance, solution, solution_idx):
     # Minimize fake rate (thus using 1/(fake_rate + 1e-6) in fitness)
     fitness = [efficiency, 1/(fake_rate + 1e-6), selectivity]
 
-    # Append the solution and its fitness to the CSV file, but save the real fake_rate
+    # Append the solution and its fitness to the CSV file
     with open('values_ga_30k.csv', 'a') as file:
-        file.write(','.join(map(str, solution)) + ',' + str(efficiency) + ',' + str(fake_rate) + ',' + str(selectivity) + '\n')
+        file.write(','.join(map(str, solution)) + ',' + str(efficiency) + ',' + str(fake_rate) + ',' + str(selectivity) + ',' + str(current_generation) + ',' + str(population_size) + '\n')
 
     return fitness
 
+# Wrapper function to ensure the correct parameters are passed
+def fitness_func_wrapper(ga_instance, solution, solution_idx):
+    solution_idx = generate_solution_idx(ga_instance.population.shape[0], ga_instance.generations_completed)
+    return fitness_func(ga_instance, solution, solution_idx)
 
 # Create the values.csv and write the header
 with open('values_ga_30k.csv', 'w') as file:
     file.write('NL0, NL1,tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,K,K1,K2,IPSP_dt_dilation,Efficiency,FakeRate,Selectivity\n')
-
 
 # Gene space --------------------------
 NLO_MIN, NLO_MAX = 5, 12
@@ -131,7 +155,6 @@ gene_space = [
 ]
 # --------------------------
 
-
 ## Algorithm
 
 # GA Configuration
@@ -140,19 +163,22 @@ num_parents_mating = 4
 sol_per_pop = 4
 num_genes = len(gene_space)
 
-
+# Initialize the GA instance with the wrapper function
 ga_instance = pygad.GA(num_generations=num_generations,
                        num_parents_mating=num_parents_mating,
                        sol_per_pop=sol_per_pop,
                        num_genes=num_genes,
-                       fitness_func=fitness_func,
+                       fitness_func=fitness_func_wrapper,  # Use the wrapper
                        gene_space=gene_space,
                        parent_selection_type='nsga2',
                        crossover_type="single_point",
                        mutation_type="random",
                        parallel_processing=["thread", 28],
                        save_best_solutions=True,
-                       on_generation=lambda ga_instance: print(f"Generation: {ga_instance.generations_completed}"))
+                       on_generation=lambda ga_instance: print(
+                           f"Generation: {ga_instance.generations_completed}, "
+                           f"Population Size: {len(ga_instance.population)}"
+                       ))
 
 # Run the GA
 ga_instance.run()
@@ -162,10 +188,11 @@ ga_instance.plot_fitness()
 
 # Get the best solution
 solution, solution_fitness, solution_idx = ga_instance.best_solution()
+population_size = 10  # Example population size
+solution_idx = generate_solution_idx(population_size, ga_instance.generations_completed)
 print(f"Parameters of the best solution: {solution}")
 print(f"Fitness value of the best solution: {solution_fitness}")
 
-# Note: Saving the best solution separately is optional since all solutions are being saved during the run.
 # Save the best solution to the CSV file
 with open('values_ga_30k.csv', 'a') as file:
     file.write(','.join(map(str, solution)) + ',' + ','.join(map(str, solution_fitness)) + '\n')
