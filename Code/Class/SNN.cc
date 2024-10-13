@@ -476,6 +476,27 @@ void SNN::Init_connection_map()
 
 //Function to insert new spikes in the correct temporal position
 void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class, int ievent){
+    // Inserts a spike event into the history of a specified neuron in the SNN
+    //
+    // Input:
+    // - int id_neuron: The identifier of the neuron to which the spike event belongs.
+    // - double spike_time: The time at which the spike occurs.
+    // - int type: The type of the spike (e.g., excitatory or inhibitory).
+    // - int id: The identifier of the synapse.
+    // - int spike_class: The class/category of the spike (e.g., signal, background).
+    // - int ievent: The index for the event related to this spike.
+    //
+    // Algorithm:
+    // 1. Find the position in the neuron's `History_time` vector where `spike_time` should be inserted, 
+    //    keeping the vector sorted. This is done using `lower_bound`, which performs a binary search
+    //    and returns an iterator to the first element not less than `spike_time`.
+    // 2. Calculate the index of the insertion position using `distance` from the beginning of the vector.
+    // 3. Insert `spike_time` into `History_time` at the calculated position to maintain the sorted order.
+    // 4. Insert `type` into `History_type` at the same position, ensuring consistency with the spike time.
+    // 5. Insert `id` into `History_ID` at the same position.
+    // 6. Insert a pair `{ievent, spike_class}` into `History_ev_class` at the same position, storing 
+    //    both the event identifier and spike class.
+
     // Find the position where the new value should be inserted
     auto it = lower_bound(History_time[id_neuron].begin(), History_time[id_neuron].end(), spike_time);
     int position = distance(History_time[id_neuron].begin(), it);
@@ -528,6 +549,40 @@ float SNN::Inhibitory_potential(double delta_t, int ilayer)
 // ------------------------------------------------------------------------------------------
 double SNN::Neuron_firetime(int in, double t)
 {
+    // Determines the time when a given neuron in the SNN fires (reaches its threshold potential).
+    //
+    // Input:
+    // - int in: The identifier of the neuron being checked.
+    // - double t: The current time up to which we want to determine if the neuron fires.
+    //
+    // Algorithm:
+    // 1. Retrieve the neuron's initial firing time `t0` from `History_time` and compute `delta_t` 
+    //    as the difference between `t` and `t0`.
+    // 2. If `delta_t` is less than `tau_r` (the refractory period), return `largenumber` as the 
+    //    neuron cannot fire during this period.
+    // 3. Search backward through the neuron's `History_type` for the last EPSP (Excitatory Post-Synaptic 
+    //    Potential) that occurred before time `t`.
+    // 4. If no valid EPSP is found (`last_EPSP` remains negative), return `largenumber` because 
+    //    the neuron cannot fire without an EPSP.
+    // 5. Determine `t_neg`, the time to start checking the potential. It is set to `last_EPSP` if it's 
+    //    outside the refractory period, otherwise adjusted to `t0 + tau_r`.
+    // 6. Compute the potential `P_neg` at `t_neg` using `Neuron_Potential`. If it exceeds the layer's 
+    //    threshold, return `t_neg` as the firing time.
+    // 7. Scan through potential values from `t_neg` to `t` in steps of `fire_granularity`:
+    //    - If the potential is below the threshold, update `P_neg` and `t_neg`.
+    //    - If a potential value exceeds the threshold, set `fire` to true and exit the loop.
+    // 8. If no potential values exceeded the threshold during the scan, check the potential at time `t`.
+    //    - If the potential is still below the threshold, return `largenumber` as the neuron doesn't fire.
+    // 9. If the potential exceeded the threshold at any point, use the `bisectionMethod` to find the exact 
+    //     time of firing between `t_neg` and the time when the threshold was first exceeded.
+    //     The bisection method uses a precision parameter `fire_precision` and a function that computes 
+    //     the difference between the potential and the threshold for convergence.
+    //
+    // Output:
+    // - Returns the time at which the neuron's potential first reaches or exceeds the threshold, causing 
+    //   it to fire. If the neuron does not fire within the given time frame, returns `largenumber` to 
+    //   indicate no firing occurred.
+
     double t0 = History_time[in][0];
     double delta_t = t - t0;
     if (delta_t < tau_r)
@@ -598,6 +653,17 @@ double SNN::Neuron_firetime(int in, double t)
 
 //function to extract the unique values in a subset of a vector
 vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs, int start_idx, int end_idx) {
+    // Extracts a subrange of pairs from the input vector, sorts them, and removes consecutive duplicates.
+    //
+    // Input:
+    // - const vector<pair<int, int>>& my_pairs: A vector containing pairs of integers.
+    // - int start_idx: The starting index of the subrange (inclusive).
+    // - int end_idx: The ending index of the subrange (inclusive).
+    //
+    // Output:
+    // - Returns a vector containing sorted unique pairs from the specified subrange of `my_pairs`.
+    // - If the range is invalid, throws an exception and prints the relevant information for debugging.
+        
     if (start_idx < 0 || end_idx >= my_pairs.size() || start_idx > end_idx) {
         cout << "start_idx: " << start_idx << " end_idx: " << end_idx << " my_pairs.size(): " << my_pairs.size() << endl;
         throw std::out_of_range("Index out of bounds in uniquePairsInRange");
@@ -622,6 +688,19 @@ vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs
 
 //Inspect the history of a neuron before the activation
 vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double window){
+    // Retrieves the unique event history of a neuron within a specified time window before its activation time.
+    //
+    // Input:
+    // - int in: The identifier of the neuron whose history is to be inspected.
+    // - double fire_time: The time at which the neuron fires or is about to fire.
+    // - double window: The time window (backward from `fire_time`) to inspect for past events.
+    //
+    //
+    // Output:
+    // - Returns a vector of `pair<int, int>`, containing unique events (event ID and class) 
+    //   that occurred within the time window before the neuron's activation. If the window is empty, 
+    //   an empty vector is returned.
+    
     //find the position of the fire_time and the first spike in the window
     int start_pos = distance(History_time[in].begin(), lower_bound(History_time[in].begin(), History_time[in].end(), fire_time - window));
     int end_pos   = distance(History_time[in].begin(), upper_bound(History_time[in].begin(), History_time[in].end(), fire_time));
@@ -634,6 +713,26 @@ vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double wi
 
 //Handle the activation of a neuron
 void SNN::Activate_Neuron(int in, double t) {
+    // Resets the history of a neuron before a given time `t` and records a new spike event at time `t`.
+    //
+    // Input:
+    // - int in: The identifier of the neuron to be activated.
+    // - double t: The time at which the neuron is being activated.
+    //
+    // Algorithm:
+    // 1. Find the position of the first time in `History_time[in]` that is greater than `t` using `upper_bound`.
+    //    - This finds the point at which history data should be kept (all earlier events will be removed).
+    // 2. If the position is not the beginning of `History_time[in]` (meaning there are events to remove):
+    //    - Calculate the index `position` as the distance from the beginning of the vector to the found position.
+    //    - Erase all elements in `History_time[in]` up to the found position.
+    //    - Similarly, erase corresponding elements in `History_type[in]`, `History_ID[in]`, and `History_ev_class[in]`
+    //      to ensure that the history vectors remain aligned.
+    // 3. Insert a new spike at time `t` using the `insert_spike` method:
+    //    - If `History_ev_class[in]` is not empty, use the event class from the first element as the reference for the new spike.
+    //    - If `History_ev_class[in]` is empty, use a default value for the event class (e.g., `0`).
+    // 4. The function then exits, having reset the neuron's history and added a new spike at time `t`.
+
+
     // Reset history of this neuron before time t
     auto it = upper_bound(History_time[in].begin(), History_time[in].end(), t);
     if (it != History_time[in].begin()) {
@@ -654,17 +753,32 @@ void SNN::Activate_Neuron(int in, double t) {
         insert_spike(in, t, SPIKE, 0, NOCLASS, 0); // Assuming default value for last event class
     }
     return;
-    /*
-    History_time[in].clear();
-    History_type[in].clear();
-    History_ID[in].clear();
-    */
 }
 
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
 float SNN::Neuron_Potential(int in, double t, bool delete_history)
 {
+    // Computes the membrane potential of a specified neuron at time `t`, considering past spikes and inhibitory events.
+    // Optionally, it can delete old history events that are no longer relevant.
+    //
+    // Input:
+    // - int in: The identifier of the neuron whose potential is being calculated.
+    // - double t: The time at which the potential is evaluated.
+    // - bool delete_history: If true, irrelevant history entries (old events) will be removed during the computation.
+    //
+    // Algorithm:
+    // 1. Initialize `P0` to `0.0` as the base potential.
+    // 2. Obtain `t0`, the time of the last activation of the neuron, and calculate `delta_t` as the difference between `t` and `t0`.
+    // 4. Calculate `P0` as the potential contribution from the first spike using `Spike_potential`.
+    // 5. If the neuron has more than one event in its history (`len > 1`):
+    //    - Iterate over past events starting from the second event (`ih = 1`).
+    //    - For each event:
+    //      - Calculate `delta_t` as the time difference between `t` and the event time.
+    //      - Update the potential `P` based on their contributions.
+    // Output:
+    // - Returns a `float` representing the membrane potential of neuron `in` at time `t`.
+
     int ilayer = Neuron_layer[in];
     float P0 = 0.;
     double t0 = History_time[in][0];
@@ -746,6 +860,13 @@ float SNN::IE_potential(double delta_t, int in, int is)
 //LTP rule for weights
 void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
+    // Adjusts the synaptic weights of a specified neuron based on Long-Term Potentiation (LTP) rules.
+    // Input:
+    // - int in: The identifier of the neuron whose weights are being adjusted.
+    // - double fire_time: The time at which the neuron fired, used to compute time differences for LTP.
+    // - bool nearest_spike_approx: If true, only the nearest presynaptic spike is considered for LTP adjustment.
+    // - SNN &old: A reference to an older version of the SNN, used if weight renormalization is enabled.
+
     for (int is = 0; is < N_streams; is++)
     {            
         if (Void_weight[in][is])
@@ -781,6 +902,13 @@ void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
 
 void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
+    // Adjusts the synaptic delays of a specified neuron based on Long-Term Potentiation (LTP) rules.
+    // Input:
+    // - int in: The identifier of the neuron whose delays are being adjusted.
+    // - double fire_time: The time at which the neuron fired, used to compute time differences for LTP.
+    // - bool nearest_spike_approx: If true, only the nearest presynaptic spike is considered for LTP adjustment.
+    // - SNN &old: A reference to an older version of the SNN, used if delays renormalization is enabled.
+
     for (int is = 0; is < N_streams; is++)
     {            
         if (Void_weight[in][is])
@@ -823,6 +951,14 @@ void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
 
 void SNN::LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
+    // Adjusts the synaptic weights of a specified neuron based on Long-Term Depression (LTD) rules.
+    // Input:
+    // - int in: The identifier of the neuron whose weights are being adjusted.
+    // - double fire_time: The time at which the neuron fired, used to compute time differences for LTD.
+    // - bool nearest_spike_approx: If true, only the nearest presynaptic spike is considered for LTD adjustment.
+    // - SNN &old: A reference to an older version of the SNN, used if weight renormalization is enabled.
+
+    
     if (Fire_time[in].empty()) return;
 
     int isp = 1;
@@ -863,6 +999,13 @@ void SNN::LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &
 
 void SNN::LTD_delays(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
+    // Adjusts the synaptic delays of a specified neuron based on Long-Term Depression (LTD) rules.
+    // Input:
+    // - int in: The identifier of the neuron whose delays are being adjusted.
+    // - double fire_time: The time at which the neuron fired, used to compute time differences for LTD.
+    // - bool nearest_spike_approx: If true, only the nearest presynaptic spike is considered for LTD adjustment.
+    // - SNN &old: A reference to an older version of the SNN, used if delays renormalization is enabled.
+
     if (Fire_time[in].empty()) return;
 
     int isp = 1;
