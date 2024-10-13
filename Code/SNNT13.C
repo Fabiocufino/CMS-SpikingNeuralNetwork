@@ -460,7 +460,7 @@ void ReadWeights(TFile *file, SNN &P)
 }
 
 
-void appendToJson(const string& filename, float Efficiency, float FakeRate, float Selectivity) {
+void appendToJson(const string& filename, float Efficiency, float Fake_rate, float Selectivity, float Q_value) {
     ifstream file_in(filename);
     if (!file_in.is_open()) {
         cerr << "Unable to open file: " << filename << endl;
@@ -473,7 +473,8 @@ void appendToJson(const string& filename, float Efficiency, float FakeRate, floa
 
     // Append new values
     j["Efficiency"] = Efficiency;
-    j["FakeRate"] = FakeRate;
+    j["Fake_rate"] = Fake_rate;
+    j["Q"] = Q_value;
     j["Selectivity"] = Selectivity;
 
     // Open the file for writing (overwrite with updated JSON)
@@ -2755,7 +2756,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     string namejsonfile = Path + sstr.str() + num + ".json";
     
     snn_in.dumpToJson(namejsonfile);
-    appendToJson(namejsonfile, Eff_best_L1, Acc_best_L1, SelL1_best);
+    appendToJson(namejsonfile, Eff_best_L1, Acc_best_L1, SelL1_best, Q_best_L1);
     
     // Dump histograms to root file
     Path = SNN_PATH + "/Code/MODE/SNNT/";
