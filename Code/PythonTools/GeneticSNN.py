@@ -14,6 +14,12 @@ import json
 # PATHS
 PATH_JSON = '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/'
 
+
+# N events
+N_ev = 1000
+
+
+
 # Function to read JSON files
 def read_json_file(file_path):
     try:
@@ -25,11 +31,20 @@ def read_json_file(file_path):
         return None
 
 # Function to run SNN with the given parameters and file ID
+# Function to run SNN with the given parameters and file ID
 def run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation, file_id_GS):
     try:
-        command = f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} --tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} --CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --K {K} --K1 {K1} --K2 {K2} --IPSP_dt_dilation {IPSP_dt_dilation} --file_id_GS {file_id_GS}'
+        # Convert file_id_GS to a string if needed
+        file_id_GS = str(file_id_GS).zfill(5)  # Ensure it's 5 digits
+        
+        command = (
+            f'../SNNT13.out --NL0 {NL0} --NL1 {NL1} --N_ev {N_ev} --tau_m {tau_m} --tau_s {tau_s} --tau_r {tau_r} '
+            f'--tau_plus {tau_plus} --tau_minus {tau_minus} --a_plus {a_plus} --a_minus {a_minus} --CFI0 {CFI0} '
+            f'--CF01 {CF01} --CFI1 {CFI1} --alpha {alpha} --TH0 {TH0} --TH1 {TH1} --K {K} --K1 {K1} --K2 {K2} '
+            f'--IPSP_dt_dilation {IPSP_dt_dilation} --file_id_GS {file_id_GS}'
+        )
+        print('Command:', command)
 
-        print(f"Command: {command}")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
         values = {
@@ -39,11 +54,15 @@ def run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_
             'Selectivity': 0,
         }
 
-        #wait for the process to terminate
+        # Wait for the process to terminate
         process.wait()
 
         # Read the output of the SNN
         data_js = read_json_file(PATH_JSON + 'Parameters_' + file_id_GS + '.json')
+        print('Written file:', PATH_JSON + 'Parameters_' + file_id_GS + '.json')
+
+        if data_js is None:
+            raise ValueError(f"Failed to read JSON file for file_id_GS {file_id_GS}")
 
         values['Eff'] = data_js['Efficiency']
         values['Fr'] = data_js['Fake_rate']
@@ -51,27 +70,38 @@ def run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_
         values['Selectivity'] = data_js['Selectivity']
 
         return values
+
     
     except Exception as e:
         print(f"Error during the execution of SNN: {e}")
         return None
 
 # Function to generate solution index
-def generate_solution_idx(population_size, generation_number):
+# Function to generate solution index
+def generate_solution_idx(population_size, generation_number, individual_idx):
     """
-    Generates a solution index based on the population size and generation number.
+    Generates a solution index based on the population size, generation number, and individual index.
 
     Args:
         population_size (int): The total size of the population.
         generation_number (int): The current generation number.
+        individual_idx (int): The index of the individual in the current generation.
 
     Returns:
-        int: The solution index as a four-digit integer.
+        int: The solution index as a five-digit integer where the first three digits represent the generation, 
+             and the last two digits represent the individual.
     """
-    population_digits = str(population_size)[:2]  # Get the first two digits of the population size
-    generation_digits = str(generation_number).zfill(2)  # Get the last two digits of the generation number
-    solution_idx = int(population_digits + generation_digits)  # Combine and convert to integer
+    # Get the generation number as a three-digit number
+    generation_digits = str(generation_number).zfill(3)
+    
+    # Get the individual index as a two-digit number
+    individual_digits = str(individual_idx).zfill(2)
+    
+    # Combine them into a single integer
+    solution_idx = int(generation_digits + individual_digits)
+    
     return solution_idx
+
 
 # Your original fitness function
 def fitness_func(ga_instance, solution, solution_idx):
@@ -79,12 +109,12 @@ def fitness_func(ga_instance, solution, solution_idx):
     current_generation = ga_instance.generations_completed
     population_size = len(ga_instance.population)
 
-    N_ev = 1000
     print("---------------------------", solution_idx)
 
     NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation = solution
 
-    output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation, str(solution_idx))
+    output_values = run_SNN(N_ev, NL0, NL1, tau_m, tau_s, tau_r, tau_plus, tau_minus, a_plus, a_minus, CFI0, CF01, CFI1, alpha, TH0, TH1, K, K1, K2, IPSP_dt_dilation, solution_idx)
+
     
     if output_values is None:
         return [1000, 1000, 1000]  # Large values to indicate failure
@@ -102,14 +132,24 @@ def fitness_func(ga_instance, solution, solution_idx):
 
     return fitness
 
-# Wrapper function to ensure the correct parameters are passed
+# Ensure the solution index is always a 5-digit string (3 digits for generation and 2 digits for individual)
 def fitness_func_wrapper(ga_instance, solution, solution_idx):
-    solution_idx = generate_solution_idx(ga_instance.population.shape[0], ga_instance.generations_completed)
-    return fitness_func(ga_instance, solution, solution_idx)
+    generation_number = ga_instance.generations_completed
+    population_size = ga_instance.population.shape[0]
+    
+    # Generate the solution index using the new function
+    unique_solution_idx = generate_solution_idx(population_size, generation_number, solution_idx)
+    
+    # Format as a 5-digit string
+    formatted_solution_idx = str(unique_solution_idx).zfill(5)  # Ensure it's 5 digits
+    
+    return fitness_func(ga_instance, solution, formatted_solution_idx)
+
+
 
 # Create the values.csv and write the header
 with open('values_ga_30k.csv', 'w') as file:
-    file.write('NL0, NL1,tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,K,K1,K2,IPSP_dt_dilation,Efficiency,FakeRate,Selectivity\n')
+    file.write('NL0, NL1,tau_m,tau_s,tau_r,tau_plus,tau_minus,a_plus,a_minus,CFI0,CF01,CFI1,alpha,TH0,TH1,K,K1,K2,IPSP_dt_dilation,Efficiency,FakeRate,Selectivity, #Generation, #Individual\n')
 
 # Gene space --------------------------
 NLO_MIN, NLO_MAX = 5, 12
@@ -158,7 +198,7 @@ gene_space = [
 ## Algorithm
 
 # GA Configuration
-num_generations = 10000
+num_generations = 10
 num_parents_mating = 4
 sol_per_pop = 4
 num_genes = len(gene_space)
