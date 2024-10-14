@@ -1,0 +1,47 @@
+/home/ema/Documents/GitHub/CMS-SpikingNeuralNetwork/Code/Data/muons_100k_100br_new.root
+
+
+                                 ------------------------------------
+
+                                    S   N   N      T r a c k i n g
+
+                                 ------------------------------------
+
+
+
+
+         ------------------------------------------------------------------------------------    
+         Unsupervised search for tracks in 8-layer strip detector with spiking neural network    
+                                                                             T.Dorigo, 3/2023    
+         ------------------------------------------------------------------------------------    
+
+         Run parameters: 
+         -----------------------------------
+                       L0 neurons: 10
+                       L1 neurons: 11
+            Connected L0-L1 frac.: 0.648237
+            Connected IN-L0 frac.: 0.714894
+            Connected IN-L1 frac.: 0.826973
+                    Track classes: 3
+                     Total events: 1000
+               Optimization loops: 1
+             Optimize SNN params.: False
+                  Optimize delays: False
+             Optimize connections: False
+                  Max mod. factor: 0.2
+         -----------------------------------
+
+         Starting values of parameters:
+         -----------------------------------
+                     L0 threshold: 0.640063
+                     L1 threshold: 0.776014
+                            alpha: 0.467857
+                        L1inhibit: 1
+                                K: 8.29015
+                               K1: 2.6228
+                               K2: 8.37799
+                 IE pot. constant: 1
+                 IPSP dt dilation: 0.303975
+         -----------------------------------
+
+         [-

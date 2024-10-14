@@ -512,6 +512,7 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events)
     
     int ievent = 0;
     double previous_firetime = 0;
+    P.Init_neurons(-1);
     // Loop on events ----------------------------------------------
     do
     {
@@ -3076,9 +3077,8 @@ int main(int argc, char *argv[])
         S.loadFromJson(ReadPars);
     }
     // preparing the file to plot the neuron potentials of the best configurations
-    //SNN_Tracking(S, file_id_GS);
+    SNN_Tracking(S, file_id_GS);
     cout << "Creating the file for the potentials plot" << endl;
-    //S.Init_neurons(ievent+1);
     PlotPotentials(rootInput.c_str(), S, 12);
 
     return 0;
