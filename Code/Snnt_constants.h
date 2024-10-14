@@ -108,7 +108,7 @@ static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
 
 static float _sparsity = 2;
-static bool _split_layer0 = true;
+static bool _split_layer0 = false;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 static string SNN_PATH = "";

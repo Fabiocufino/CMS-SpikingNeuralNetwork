@@ -21,9 +21,12 @@
 #include <algorithm>
 #include <random>
 #include <string>
+#include <tuple>
+#include <stdexcept>
 
 #include "Class/SNN.h"
 
+using json = nlohmann::json;
 using namespace std;
 
 static bool insert = true;
@@ -255,6 +258,65 @@ float Compute_Q(float eff, float acc, float sel)
     return Q0 + w * sel;
 }
 
+tuple<TFile*, TTree*, TTree*, TTree*> readRootFile(const string &rootInput)
+{
+    // Open the ROOT file in read mode
+    TFile *file = TFile::Open(rootInput.c_str(), "READ");
+    if (!file || file->IsZombie())
+    {
+        throw runtime_error("Error: Cannot open file " + rootInput);
+    }
+
+    // Access the required directories
+    TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
+    TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
+    TDirectoryFile *dirEV = dynamic_cast<TDirectoryFile *>(file->Get("classification"));
+
+    if (!dirIT)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access directory clusterValidIT in file " + rootInput);
+    }
+
+    if (!dirOT)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access directory clusterValidOT in file " + rootInput);
+    }
+
+    if (!dirEV)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access directory classification in file " + rootInput);
+    }
+
+    // Extract the trees from the directories
+    TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
+    TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
+    TTree *ET = dynamic_cast<TTree *>(dirEV->Get("event_tree"));
+
+    if (!IT)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access tree in clusterValidIT in file " + rootInput);
+    }
+
+    if (!OT)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access tree in clusterValidOT in file " + rootInput);
+    }
+
+    if (!ET)
+    {
+        file->Close();
+        throw runtime_error("Error: Cannot access event_tree in classification in file " + rootInput);
+    }
+
+    // Do not close the file here; it will be managed by the caller
+    return {file, IT, OT, ET};
+}
+
 // To read our preprocessed file
 void ReadFromProcessed(TTree *IT, TTree *OT, TTree *ET, int id_event_value)
 {
@@ -397,9 +459,38 @@ void ReadWeights(TFile *file, SNN &P)
     cout << "Weights loaded successfully" << endl;
 }
 
+
+void appendToJson(const string& filename, float Efficiency, float Fake_rate, float Selectivity, float Q_value) {
+    ifstream file_in(filename);
+    if (!file_in.is_open()) {
+        cerr << "Unable to open file: " << filename << endl;
+        return;
+    }
+
+    json j;
+    file_in >> j; // Load the JSON content into j
+    file_in.close();
+
+    // Append new values
+    j["Efficiency"] = Efficiency;
+    j["Fake_rate"] = Fake_rate;
+    j["Q"] = Q_value;
+    j["Selectivity"] = Selectivity;
+
+    // Open the file for writing (overwrite with updated JSON)
+    ofstream file_out(filename);
+    if (!file_out.is_open()) {
+        cerr << "Unable to open file for writing: " << filename << endl;
+        return;
+    }
+
+    file_out << j.dump(4); 
+    file_out.close();
+}
+
 // plot neuron potentials as a function of time
 //TODO adapt it to multiple particles
-void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights = false, const char *rootWeight = nullptr)
+void PlotPotentials(string rootInput, SNN &P, int _N_events)
 {
     insert = true;
     vector<int> neurons_index;
@@ -417,189 +508,29 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
     cout << "Initializaing the plot SNN" << endl;
 
-    if (read_weights)
-    {
-        cout << "Opening the weight file" << endl;
-        TFile *file_weight = TFile::Open(rootWeight, "READ");
-        if (!file_weight || file_weight->IsZombie())
-        {
-            cerr << "Error: Cannot open file " << rootWeight << endl;
-            return;
-        }
-        ReadWeights(file_weight, P);
-        file_weight->Close();
-        delete file_weight;
-    }
-
-    // the network is ready
-    // we need to fecth the events and compute the plots
-
-    // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput.c_str(), "READ");
-    if (!file || file->IsZombie())
-    {
-        cerr << "Error: Cannot open file " << rootInput << endl;
-        return;
-    }
-
-    TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
-    TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
-
-    if (!dirIT)
-    {
-        cerr << "Error: Cannot access directory clusterValidIT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!dirOT)
-    {
-        cerr << "Error: Cannot access directory clusterValidOT" << endl;
-        file->Close();
-        return;
-    }
-
-    TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
-    TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
-
-    if (!IT)
-    {
-        cerr << "Error: Cannot access tree in clusterValidIT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!OT)
-    {
-        cerr << "Error: Cannot access tree in clusterValidOT" << endl;
-        file->Close();
-        return;
-    }
-
-    IT->SetMaxVirtualSize(250000000);
-    IT->LoadBaskets();
-
-    OT->SetMaxVirtualSize(250000000);
-    OT->LoadBaskets();
-
-    // End of reading ----------------------------------------------
-
+    auto [file, IT, OT, ET] = readRootFile(rootInput);
+    
     int ievent = 0;
+    double previous_firetime = 0;
     // Loop on events ----------------------------------------------
     do
     {
-        
-        double previous_firetime = 0;
-
         PreSpike_Time.clear();
         PreSpike_Stream.clear();
         PreSpike_Signal.clear();
         PreSpike_Class.clear();
-
-        Reset_hits();
 
         if (ievent % NROOT == 0)
         {
             last_row_event_IT = 0;
             last_row_event_OT = 0;
         }
-        // ReadFromProcessed(IT, OT, ievent);
-        int id_event_value = ievent % NROOT;
-        pclass = 0;
-        N_part = 0;
-        First_angle = max_angle;
+        ReadFromProcessed(IT, OT, ET, ievent % NROOT + 1);
 
-        float z;
-        float r, phi;
-        float id_event;
-        float type;
-        float cluster_pclass;
-
-        IT->SetBranchAddress("cluster_z", &z);
-        IT->SetBranchAddress("cluster_R", &r);
-        IT->SetBranchAddress("cluster_phi", &phi);
-        IT->SetBranchAddress("eventID", &id_event);
-        IT->SetBranchAddress("cluster_type", &type);
-        IT->SetBranchAddress("pclass", &cluster_pclass);
-
-        // Loop over entries and find rows with the specified id_event value
-        for (int i = last_row_event_IT; i < IT->GetEntries(); ++i)
-        {
-            IT->GetEntry(i);
-
-            if (static_cast<int>(id_event) != id_event_value)
-            {
-                last_row_event_IT = i;
-                break;
-            }
-            phi += M_PI;
-            if (static_cast<int>(type) == 1)
-            {
-                type = SIG;
-                pclass = (int)cluster_pclass;
-                phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
-                if (phi >= 2. * M_PI)
-                    phi -= 2. * M_PI;
-                if (phi < First_angle)
-                    First_angle = phi;
-            }
-            else
-            {
-                type = BGR;
-                if (phi >= 2. * M_PI)
-                    phi -= 2. * M_PI;
-            }
-
-            hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
-        }
-
-        // OUT Tracker
-
-        OT->SetBranchAddress("cluster_z", &z);
-        OT->SetBranchAddress("cluster_R", &r);
-        OT->SetBranchAddress("cluster_phi", &phi);
-        OT->SetBranchAddress("eventID", &id_event);
-        OT->SetBranchAddress("cluster_type", &type);
-
-        for (int i = last_row_event_OT; i < OT->GetEntries(); ++i)
-        {
-            OT->GetEntry(i);
-            if (static_cast<int>(id_event) != id_event_value)
-            {
-                last_row_event_OT = i;
-                break;
-            }
-            phi += M_PI;
-            if (static_cast<int>(type) == 1)
-            {
-                phi += 2. * M_PI * ((int)(ievent / (NROOT))) * 1. / ((int)(N_events / NROOT) + 1);
-                type = SIG;
-                if (phi >= 2. * M_PI)
-                    phi -= 2. * M_PI;
-                if (phi < First_angle)
-                    First_angle = phi;
-            }
-            else
-            {
-                type = BGR;
-                if (phi >= 2. * M_PI)
-                    phi -= 2. * M_PI;
-            }
-
-            hit_pos.emplace_back(r, z, phi, static_cast<int>(type), cluster_pclass);
-        }
-        // ReadFromProcessed(IT, OT, ievent);--------------------
-
-        // see if hit pos has been filled
-        if (hit_pos.size() == 0)
-        {
-            ievent++;
-            continue;
-        }
-
-        double t_in = (ievent - 1) * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
-        cout << ievent << endl;
+        double t_in = ievent * (max_angle + Empty_buffer) / omega; // Initial time -> every event adds 25 ns
         Encode(t_in);
+
+        cout << ievent << " " << PreSpike_Time.size() << endl;
 
         // Loop on spikes and modify neuron and synapse potentials
         // -------------------------------------------------------
@@ -610,7 +541,7 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
             // Modify neuron potentials based on synapse weights
             // -------------------------------------------------
-            double min_fire_time = largenumber - 1.; // if no fire, neuron_firetime returns largenumber
+            double min_fire_time = P.largenumber; // if no fire, neuron_firetime returns largenumber
             int in_first = -1;
 
             // Loop on neurons, but not in order to not favor any neuron
@@ -636,6 +567,7 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
             // no neuron is firing
             if (in_first == -1)
             {
+                //TODO: check
                 // finish the plot for the previous spike
                 double t_prime;
                 double delta_t;
@@ -646,9 +578,9 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
                     for (int inc = 0; inc < 11; inc++)
                     {
-                        Time[ievent - 1].push_back(t_prime + inc * delta_t);
+                        Time[ievent].push_back(t_prime + inc * delta_t);
                         for (auto in : neurons_index)
-                            Potential[ievent - 1][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
+                            Potential[ievent][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
                     }
                 }
                 // plot the result of the incoming spike
@@ -662,9 +594,9 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
                     delta_t = (t - t_prime) / 11;
                     for (int inc = 0; inc < 11; inc++)
                     {
-                        Time[ievent - 1].push_back(t_prime + inc * delta_t);
+                        Time[ievent].push_back(t_prime + inc * delta_t);
                         for (auto in : neurons_index)
-                            Potential[ievent - 1][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
+                            Potential[ievent][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
                     }
                 }
 
@@ -694,9 +626,9 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
 
                 for (int inc = 0; inc < 11; inc++)
                 {
-                    Time[ievent - 1].push_back(t_prime + inc * delta_t);
+                    Time[ievent].push_back(t_prime + inc * delta_t);
                     for (auto in : neurons_index)
-                        Potential[ievent - 1][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
+                        Potential[ievent][in].push_back(P.Neuron_Potential(in, t_prime + inc * delta_t, false));
                 }
 
                 //Handle the activation of the neuron in_first
@@ -750,7 +682,7 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
             }
         }
         ievent++; // only go to next event if we did a backward pass too
-    } while (ievent <= N_events);
+    } while (ievent < N_events);
 
     // dump the potentials inside a csv file
     ofstream outfile;
@@ -765,15 +697,15 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
     outfile << endl;
 
     // content
-    for (int ievent = 1; ievent <= N_events; ievent++)
+    for (ievent = 0; ievent < N_events; ievent++)
     {
-        for (int it = 0; it < Time[ievent - 1].size(); it++)
+        for (int it = 0; it < Time[ievent].size(); it++)
         {
-            outfile << ievent << "," << Time[ievent - 1][it];
+            outfile << ievent << "," << Time[ievent][it];
 
             for (int in = 0; in < P.N_neurons; in++)
             {
-                outfile << "," << Potential[ievent - 1][in][it];
+                outfile << "," << Potential[ievent][in][it];
             }
             outfile << endl;
         }
@@ -782,8 +714,6 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events, bool read_weights =
     // closing the input file
     delete IT;
     delete OT;
-    delete dirIT;
-    delete dirOT;
 
     file->Close();
     outfile.close();
@@ -1238,71 +1168,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     int ind_qbest = 0;
 
     // Read the file with True Events and Generated BKG ------------------
-    TFile *file = TFile::Open(rootInput.c_str(), "READ");
-    if (!file || file->IsZombie())
-    {
-        cerr << "Error: Cannot open file " << rootInput << endl;
-        return;
-    }
-
-    TDirectoryFile *dirIT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidIT"));
-    TDirectoryFile *dirOT = dynamic_cast<TDirectoryFile *>(file->Get("clusterValidOT"));
-    TDirectoryFile *dirEV = dynamic_cast<TDirectoryFile *>(file->Get("classification"));
-
-    if (!dirIT)
-    {
-        cerr << "Error: Cannot access directory clusterValidIT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!dirOT)
-    {
-        cerr << "Error: Cannot access directory clusterValidOT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!dirEV)
-    {
-        cerr << "Error: Cannot access directory classification" << endl;
-        file->Close();
-        return;
-    }
-
-    TTree *IT = dynamic_cast<TTree *>(dirIT->Get("tree"));
-    TTree *OT = dynamic_cast<TTree *>(dirOT->Get("tree"));
-    TTree *ET = dynamic_cast<TTree *>(dirEV->Get("event_tree"));
-
-    if (!IT)
-    {
-        cerr << "Error: Cannot access tree in clusterValidIT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!OT)
-    {
-        cerr << "Error: Cannot access tree in clusterValidOT" << endl;
-        file->Close();
-        return;
-    }
-
-    if (!ET)
-    {
-        cerr << "Error: Cannot access tree in classification" << endl;
-        file->Close();
-        return;
-    }
-
-    IT->SetMaxVirtualSize(250000000);
-    IT->LoadBaskets();
-
-    OT->SetMaxVirtualSize(250000000);
-    OT->LoadBaskets();
-
-    ET->SetMaxVirtualSize(250000000);
-    ET->LoadBaskets();
+    // Read the ROOT file and get the trees
+    auto [file, IT, OT, ET] = readRootFile(rootInput);
+    
 
     // End of reading ----------------------------------------------
     
@@ -2520,8 +2388,6 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // closing the input file
     delete IT;
     delete OT;
-    delete dirIT;
-    delete dirOT;
 
     //fout.close();
     file->Close();
@@ -2890,6 +2756,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     string namejsonfile = Path + sstr.str() + num + ".json";
     
     snn_in.dumpToJson(namejsonfile);
+    appendToJson(namejsonfile, Eff_best_L1, Acc_best_L1, SelL1_best, Q_best_L1);
     
     // Dump histograms to root file
     Path = SNN_PATH + "/Code/MODE/SNNT/";
@@ -3209,10 +3076,10 @@ int main(int argc, char *argv[])
         S.loadFromJson(ReadPars);
     }
     // preparing the file to plot the neuron potentials of the best configurations
-    SNN_Tracking(S, file_id_GS);
+    //SNN_Tracking(S, file_id_GS);
     cout << "Creating the file for the potentials plot" << endl;
     //S.Init_neurons(ievent+1);
-    //PlotPotentials("Data/ordered.root", S, 12);
+    PlotPotentials(rootInput.c_str(), S, 12);
 
     return 0;
 }
