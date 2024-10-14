@@ -707,7 +707,9 @@ vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double wi
     if (end_pos >= History_ev_class[in].size()) {
         end_pos = History_ev_class[in].size() - 1;
     }
-    return (uniquePairsInRange(History_ev_class[in], start_pos, end_pos));
+    
+    if(start_pos >= History_ev_class[in].size()) return {{History_ev_class[in].back().first, BKGCLASS}};
+    else return (uniquePairsInRange(History_ev_class[in], start_pos, end_pos));
     
 }
 
