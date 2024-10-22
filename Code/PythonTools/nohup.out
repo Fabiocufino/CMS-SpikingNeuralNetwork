@@ -1,0 +1,680 @@
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 5.194625708409615e-09 --tau_s 8.05420474822907e-09 --tau_r 2.62050090134522e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 2.082869348066867e-09 --a_plus 7.315649532800895e-06 --a_minus 8.731431938420627e-05 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 7.842774253382509 --K2 2.108789821549975 --file_id_GS 900000
+--------------------------- 900001
+Command: ../SNNT13.out --NL0 6.0 --NL1 5.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 4.147823861447302e-09 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6280383731643827 --TH1 0.7291063615992013 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900001
+--------------------------- 900002
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 50000 --tau_m 6.223815670323022e-09 --tau_s 5.805978563361024e-09 --tau_r 6.16518896198631e-09 --tau_plus 2.1083760451605104e-09 --tau_minus 2.770569182014774e-09 --a_plus 9.517669660065995e-05 --a_minus 8.001486708115188e-05 --TH0 0.9442672103085101 --TH1 0.7775039198817678 --K1 7.101463643574025 --K2 7.627742847411641 --file_id_GS 900002
+--------------------------- 900003
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 50000 --tau_m 8.94087780401869e-09 --tau_s 2.1758818253689568e-09 --tau_r 6.4113425265724305e-09 --tau_plus 8.618063486032978e-09 --tau_minus 4.855538025841486e-09 --a_plus 6.700522013100845e-05 --a_minus 3.500685217433258e-05 --TH0 0.7549183033951601 --TH1 0.7958724828990922 --K1 2.102058739091628 --K2 4.309181381112941 --file_id_GS 900003
+--------------------------- 900004
+Command: ../SNNT13.out --NL0 9.0 --NL1 8.0 --N_ev 50000 --tau_m 2.9646107582393525e-09 --tau_s 7.93889131615984e-09 --tau_r 4.077360678251925e-09 --tau_plus 9.035223976633885e-09 --tau_minus 6.433024350240887e-09 --a_plus 5.9227469417857735e-05 --a_minus 7.775937362882528e-05 --TH0 0.9377659739940299 --TH1 0.8992481675886763 --K1 7.938649231399198 --K2 7.144241808171032 --file_id_GS 900004
+--------------------------- 900005
+Command: ../SNNT13.out --NL0 6.0 --NL1 11.0 --N_ev 50000 --tau_m 7.237687703653255e-10 --tau_s 1.420134279666965e-09 --tau_r 5.6305517791658965e-09 --tau_plus 5.757186761108761e-09 --tau_minus 8.911984725255567e-09 --a_plus 9.100081311808955e-05 --a_minus 2.5416003717504635e-05 --TH0 0.7764137010073728 --TH1 0.6331865580690775 --K1 1.4456247424115483 --K2 1.6369673078587603 --file_id_GS 900005
+--------------------------- 900006
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 7.76321393206128e-05 --TH0 0.6692374367397605 --TH1 0.8310233274241249 --K1 5.1509351239132 --K2 7.750533445064048 --file_id_GS 900006
+--------------------------- 900007
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 9.567122022048509e-09 --tau_r 7.539429168372188e-09 --tau_plus 8.432141685805035e-10 --tau_minus 3.1583552272421206e-09 --a_plus 3.9405338510671005e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 5.317922538061367 --file_id_GS 900007
+--------------------------- 900008
+Command: ../SNNT13.out --NL0 6.0 --NL1 10.0 --N_ev 50000 --tau_m 3.6550368811063338e-09 --tau_s 1.932396309537104e-10 --tau_r 8.197468695764285e-09 --tau_plus 9.595531054356063e-09 --tau_minus 9.271207342235652e-09 --a_plus 3.096497325284768e-05 --a_minus 1.5301603598036876e-05 --TH0 0.8361609132056815 --TH1 0.8214019237794615 --K1 3.8836382021815763 --K2 6.260874990983187 --file_id_GS 900008
+--------------------------- 900009
+Command: ../SNNT13.out --NL0 5.0 --NL1 6.0 --N_ev 50000 --tau_m 8.562174108725323e-10 --tau_s 7.58716996081135e-09 --tau_r 1.0671007412399408e-09 --tau_plus 9.261585446028934e-09 --tau_minus 9.96038163778785e-09 --a_plus 7.099034103172246e-05 --a_minus 7.431114028184845e-05 --TH0 0.8138502140054391 --TH1 0.9408948663587127 --K1 5.121409029541742 --K2 4.0199128243597055 --file_id_GS 900009
+--------------------------- 900010
+Command: ../SNNT13.out --NL0 6.0 --NL1 11.0 --N_ev 50000 --tau_m 6.741566630284212e-09 --tau_s 9.899644929749895e-09 --tau_r 4.7840728698076836e-09 --tau_plus 4.8915292639002215e-09 --tau_minus 2.657203821783574e-09 --a_plus 4.9321790813241956e-05 --a_minus 6.81743693196826e-05 --TH0 0.856132319892474 --TH1 0.709777973264816 --K1 3.567288767351642 --K2 4.203064186471844 --file_id_GS 900010
+--------------------------- 900011
+Command: ../SNNT13.out --NL0 6.0 --NL1 6.0 --N_ev 50000 --tau_m 4.6977947877432745e-09 --tau_s 3.6663118259553817e-09 --tau_r 5.403594671694877e-09 --tau_plus 3.073018484549499e-09 --tau_minus 3.826605683931224e-09 --a_plus 1.2643005858324687e-05 --a_minus 2.8420632418580285e-06 --TH0 0.6426269150991009 --TH1 0.850533200005974 --K1 7.100897010510934 --K2 4.272628017659052 --file_id_GS 900011
+--------------------------- 900012
+Command: ../SNNT13.out --NL0 6.0 --NL1 9.0 --N_ev 50000 --tau_m 8.274581144208478e-09 --tau_s 3.2769027112706743e-09 --tau_r 8.636623661809513e-09 --tau_plus 1.4959200814917388e-09 --tau_minus 6.5526728999758645e-09 --a_plus 5.683115876821171e-05 --a_minus 4.346940746522226e-05 --TH0 0.7375007889714954 --TH1 0.6553273801332173 --K1 9.7198984854008 --K2 7.173804331505562 --file_id_GS 900012
+--------------------------- 900013
+Command: ../SNNT13.out --NL0 5.0 --NL1 5.0 --N_ev 50000 --tau_m 2.2354096854658917e-09 --tau_s 6.0802203732339785e-09 --tau_r 8.361860594128536e-09 --tau_plus 7.808245332172895e-09 --tau_minus 2.4970931875259984e-09 --a_plus 7.67138498768351e-05 --a_minus 1.8929007011426468e-05 --TH0 0.6689975315007497 --TH1 0.6122891008541614 --K1 7.51363328154126 --K2 8.576734291308615 --file_id_GS 900013
+--------------------------- 900014
+Command: ../SNNT13.out --NL0 11.0 --NL1 11.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.6488722904172688 --TH1 0.8261014344308713 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900014
+--------------------------- 900015
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 2.3733439573884724e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900015
+--------------------------- 900016
+Command: ../SNNT13.out --NL0 8.0 --NL1 11.0 --N_ev 50000 --tau_m 2.22412349071279e-09 --tau_s 4.281756423469261e-09 --tau_r 6.738402845503276e-09 --tau_plus 3.5580414513669704e-09 --tau_minus 2.785292948446822e-09 --a_plus 4.126125297836056e-05 --a_minus 8.073909878197716e-05 --TH0 0.6828928530500609 --TH1 0.7654218890946273 --K1 2.1042333787714442 --K2 1.058185828273762 --file_id_GS 900016
+--------------------------- 900017
+Command: ../SNNT13.out --NL0 8.0 --NL1 8.0 --N_ev 50000 --tau_m 7.341397632384311e-09 --tau_s 9.902681335942477e-09 --tau_r 2.6739769453772236e-09 --tau_plus 6.9893985542634546e-09 --tau_minus 1.7889680121753302e-09 --a_plus 8.499676498370825e-05 --a_minus 4.63108765449845e-05 --TH0 0.9228775739253152 --TH1 0.8110293516421612 --K1 6.2024840062599615 --K2 2.1339387659448263 --file_id_GS 900017
+--------------------------- 900018
+Command: ../SNNT13.out --NL0 10.0 --NL1 6.0 --N_ev 50000 --tau_m 6.161893094540866e-09 --tau_s 9.171958328684002e-09 --tau_r 8.234803837095935e-10 --tau_plus 7.90331827101994e-09 --tau_minus 6.231593028170129e-09 --a_plus 8.85413836189688e-06 --a_minus 6.924100006899362e-06 --TH0 0.760586020161998 --TH1 0.6176219582141881 --K1 9.02381472229191 --K2 8.214962504950696 --file_id_GS 900018
+--------------------------- 900019
+Command: ../SNNT13.out --NL0 11.0 --NL1 7.0 --N_ev 50000 --tau_m 1.2004487782575768e-09 --tau_s 9.581051449733399e-09 --tau_r 8.796759372828297e-09 --tau_plus 6.897844629045214e-09 --tau_minus 1.896599701833703e-09 --a_plus 3.143550786208176e-05 --a_minus 2.3893818537673825e-05 --TH0 0.8135493820341233 --TH1 0.6075674350999769 --K1 1.2273822057714103 --K2 1.3173120513391159 --file_id_GS 900019
+--------------------------- 900020
+Command: ../SNNT13.out --NL0 6.0 --NL1 7.0 --N_ev 50000 --tau_m 4.039343536302803e-09 --tau_s 4.692098847067694e-09 --tau_r 1.5597958746543932e-10 --tau_plus 6.481787048274561e-09 --tau_minus 1.9002981350358175e-09 --a_plus 7.853554810635087e-05 --a_minus 1.0385090300680495e-05 --TH0 0.8728878071447417 --TH1 0.767134937057923 --K1 9.462808737876388 --K2 9.975957207718519 --file_id_GS 900020
+--------------------------- 900021
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 50000 --tau_m 6.604155691783285e-09 --tau_s 2.5907568362769947e-09 --tau_r 7.572760042524307e-10 --tau_plus 2.6047912060684414e-09 --tau_minus 1.5970833710130786e-09 --a_plus 7.519726690557448e-05 --a_minus 4.461381571030572e-05 --TH0 0.8686631465764042 --TH1 0.8717324154225213 --K1 5.204697755540966 --K2 4.4173118635187665 --file_id_GS 900021
+--------------------------- 900022
+Command: ../SNNT13.out --NL0 5.0 --NL1 5.0 --N_ev 50000 --tau_m 3.032244757446698e-09 --tau_s 6.219258430863021e-09 --tau_r 1.3696403019619942e-09 --tau_plus 8.09380072413798e-09 --tau_minus 7.0388396993353e-09 --a_plus 5.0813456618141955e-05 --a_minus 4.543235782932249e-05 --TH0 0.935256495613588 --TH1 0.718343418649958 --K1 4.461584394069173 --K2 2.8483427587383803 --file_id_GS 900022
+--------------------------- 900023
+Command: ../SNNT13.out --NL0 9.0 --NL1 7.0 --N_ev 50000 --tau_m 2.6534049070457763e-09 --tau_s 9.651387306962618e-09 --tau_r 4.0136813052599404e-10 --tau_plus 5.664352498663588e-09 --tau_minus 6.209862540670096e-09 --a_plus 8.988183441965969e-05 --a_minus 2.927133936852007e-05 --TH0 0.9395170913543878 --TH1 0.9370260353809734 --K1 9.938443653266447 --K2 5.488613396736401 --file_id_GS 900023
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900007.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900001.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900008.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900003.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900011.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900013.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900009.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900022.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900019.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900016.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900020.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900005.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900023.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900002.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900004.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900000.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900018.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900010.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900017.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900012.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900015.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900014.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900006.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900021.json
+--------------------------- 900101
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 1e-10 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 5.317922538061367 --file_id_GS 900101
+--------------------------- 900102
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 6.56e-06 --a_minus 7.098162673800578e-05 --TH0 0.6488722904172688 --TH1 0.8261014344308713 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900102
+--------------------------- 900103
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 1e-10 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 2.3733439573884724e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900103
+--------------------------- 900104
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 1e-10 --tau_plus 2.3733439573884724e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 2.108789821549975 --file_id_GS 900104
+--------------------------- 900105
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 5.194625708409615e-09 --tau_s 8.05420474822907e-09 --tau_r 2.62050090134522e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 2.082869348066867e-09 --a_plus 7.315649532800895e-06 --a_minus 1.25e-06 --TH0 0.6280383731643827 --TH1 0.7291063615992013 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900105
+--------------------------- 900106
+Command: ../SNNT13.out --NL0 6.0 --NL1 5.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 4.147823861447302e-09 --tau_minus 2.7554801256147285e-09 --a_plus 7.519726690557448e-05 --a_minus 1.25e-06 --TH0 0.8686631465764042 --TH1 0.8717324154225213 --K1 5.204697755540966 --K2 4.4173118635187665 --file_id_GS 900106
+--------------------------- 900107
+Command: ../SNNT13.out --NL0 9.0 --NL1 7.0 --N_ev 50000 --tau_m 2.6534049070457763e-09 --tau_s 9.651387306962618e-09 --tau_r 4.0136813052599404e-10 --tau_plus 5.664352498663588e-09 --tau_minus 6.209862540670096e-09 --a_plus 8.988183441965969e-05 --a_minus 1.25e-06 --TH0 0.9395170913543878 --TH1 0.9370260353809734 --K1 9.938443653266447 --K2 5.488613396736401 --file_id_GS 900107
+--------------------------- 900108
+Command: ../SNNT13.out --NL0 9.0 --NL1 7.0 --N_ev 50000 --tau_m 2.6534049070457763e-09 --tau_s 9.651387306962618e-09 --tau_r 4.0136813052599404e-10 --tau_plus 5.664352498663588e-09 --tau_minus 1e-10 --a_plus 9.517669660065995e-05 --a_minus 8.001486708115188e-05 --TH0 0.9442672103085101 --TH1 0.7775039198817678 --K1 7.101463643574025 --K2 7.627742847411641 --file_id_GS 900108
+--------------------------- 900109
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 50000 --tau_m 6.223815670323022e-09 --tau_s 7.93889131615984e-09 --tau_r 4.077360678251925e-09 --tau_plus 9.035223976633885e-09 --tau_minus 6.433024350240887e-09 --a_plus 6.56e-06 --a_minus 7.775937362882528e-05 --TH0 0.9377659739940299 --TH1 0.8992481675886763 --K1 7.938649231399198 --K2 7.144241808171032 --file_id_GS 900109
+--------------------------- 900110
+Command: ../SNNT13.out --NL0 9.0 --NL1 8.0 --N_ev 50000 --tau_m 2.9646107582393525e-09 --tau_s 7.93889131615984e-09 --tau_r 1e-10 --tau_plus 9.035223976633885e-09 --tau_minus 6.433024350240887e-09 --a_plus 5.9227469417857735e-05 --a_minus 7.775937362882528e-05 --TH0 0.7764137010073728 --TH1 0.6331865580690775 --K1 1.4456247424115483 --K2 1.6369673078587603 --file_id_GS 900110
+--------------------------- 900112
+Command: ../SNNT13.out --NL0 5.0 --NL1 9.0 --N_ev 50000 --tau_m 8.562174108725323e-10 --tau_s 7.58716996081135e-09 --tau_r 1.0671007412399408e-09 --tau_plus 9.261585446028934e-09 --tau_minus 9.96038163778785e-09 --a_plus 7.099034103172246e-05 --a_minus 7.431114028184845e-05 --TH0 0.8138502140054391 --TH1 0.709777973264816 --K1 3.567288767351642 --K2 4.203064186471844 --file_id_GS 900112
+--------------------------- 900113
+Command: ../SNNT13.out --NL0 5.0 --NL1 11.0 --N_ev 50000 --tau_m 6.741566630284212e-09 --tau_s 9.899644929749895e-09 --tau_r 4.7840728698076836e-09 --tau_plus 4.8915292639002215e-09 --tau_minus 2.657203821783574e-09 --a_plus 4.9321790813241956e-05 --a_minus 6.81743693196826e-05 --TH0 0.856132319892474 --TH1 0.709777973264816 --K1 7.51363328154126 --K2 8.576734291308615 --file_id_GS 900113
+--------------------------- 900114
+Command: ../SNNT13.out --NL0 5.0 --NL1 5.0 --N_ev 50000 --tau_m 2.2354096854658917e-09 --tau_s 1e-10 --tau_r 6.738402845503276e-09 --tau_plus 3.5580414513669704e-09 --tau_minus 2.785292948446822e-09 --a_plus 4.126125297836056e-05 --a_minus 8.073909878197716e-05 --TH0 0.6828928530500609 --TH1 0.7654218890946273 --K1 2.1042333787714442 --K2 1.058185828273762 --file_id_GS 900114
+--------------------------- 900115
+Command: ../SNNT13.out --NL0 5.0 --NL1 11.0 --N_ev 50000 --tau_m 2.22412349071279e-09 --tau_s 4.281756423469261e-09 --tau_r 6.738402845503276e-09 --tau_plus 3.5580414513669704e-09 --tau_minus 2.785292948446822e-09 --a_plus 4.126125297836056e-05 --a_minus 4.63108765449845e-05 --TH0 0.9228775739253152 --TH1 0.8110293516421612 --K1 6.2024840062599615 --K2 2.1339387659448263 --file_id_GS 900115
+--------------------------- 900116
+Command: ../SNNT13.out --NL0 8.0 --NL1 8.0 --N_ev 50000 --tau_m 1e-10 --tau_s 9.171958328684002e-09 --tau_r 8.234803837095935e-10 --tau_plus 7.90331827101994e-09 --tau_minus 6.231593028170129e-09 --a_plus 8.85413836189688e-06 --a_minus 6.924100006899362e-06 --TH0 0.760586020161998 --TH1 0.6176219582141881 --K1 9.02381472229191 --K2 8.214962504950696 --file_id_GS 900116
+--------------------------- 900117
+Command: ../SNNT13.out --NL0 10.0 --NL1 11.0 --N_ev 50000 --tau_m 6.161893094540866e-09 --tau_s 9.171958328684002e-09 --tau_r 8.234803837095935e-10 --tau_plus 7.90331827101994e-09 --tau_minus 6.231593028170129e-09 --a_plus 8.85413836189688e-06 --a_minus 6.924100006899362e-06 --TH0 0.760586020161998 --TH1 0.6176219582141881 --K1 9.02381472229191 --K2 1.3173120513391159 --file_id_GS 900117
+--------------------------- 900118
+Command: ../SNNT13.out --NL0 11.0 --NL1 7.0 --N_ev 50000 --tau_m 1.2004487782575768e-09 --tau_s 9.581051449733399e-09 --tau_r 8.796759372828297e-09 --tau_plus 6.897844629045214e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 7.76321393206128e-05 --TH0 0.6 --TH1 0.8310233274241249 --K1 5.1509351239132 --K2 7.750533445064048 --file_id_GS 900118
+--------------------------- 900119
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 1e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 5.317922538061367 --file_id_GS 900119
+--------------------------- 900120
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 9.567122022048509e-09 --tau_r 7.539429168372188e-09 --tau_plus 1e-10 --tau_minus 3.1583552272421206e-09 --a_plus 3.9405338510671005e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900120
+--------------------------- 900121
+Command: ../SNNT13.out --NL0 11.0 --NL1 11.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900121
+--------------------------- 900122
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 1e-10 --a_plus 7.315649532800895e-06 --a_minus 8.731431938420627e-05 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 7.842774253382509 --K2 2.108789821549975 --file_id_GS 900122
+--------------------------- 900123
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6280383731643827 --TH1 0.7291063615992013 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900123
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900106.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900103.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900115.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900116.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900120.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900114.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900111.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900108.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900112.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900118.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900107.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900109.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900110.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900123.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900102.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900105.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900113.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900122.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900119.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900117.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900121.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900101.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900104.json
+Generation: 1, Population Size: 24
+--------------------------- 900201
+Command:           @      T                      Pî™U˛U                ˇˇˇ ˇˇˇˇˇˇˇˇ	ˇˇ
+ˇâ™zKeX˙0©§j}   –]|  =#ï &2Àp†Ωj}  @–]|  z‹æÌ¨∆0`Œ]|  Ä–]|  $Â“Í±Òp\Œ]|  Ä‰Ã]|  y\{≠£§s@Œ]|  @‰Ã]|  Î	
+		ˇHã∞gŒ]|   ›Ã]|  ˚?H°∑/˜0dŒ]|  @Áƒ]|  ·nµìQ…í◊cŒ]|  ÄÚ¬]|  *:6_‰‡Pñ0cŒ]|  Ä°g^|  D8)ﬁƒøƒë∞bŒ]|  Ä«Ã]|  ú÷øËÌO≤Îﬁyh|  @ƒÃ]|  
+©ÈKRu20ﬂyh|  ¿∆Ã]|  ˚E¨Éå±pﬂyh|  @4–]|  ∂„../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 6.057392091732997 --file_id_GS 900201
+--------------------------- 900202
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 1e-10 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 2.108789821549975 --file_id_GS 900202
+--------------------------- 900203
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 1e-10 --tau_plus 2.3733439573884724e-09 --tau_minus 1e-10 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900203
+--------------------------- 900204
+Command: ../SNNT13.out --NL0 11.0 --NL1 11.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 4.832105661038718 --file_id_GS 900204
+--------------------------- 900205
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6488722904172688 --TH1 0.8261014344308713 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900205
+--------------------------- 900206
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 1e-10 --a_plus 7.315649532800895e-06 --a_minus 8.731431938420627e-05 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 7.842774253382509 --K2 1.8940859214075094 --file_id_GS 900206
+--------------------------- 900207
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 8.731431938420627e-05 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900207
+--------------------------- 900208
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 1e-10 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 2.3733439573884724e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 1.25e-06 --TH0 0.6828928530500609 --TH1 0.7654218890946273 --K1 2.1042333787714442 --K2 1.058185828273762 --file_id_GS 900208
+--------------------------- 900209
+Command: ../SNNT13.out --NL0 8.0 --NL1 11.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 9.567122022048509e-09 --tau_r 7.539429168372188e-09 --tau_plus 1e-10 --tau_minus 3.1583552272421206e-09 --a_plus 3.9405338510671005e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900209
+--------------------------- 900210
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 1e-10 --tau_s 8.05420474822907e-09 --tau_r 2.62050090134522e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 2.082869348066867e-09 --a_plus 7.315649532800895e-06 --a_minus 1.25e-06 --TH0 0.6280383731643827 --TH1 0.7291063615992013 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900210
+--------------------------- 900211
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 5.194625708409615e-09 --tau_s 8.05420474822907e-09 --tau_r 2.62050090134522e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 2.082869348066867e-09 --a_plus 7.315649532800895e-06 --a_minus 1.25e-06 --TH0 0.9395170913543878 --TH1 0.9370260353809734 --K1 9.98263316279672 --K2 5.488613396736401 --file_id_GS 900211
+--------------------------- 900212
+Command: ../SNNT13.out --NL0 9.0 --NL1 7.0 --N_ev 50000 --tau_m 2.6534049070457763e-09 --tau_s 9.651387306962618e-09 --tau_r 4.0136813052599404e-10 --tau_plus 5.664352498663588e-09 --tau_minus 1e-10 --a_plus 9.517669660065995e-05 --a_minus 8.001486708115188e-05 --TH0 0.9442672103085101 --TH1 0.6 --K1 7.101463643574025 --K2 7.627742847411641 --file_id_GS 900212
+--------------------------- 900213
+Command: ../SNNT13.out --NL0 9.0 --NL1 7.0 --N_ev 50000 --tau_m 6.223815670323022e-09 --tau_s 7.93889131615984e-09 --tau_r 4.077360678251925e-09 --tau_plus 1e-10 --tau_minus 6.433024350240887e-09 --a_plus 6.56e-06 --a_minus 7.775937362882528e-05 --TH0 0.9377659739940299 --TH1 0.8992481675886763 --K1 7.938649231399198 --K2 7.144241808171032 --file_id_GS 900213
+--------------------------- 900214
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 50000 --tau_m 2.9646107582393525e-09 --tau_s 7.93889131615984e-09 --tau_r 1e-10 --tau_plus 9.035223976633885e-09 --tau_minus 6.433024350240887e-09 --a_plus 5.9227469417857735e-05 --a_minus 7.775937362882528e-05 --TH0 0.7764137010073728 --TH1 0.6 --K1 1.4456247424115483 --K2 1.6369673078587603 --file_id_GS 900214
+--------------------------- 900215
+Command: ../SNNT13.out --NL0 9.0 --NL1 8.0 --N_ev 50000 --tau_m 2.9646107582393525e-09 --tau_s 7.93889131615984e-09 --tau_r 1e-10 --tau_plus 9.035223976633885e-09 --tau_minus 6.433024350240887e-09 --a_plus 5.9227469417857735e-05 --a_minus 7.775937362882528e-05 --TH0 0.7764137010073728 --TH1 0.6331865580690775 --K1 1.9419257049891112 --K2 4.0199128243597055 --file_id_GS 900215
+--------------------------- 900216
+Command: ../SNNT13.out --NL0 6.0 --NL1 11.0 --N_ev 50000 --tau_m 1e-10 --tau_s 1.420134279666965e-09 --tau_r 5.6305517791658965e-09 --tau_plus 5.757186761108761e-09 --tau_minus 9.96038163778785e-09 --a_plus 7.099034103172246e-05 --a_minus 7.431114028184845e-05 --TH0 0.8138502140054391 --TH1 0.6 --K1 5.121409029541742 --K2 4.203064186471844 --file_id_GS 900216
+--------------------------- 900217
+Command: ../SNNT13.out --NL0 7.0 --NL1 11.0 --N_ev 50000 --tau_m 6.741566630284212e-09 --tau_s 9.899644929749895e-09 --tau_r 4.7840728698076836e-09 --tau_plus 4.8915292639002215e-09 --tau_minus 2.657203821783574e-09 --a_plus 4.9321790813241956e-05 --a_minus 6.81743693196826e-05 --TH0 0.856132319892474 --TH1 0.709777973264816 --K1 7.51363328154126 --K2 8.576734291308615 --file_id_GS 900217
+--------------------------- 900218
+Command: ../SNNT13.out --NL0 8.0 --NL1 11.0 --N_ev 50000 --tau_m 6.741566630284212e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 7.76321393206128e-05 --TH0 0.6692374367397605 --TH1 0.8310233274241249 --K1 5.1509351239132 --K2 7.750533445064048 --file_id_GS 900218
+--------------------------- 900219
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 6.56e-06 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 5.317922538061367 --file_id_GS 900219
+--------------------------- 900220
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 4.7122630092613e-09 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 2.2951609969622013 --K2 2.108789821549975 --file_id_GS 900220
+--------------------------- 900221
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 1e-10 --tau_s 6.766030774825208e-09 --tau_r 1e-10 --tau_plus 2.3733439573884724e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900221
+--------------------------- 900222
+Command: ../SNNT13.out --NL0 5.0 --NL1 11.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900222
+--------------------------- 900223
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6488722904172688 --TH1 0.6 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900223
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900210.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900221.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900208.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900206.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900216.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900212.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900214.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900209.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900207.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900223.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900205.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900215.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900211.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900213.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900217.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900201.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900219.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900204.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900202.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900220.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900203.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900218.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900222.json
+Generation: 2, Population Size: 24
+--------------------------- 900301
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 4.7122630092613e-09 --tau_minus 9.518696424057579e-09 --a_plus 6.56e-06 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 2.108789821549975 --file_id_GS 900301
+--------------------------- 900302
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 1e-10 --tau_r 9.167235987632108e-10 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6488722904172688 --TH1 0.6 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900302
+--------------------------- 900303
+Command: ../SNNT13.out --NL0 10.0 --NL1 9.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 1e-10 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 5.077278532460268e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 2.2951609969622013 --K2 2.108789821549975 --file_id_GS 900303
+--------------------------- 900304
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.6488722904172688 --TH1 0.6 --K1 4.854325574741858 --K2 6.954681073918735 --file_id_GS 900304
+--------------------------- 900305
+Command: ../SNNT13.out --NL0 10.0 --NL1 5.0 --N_ev 50000 --tau_m 3.532184211076503e-09 --tau_s 1.1704226550549022e-09 --tau_r 3.937587077918657e-09 --tau_plus 1e-10 --tau_minus 2.7554801256147285e-09 --a_plus 4.021657668699305e-05 --a_minus 1.0346754147347137e-05 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 1.1728524645721596 --K2 6.057392091732997 --file_id_GS 900305
+--------------------------- 900306
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 50000 --tau_m 5.422921643578785e-09 --tau_s 4.1502195583054505e-09 --tau_r 9.167235987632108e-10 --tau_plus 1e-10 --tau_minus 6.959887170672462e-09 --a_plus 2.285038815322839e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 4.832105661038718 --file_id_GS 900306
+--------------------------- 900307
+Command: ../SNNT13.out --NL0 11.0 --NL1 11.0 --N_ev 50000 --tau_m 1e-10 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 1e-10 --a_plus 1.0188479485932605e-05 --a_minus 3.606688971467372e-05 --TH0 0.809883171028739 --TH1 0.8150005184767225 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900307
+--------------------------- 900308
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 9.568311866238814e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 1.25e-06 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 2.2951609969622013 --K2 6.807044468797663 --file_id_GS 900308
+--------------------------- 900309
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 2.690788643680683e-09 --tau_minus 7.768064680051214e-09 --a_plus 8.566077021747398e-05 --a_minus 7.098162673800578e-05 --TH0 0.809883171028739 --TH1 0.6 --K1 8.749027625578133 --K2 4.882044367889385 --file_id_GS 900309
+--------------------------- 900310
+Command: ../SNNT13.out --NL0 5.0 --NL1 11.0 --N_ev 50000 --tau_m 7.951495747337793e-09 --tau_s 5.05817561053809e-10 --tau_r 1.1111360715142166e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.315649532800895e-06 --a_minus 8.731431938420627e-05 --TH0 0.9164652669251867 --TH1 0.7914521444747106 --K1 7.842774253382509 --K2 1.8940859214075094 --file_id_GS 900310
+--------------------------- 900311
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 3.1354363464724554e-09 --tau_s 6.766030774825208e-09 --tau_r 4.243828976526788e-09 --tau_plus 3.1955332962605946e-09 --tau_minus 1e-10 --a_plus 7.315649532800895e-06 --a_minus 1.25e-06 --TH0 0.6828928530500609 --TH1 0.7654218890946273 --K1 2.1042333787714442 --K2 1.058185828273762 --file_id_GS 900311
+--------------------------- 900312
+Command: ../SNNT13.out --NL0 8.0 --NL1 10.0 --N_ev 50000 --tau_m 1e-10 --tau_s 1e-10 --tau_r 4.243828976526788e-09 --tau_plus 2.3733439573884724e-09 --tau_minus 9.518696424057579e-09 --a_plus 1.0188479485932605e-05 --a_minus 1.25e-06 --TH0 0.7698885489603773 --TH1 0.8917510809777357 --K1 4.854325574741858 --K2 6.693122396958143 --file_id_GS 900312
+--------------------------- 900313
+Command: /home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
+  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
+  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+--------------------------- 900000
+Command: ../SNNT13.out --NL0 7.0 --NL1 7.0 --N_ev 50000 --tau_m 1.3413779510765583e-09 --tau_s 7.87209759226483e-09 --tau_r 1.1610263918048743e-09 --tau_plus 8.070258783286262e-09 --tau_minus 2.23543437424393e-09 --a_plus 7.55900036135088e-05 --a_minus 6.655931161715268e-05 --TH0 0.6995314158965578 --TH1 0.8356520138484957 --K1 3.5982096540998407 --K2 3.2656086567996674 --file_id_GS 900000
+--------------------------- 900001
+Command: ../SNNT13.out --NL0 11.0 --NL1 9.0 --N_ev 50000 --tau_m 8.283588498520033e-09 --tau_s 1.2808748394264437e-09 --tau_r 6.16553856785473e-10 --tau_plus 4.2826816676949365e-09 --tau_minus 8.360208955590434e-09 --a_plus 6.53247694872127e-05 --a_minus 8.735617387073954e-05 --TH0 0.6934431274052822 --TH1 0.9198311156800356 --K1 6.533459001583353 --K2 6.397845139675027 --file_id_GS 900001
+--------------------------- 900002
+Command: ../SNNT13.out --NL0 7.0 --NL1 8.0 --N_ev 50000 --tau_m 3.0598242655863463e-09 --tau_s 9.34314421679559e-09 --tau_r 5.7963464017510155e-09 --tau_plus 5.6156575638777014e-09 --tau_minus 2.529107614518475e-09 --a_plus 9.395466208982245e-05 --a_minus 4.105455388276129e-05 --TH0 0.7460300975463756 --TH1 0.6064865627085886 --K1 6.609576542554262 --K2 5.288758765676075 --file_id_GS 900002
+--------------------------- 900003
+Command: ../SNNT13.out --NL0 6.0 --NL1 10.0 --N_ev 50000 --tau_m 3.334731709020244e-09 --tau_s 3.442962592952658e-10 --tau_r 6.374440618748306e-09 --tau_plus 1.1725826809643719e-09 --tau_minus 6.140597006602821e-09 --a_plus 7.410926037064393e-05 --a_minus 8.979271182562278e-05 --TH0 0.6144114156234622 --TH1 0.6675038749125142 --K1 5.24157658864252 --K2 7.033928829378211 --file_id_GS 900003
+--------------------------- 900004
+Command: ../SNNT13.out --NL0 10.0 --NL1 11.0 --N_ev 50000 --tau_m 6.266512190557268e-09 --tau_s 9.103452315532074e-09 --tau_r 3.147461476101406e-09 --tau_plus 1.2926364260989006e-09 --tau_minus 3.5754660612857725e-10 --a_plus 6.48620660696163e-05 --a_minus 8.537458321672367e-05 --TH0 0.667382843998445 --TH1 0.612869672444785 --K1 9.852997787288103 --K2 7.778407715056604 --file_id_GS 900004
+--------------------------- 900005
+Command: ../SNNT13.out --NL0 6.0 --NL1 9.0 --N_ev 50000 --tau_m 3.1223181930234453e-09 --tau_s 7.502483507054838e-09 --tau_r 4.334470343730028e-10 --tau_plus 9.7490521460918e-10 --tau_minus 8.136425086945764e-10 --a_plus 1.948911572488687e-05 --a_minus 6.016067668588829e-05 --TH0 0.9396300639686359 --TH1 0.8885179196865179 --K1 5.388446195513158 --K2 3.4085805136297385 --file_id_GS 900005
+--------------------------- 900006
+Command: ../SNNT13.out --NL0 8.0 --NL1 8.0 --N_ev 50000 --tau_m 7.878827339666682e-09 --tau_s 6.3457304042717e-09 --tau_r 5.207680289368476e-09 --tau_plus 5.9734866856441e-10 --tau_minus 5.784549674960105e-09 --a_plus 8.811129473296453e-06 --a_minus 7.303724397522238e-05 --TH0 0.8930722217811389 --TH1 0.9066427272171953 --K1 2.12357301760188 --K2 6.986856455240377 --file_id_GS 900006
+--------------------------- 900007
+Command: ../SNNT13.out --NL0 9.0 --NL1 10.0 --N_ev 50000 --tau_m 7.2200193781530846e-09 --tau_s 1.5234391187196765e-09 --tau_r 4.6710297498905116e-09 --tau_plus 3.1601327886834533e-09 --tau_minus 2.8720924090782887e-09 --a_plus 9.301506323053276e-06 --a_minus 5.216163845581985e-05 --TH0 0.727396883520764 --TH1 0.9110918909324983 --K1 7.3862487504588685 --K2 8.111625145236609 --file_id_GS 900007
+--------------------------- 900008
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 50000 --tau_m 8.019744550649294e-09 --tau_s 2.5667000962823607e-09 --tau_r 2.9450090021179373e-09 --tau_plus 9.506092387151048e-09 --tau_minus 7.382331701085337e-09 --a_plus 6.52740916407791e-05 --a_minus 4.490159462183102e-05 --TH0 0.6181357579435955 --TH1 0.6261948190522891 --K1 4.837509309349947 --K2 3.102376660694506 --file_id_GS 900008
+--------------------------- 900009
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 50000 --tau_m 9.710607365035154e-09 --tau_s 1.3066763896180694e-10 --tau_r 7.983320207849381e-10 --tau_plus 4.861692786585696e-10 --tau_minus 9.53641277924268e-09 --a_plus 4.8319047168346746e-05 --a_minus 7.086310884266693e-06 --TH0 0.7480708669887839 --TH1 0.6141630496471264 --K1 4.21162784084432 --K2 7.78688238128289 --file_id_GS 900009
+--------------------------- 900010
+Command: ../SNNT13.out --NL0 11.0 --NL1 9.0 --N_ev 50000 --tau_m 7.642861285288517e-09 --tau_s 7.133625595127478e-09 --tau_r 8.388617860482231e-09 --tau_plus 1.4255499330297608e-09 --tau_minus 5.930614147062035e-09 --a_plus 5.5797735771552505e-05 --a_minus 8.839660126455708e-05 --TH0 0.9171150061283824 --TH1 0.6176838680282888 --K1 6.8945754156588865 --K2 4.643600814077315 --file_id_GS 900010
+--------------------------- 900011
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 50000 --tau_m 6.950369756545619e-09 --tau_s 2.4337510862724742e-09 --tau_r 4.221638380350396e-09 --tau_plus 4.6559373298962276e-09 --tau_minus 2.168473728513768e-09 --a_plus 5.6748575252992606e-05 --a_minus 1.9184900150195652e-05 --TH0 0.8555907308358256 --TH1 0.682017787600593 --K1 2.560832335539971 --K2 2.163310042462212 --file_id_GS 900011
+--------------------------- 900012
+Command: ../SNNT13.out --NL0 9.0 --NL1 11.0 --N_ev 50000 --tau_m 6.158483593985032e-09 --tau_s 7.70036984380738e-09 --tau_r 5.108815005108679e-09 --tau_plus 6.134054461688327e-09 --tau_minus 1.128028210240761e-09 --a_plus 1.6349434530882077e-05 --a_minus 5.309055620751837e-06 --TH0 0.621409558145904 --TH1 0.7458500606268651 --K1 3.730608632873621 --K2 3.038889148635609 --file_id_GS 900012
+--------------------------- 900013
+Command: ../SNNT13.out --NL0 5.0 --NL1 10.0 --N_ev 50000 --tau_m 4.207721825625412e-09 --tau_s 3.2061893608105325e-09 --tau_r 2.5780803706129665e-09 --tau_plus 7.969914004079442e-09 --tau_minus 8.225638110695803e-09 --a_plus 2.1312438366094735e-05 --a_minus 2.5551941604150136e-05 --TH0 0.6458530494912513 --TH1 0.7392998132211801 --K1 5.089731821709984 --K2 6.594239487000645 --file_id_GS 900013
+--------------------------- 900014
+Command: ../SNNT13.out --NL0 7.0 --NL1 11.0 --N_ev 50000 --tau_m 4.432190347066681e-09 --tau_s 6.903356102066382e-09 --tau_r 8.945556095848503e-09 --tau_plus 3.0934988858764516e-09 --tau_minus 5.574589337630629e-09 --a_plus 5.2776003066664636e-05 --a_minus 5.351096821735267e-06 --TH0 0.6038250940152142 --TH1 0.8558785784960152 --K1 4.887508508678632 --K2 7.916741073122574 --file_id_GS 900014
+--------------------------- 900015
+Command: ../SNNT13.out --NL0 6.0 --NL1 7.0 --N_ev 50000 --tau_m 1.1846476748851666e-09 --tau_s 6.4180037858335935e-09 --tau_r 6.834055669751247e-10 --tau_plus 1.2936148414710587e-09 --tau_minus 7.093716239718807e-09 --a_plus 4.92180521635034e-05 --a_minus 8.179072616637737e-05 --TH0 0.7915965259637774 --TH1 0.6232139081840234 --K1 8.714212923484887 --K2 9.662208172949676 --file_id_GS 900015
+--------------------------- 900016
+Command: ../SNNT13.out --NL0 5.0 --NL1 7.0 --N_ev 50000 --tau_m 6.662001847192755e-09 --tau_s 3.5776015269143913e-10 --tau_r 7.446784371063234e-09 --tau_plus 3.997890698171931e-09 --tau_minus 4.240638616856869e-09 --a_plus 9.630254579146095e-05 --a_minus 4.9248217014823836e-05 --TH0 0.6468010875165946 --TH1 0.7130577566647583 --K1 8.527198466271212 --K2 9.430562232869548 --file_id_GS 900016
+--------------------------- 900017
+Command: ../SNNT13.out --NL0 6.0 --NL1 7.0 --N_ev 50000 --tau_m 9.104268744180432e-09 --tau_s 2.801834853668828e-09 --tau_r 5.084667574108857e-09 --tau_plus 3.336585789290399e-10 --tau_minus 1.7728683927838192e-09 --a_plus 3.7972432355425436e-05 --a_minus 5.113011615974729e-05 --TH0 0.8393842192839677 --TH1 0.7857225341530885 --K1 8.721007756965196 --K2 4.955012112216846 --file_id_GS 900017
+--------------------------- 900018
+Command: ../SNNT13.out --NL0 6.0 --NL1 6.0 --N_ev 50000 --tau_m 1.6394704094824255e-09 --tau_s 6.9059991458663614e-09 --tau_r 9.666945334181482e-09 --tau_plus 6.936147726920202e-09 --tau_minus 7.96862221637951e-09 --a_plus 9.122467829714254e-05 --a_minus 3.200714408711861e-05 --TH0 0.7554287221256002 --TH1 0.7610843404490906 --K1 1.5900041894184436 --K2 2.216537104188985 --file_id_GS 900018
+--------------------------- 900019
+Command: /home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
+  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
+  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
+  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
+  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
+  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
+  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1139: UserWarning: The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.
+  warnings.warn("The 'delay_after_gen' parameter is deprecated starting from PyGAD 3.3.0. To delay or pause the evolution after each generation, assign a callback function/method to the 'on_generation' parameter to adds some time delay.")
+/home/centos/anaconda3/envs/root_env/lib/python3.10/site-packages/pygad/pygad.py:1153: UserWarning: Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.
+  warnings.warn("Use the 'save_best_solutions' parameter with caution as it may cause memory overflow when either the number of generations or number of genes is large.")
+--------------------------- 900000
+--------------------------- 900001
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 30000 --tau_m 6.509544235240186e-09 --tau_s 1.1565129393249233e-09 --tau_r 8.104182336701863e-09 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 5.5573302490950594e-05 --TH0 0.6454739076013034 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900001
+--------------------------- 900002
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900002
+--------------------------- 900003
+--------------------------- 900004
+--------------------------- 900005
+--------------------------- 900006
+--------------------------- 900007
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 6.94506807290487e-09 --tau_plus 3.486731784048891e-10 --tau_minus 7.76381263433241e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.0836232381495297 --K2 2.400947952495011 --file_id_GS 900007
+--------------------------- 900008
+--------------------------- 900009
+--------------------------- 900010
+--------------------------- 900011
+--------------------------- 900012
+--------------------------- 900013
+--------------------------- 900014
+--------------------------- 900015
+--------------------------- 900016
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 3.6764647726089697e-09 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900016
+--------------------------- 900017
+--------------------------- 900018
+--------------------------- 900019
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900001.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900007.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900002.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900016.json
+--------------------------- 900101
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900101
+--------------------------- 900102
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900102
+--------------------------- 900103
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900103
+--------------------------- 900104
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 1e-10 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900104
+--------------------------- 900105
+--------------------------- 900106
+--------------------------- 900107
+--------------------------- 900108
+--------------------------- 900109
+--------------------------- 900110
+--------------------------- 900111
+--------------------------- 900112
+--------------------------- 900113
+--------------------------- 900114
+Command: ../SNNT13.out --NL0 7.0 --NL1 11.0 --N_ev 30000 --tau_m 9.873894238717319e-09 --tau_s 7.354076276128655e-09 --tau_r 1.5638009730589678e-09 --tau_plus 3.728270842166169e-09 --tau_minus 1e-10 --a_plus 7.487295931297702e-05 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900114
+--------------------------- 900115
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 30000 --tau_m 6.509544235240186e-09 --tau_s 1.1565129393249233e-09 --tau_r 8.104182336701863e-09 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 1.25e-06 --TH0 0.6454739076013034 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900115
+--------------------------- 900116
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.0836232381495297 --K2 2.400947952495011 --file_id_GS 900116
+--------------------------- 900117
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 6.94506807290487e-09 --tau_plus 1e-10 --tau_minus 7.76381263433241e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900117
+--------------------------- 900118
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 3.734071825087622e-09 --tau_plus 3.0298191322062324e-09 --tau_minus 1e-10 --a_plus 7.920073660426172e-05 --a_minus 6.740945175151412e-05 --TH0 0.6552828027323537 --TH1 0.7631598245634579 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900118
+--------------------------- 900119
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900115.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900118.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900117.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900101.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900102.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900116.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900104.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900114.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900103.json
+Generation: 1, Population Size: 20
+--------------------------- 900201
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900201
+--------------------------- 900202
+--------------------------- 900203
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900203
+--------------------------- 900205
+--------------------------- 900206
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900206
+--------------------------- 900207
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 1e-10 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 5.5573302490950594e-05 --TH0 0.6454739076013034 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900207
+--------------------------- 900208
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 30000 --tau_m 6.509544235240186e-09 --tau_s 1.1565129393249233e-09 --tau_r 8.104182336701863e-09 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 1.25e-06 --TH0 0.6454739076013034 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.402847314141031 --file_id_GS 900208
+--------------------------- 900209
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 30000 --tau_m 6.509544235240186e-09 --tau_s 1.1565129393249233e-09 --tau_r 8.104182336701863e-09 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7631598245634579 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900209
+--------------------------- 900210
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 3.734071825087622e-09 --tau_plus 3.0298191322062324e-09 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 6.740945175151412e-05 --TH0 0.6552828027323537 --TH1 0.7631598245634579 --K1 1.2413744719589586 --K2 6.661674089198884 --file_id_GS 900210
+--------------------------- 900211
+--------------------------- 900212
+--------------------------- 900214
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900214
+--------------------------- 900215
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900215
+--------------------------- 900216
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900216
+--------------------------- 900217
+Command: ../SNNT13.out --NL0 5.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 1e-10 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900217
+--------------------------- 900218
+Command: ../SNNT13.out --NL0 10.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 1.5638009730589678e-09 --tau_plus 3.728270842166169e-09 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900218
+--------------------------- 900219
+Command: ../SNNT13.out --NL0 7.0 --NL1 11.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.5216167446584508 --K2 2.400947952495011 --file_id_GS 900219
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900215.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900210.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900208.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900209.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900217.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900206.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900207.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900214.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900201.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900219.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900218.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900216.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900203.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900204.json
+Generation: 2, Population Size: 20
+--------------------------- 900301
+Command: ../SNNT13.out --NL0 7.0 --NL1 9.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900301
+--------------------------- 900302
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900302
+--------------------------- 900303
+Command: ../SNNT13.out --NL0 10.0 --NL1 11.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900303
+--------------------------- 900304
+--------------------------- 900305
+Command:                                                                                                                                                                                                                                                                                                                                                                                                                               ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 6.884466840379891e-05 --a_minus 1.25e-06 --TH0 0.6454739076013034 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900305
+--------------------------- 900306
+Command: ../SNNT13.out --NL0 9.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 1e-10 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900306
+--------------------------- 900307
+--------------------------- 900308
+Command: ../SNNT13.out --NL0 6.0 --NL1 7.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 1.5638009730589678e-09 --tau_plus 3.728270842166169e-09 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900308
+--------------------------- 900309
+Command: ../SNNT13.out --NL0 10.0 --NL1 10.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.5216167446584508 --K2 2.400947952495011 --file_id_GS 900309
+--------------------------- 900310
+Command: ../SNNT13.out --NL0 7.0 --NL1 11.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.723954091813601 --file_id_GS 900310
+--------------------------- 900311
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900311
+--------------------------- 900312
+Command: ../SNNT13.out --NL0 11.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 6.402847314141031 --file_id_GS 900312
+--------------------------- 900313
+Command: ../SNNT13.out --NL0 11.0 --NL1 10.0 --N_ev 30000 --tau_m 6.509544235240186e-09 --tau_s 1.1565129393249233e-09 --tau_r 8.104182336701863e-09 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.884466840379891e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.6 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900313
+--------------------------- 900314
+--------------------------- 900315
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900315
+--------------------------- 900316
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.7904173045691911 --TH1 0.7164687498602473 --K1 1.2413744719589586 --K2 2.398745692600216 --file_id_GS 900316
+--------------------------- 900317
+Command: ../SNNT13.out --NL0 10.0 --NL1 8.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900317
+--------------------------- 900318
+Command: ../SNNT13.out --NL0 10.0 --NL1 11.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 4.180692899784134e-09 --tau_r 1e-10 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.6 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900318
+--------------------------- 900319
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900319
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900313.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900306.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900319.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900305.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900315.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900308.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900301.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900316.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900302.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900310.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900309.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900312.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900317.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900303.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900311.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900318.json
+Generation: 3, Population Size: 20
+--------------------------- 900401
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1.5638009730589678e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900401
+--------------------------- 900402
+Command: ../SNNT13.out --NL0 6.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 6.402847314141031 --file_id_GS 900402
+--------------------------- 900403
+Command: ../SNNT13.out --NL0 11.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900403
+--------------------------- 900404
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900404
+--------------------------- 900406
+Command: ../SNNT13.out --NL0 7.0 --NL1 9.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900406
+--------------------------- 900407
+--------------------------- 900408
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900408
+--------------------------- 900409
+Command: ../SNNT13.out --NL0 7.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 1e-10 --tau_plus 1.9517829355169e-09 --tau_minus 4.709814369208286e-09 --a_plus 6.56e-06 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900409
+--------------------------- 900410
+--------------------------- 900411
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.6 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900411
+--------------------------- 900412
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900412
+--------------------------- 900413
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.7904173045691911 --TH1 0.7164687498602473 --K1 1.5671497184453824 --K2 2.398745692600216 --file_id_GS 900413
+--------------------------- 900414
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900414
+--------------------------- 900415
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900415
+--------------------------- 900416
+Command: ../SNNT13.out --NL0 6.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 6.402847314141031 --file_id_GS 900416
+--------------------------- 900417
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900417
+--------------------------- 900418
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.976168260993003 --K2 8.396605232610701 --file_id_GS 900418
+--------------------------- 900419
+Command: ../SNNT13.out --NL0 10.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 3.6764647726089697e-09 --tau_plus 1e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900419
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900417.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900403.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900409.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900404.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900418.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900401.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900413.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900415.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900406.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900408.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900414.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900402.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900416.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900419.json
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900412.json'
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900412.json
+Error during the execution of SNN: Failed to read JSON file for file_id_GS 900412
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900411.json'
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900411.json
+Error during the execution of SNN: Failed to read JSON file for file_id_GS 900411
+Generation: 4, Population Size: 20
+--------------------------- 900501
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900501
+--------------------------- 900502
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1.5638009730589678e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900502
+--------------------------- 900503
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900503
+--------------------------- 900504
+Command: ../SNNT13.out --NL0 7.0 --NL1 9.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900504
+--------------------------- 900505
+--------------------------- 900506
+Command: ../SNNT13.out --NL0 7.0 --NL1 8.0 --N_ev 30000 --tau_m 5.215538012521229e-09 --tau_s 5.195199260182692e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.6 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900506
+--------------------------- 900508
+Command: ../SNNT13.out --NL0 8.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.7904173045691911 --TH1 0.7164687498602473 --K1 1.5671497184453824 --K2 2.398745692600216 --file_id_GS 900508
+--------------------------- 900509
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.8620026752240091 --K1 3.0596816192047824 --K2 6.320502311774601 --file_id_GS 900509
+--------------------------- 900510
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900510
+--------------------------- 900511
+--------------------------- 900513
+Command: ../SNNT13.out --NL0 6.0 --NL1 5.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 4.836944533129077e-10 --tau_minus 5.4701677609656745e-09 --a_plus 8.382551397416987e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.8773957166459676 --K1 1.9586090002134096 --K2 7.541718270848334 --file_id_GS 900513
+--------------------------- 900514
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 7.953569517133794e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.6 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900514
+--------------------------- 900515
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1.5638009730589678e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 1.25e-06 --TH0 0.866232698254649 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900515
+--------------------------- 900516
+Command: ../SNNT13.out --NL0 10.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900516
+--------------------------- 900517
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900517
+--------------------------- 900518
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.64366280596347 --file_id_GS 900518
+--------------------------- 900519
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900519
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900514.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900506.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900517.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900515.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900503.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900501.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900509.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900518.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900508.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900516.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900502.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900504.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900510.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900519.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900513.json
+Generation: 5, Population Size: 20
+--------------------------- 900601
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900601
+--------------------------- 900602
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900602
+--------------------------- 900603
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.8620026752240091 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900603
+--------------------------- 900604
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1.5638009730589678e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.83486283420189 --file_id_GS 900604
+--------------------------- 900605
+--------------------------- 900606
+Command: ../SNNT13.out --NL0 7.0 --NL1 9.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.6 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900606
+--------------------------- 900607
+Command: ../SNNT13.out --NL0 7.0 --NL1 10.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.6 --K1 1.9586090002134096 --K2 4.8716739653809125 --file_id_GS 900607
+--------------------------- 900608
+--------------------------- 900609
+--------------------------- 900610
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 7.701108735351812e-05 --TH0 0.6285385380199419 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900610
+--------------------------- 900611
+--------------------------- 900612
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900612
+--------------------------- 900613
+Command: ../SNNT13.out --NL0 10.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900613
+--------------------------- 900614
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 2.8153714393648954 --K2 6.320502311774601 --file_id_GS 900614
+--------------------------- 900615
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900615
+--------------------------- 900616
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900616
+--------------------------- 900617
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900617
+--------------------------- 900618
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900618
+--------------------------- 900619
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900619
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900616.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900612.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900614.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900615.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900618.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900613.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900601.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900604.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900619.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900606.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900607.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900610.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900617.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900603.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900602.json
+Generation: 6, Population Size: 20
+--------------------------- 900701
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900701
+--------------------------- 900702
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900702
+--------------------------- 900703
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.6 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900703
+--------------------------- 900704
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900704
+--------------------------- 900705
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 1.25e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900705
+--------------------------- 900706
+--------------------------- 900707
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1.5638009730589678e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900707
+--------------------------- 900708
+Command: ../SNNT13.out --NL0 7.0 --NL1 9.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 3.219412154528994e-05 --TH0 0.8735748754871295 --TH1 0.6 --K1 2.0428922610114766 --K2 4.8716739653809125 --file_id_GS 900708
+--------------------------- 900710
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.8773957166459676 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900710
+--------------------------- 900711
+--------------------------- 900712
+Command: ../SNNT13.out --NL0 10.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 6.320502311774601 --file_id_GS 900712
+--------------------------- 900713
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900713
+--------------------------- 900714
+Command: ../SNNT13.out --NL0 7.0 --NL1 5.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 6.320502311774601 --file_id_GS 900714
+--------------------------- 900716
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 1e-10 --a_plus 6.56e-06 --a_minus 2.146077254025881e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900716
+--------------------------- 900718
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900718
+--------------------------- 900719
+Command: ../SNNT13.out --NL0 7.0 --NL1 10.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 2.803696432379964e-09 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 6.56e-06 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.8620026752240091 --K1 5.630174606126129 --K2 8.396605232610701 --file_id_GS 900719
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900707.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900713.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900714.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900712.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900703.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900704.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900716.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900710.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900708.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900709.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900719.json
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900705.json'
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900705.json
+Error during the execution of SNN: Failed to read JSON file for file_id_GS 900705
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900702.json
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900701.json
+Error during the reading of the JSON file: [Errno 2] No such file or directory: '/home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900718.json'
+Written file: /home/centos/CMS-SpikingNeuralNetwork/Code/MODE/JSON/Parameters_900718.json
+Error during the execution of SNN: Failed to read JSON file for file_id_GS 900718
+Generation: 7, Population Size: 20
+--------------------------- 900801
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 1.25e-06 --TH0 0.879722000786797 --TH1 0.7164687498602473 --K1 5.630174606126129 --K2 7.960209453095791 --file_id_GS 900801
+--------------------------- 900802
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.6 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900802
+--------------------------- 900803
+--------------------------- 900804
+Command: ../SNNT13.out --NL0 11.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 1.25e-06 --TH0 0.6 --TH1 0.7133747550948449 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900804
+--------------------------- 900805
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 1.25e-06 --TH0 0.8944214729885736 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900805
+--------------------------- 900806
+Command: ../SNNT13.out --NL0 7.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 1e-10 --tau_r 1e-10 --tau_plus 1e-10 --tau_minus 7.402889597559981e-09 --a_plus 7.985033083611434e-05 --a_minus 8.240053880592148e-06 --TH0 0.6 --TH1 0.7164687498602473 --K1 1.794213847736764 --K2 2.400947952495011 --file_id_GS 900806
+--------------------------- 900807
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 8.240053880592148e-06 --TH0 0.879722000786797 --TH1 0.6 --K1 5.630174606126129 --K2 6.320502311774601 --file_id_GS 900807
+--------------------------- 900808
+Command: ../SNNT13.out --NL0 9.0 --NL1 6.0 --N_ev 30000 --tau_m 8.069921477581233e-09 --tau_s 7.66110197386119e-09 --tau_r 1e-10 --tau_plus 1.7175492067587078e-09 --tau_minus 7.402889597559981e-09 --a_plus 8.099310989304981e-05 --a_minus 1.25e-06 --TH0 0.8735748754871295 --TH1 0.6 --K1 2.0428922610114766 --K2 4.8716739653809125 --file_id_GS 900808
+--------------------------- 900809
+Command:   P‹g §  l¶A”o…5—pN±§  pTı§  Á˝≠‚Ö≠ò0ŸN±§  PÙK≤§  	Ÿû;p–¶0…N±§   L^ı§  ∏ë ‘ê∞ N±§   x^ı§  ΩÊº úÿ<∞ËN±§  Ôg §  µ¨ÊÛ1;∞„N±§  pÃg §  »‹πÃÙUC∞¿N±§  Äï\ı§   7“‡AEñâ∞“N±§  g §  `Ì•Hâx'0ÓN±§  ¿ﬂN±§  Æ¬CˇÒP®Œp¯N±§   É\ı§  ±ÿoﬂs2§B `ı§  @é\ı§  ˛û„©Ï‡î≈0n^ı§  @F^ı§  ùèPÄ€%†–O^ı§  Äk^ı§  záÜDäç«∞C^ı§  ê—g §  ÔÍûÄ>H`ı§  êÿg §  ôY'
+√jM0RH¶  pÿg §  ‹Í®5

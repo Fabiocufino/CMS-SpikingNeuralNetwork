@@ -1286,8 +1286,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 if(iev_thisepoch < N_train){
                     snn_in.LTD_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
                     snn_in.LTP_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
-                    snn_in.LTD_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
-                    snn_in.LTP_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
+                    // DEcomment for delay 
+                    // snn_in.LTD_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
+                    // snn_in.LTP_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
                 } 
                 //we are in the test phase
                 else{
