@@ -1,7 +1,14 @@
 #include "SNN.h"
+/*
+#include <boost/random.hpp>
+#include <boost/random/beta_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
+*/
 
-using json = nlohmann::json;
+//using namespace boost::random;
 using namespace std;
+
+//mt19937 rng;
 
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
@@ -59,6 +66,7 @@ SNN::SNN(int _NL0, int _NL1,
                                                  split_layer0(_split_layer0)
 
 {
+    //rng.seed(static_cast<unsigned int>(std::time(0)));
     Threshold[0] = _Threshold0;
     Threshold[1] = _Threshold1;
     
@@ -71,7 +79,7 @@ SNN::SNN(int _NL0, int _NL1,
 
     fire_granularity = tau_s / 5.;
     fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
-    myRNG = new TRandom3(static_cast<unsigned int>(time(0)));
+    myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
 
@@ -98,8 +106,6 @@ SNN::SNN(int _NL0, int _NL1,
     History_time = new vector<double>[N_neurons]; // Time of signal events per each 1neuron
     History_type = new vector<int>[N_neurons];   // Type of signal
     History_ID = new vector<int>[N_neurons];     // ID of generating signal stream or neuron
-    History_ev_class = new vector<pair <int, int>>[N_neurons];  // Class of the signal
-
     Fire_time = new vector<double>[N_neurons];    // Times of firing of each neuron
     Neuron_layer = new int[N_neurons];
     sumweight = new float[N_neurons]; // summed weights of streams for each neurons for the purpose of normalization
@@ -109,45 +115,14 @@ SNN::SNN(int _NL0, int _NL1,
     Delta_delay = MaxDelay/10.;
     Mean_delay = MaxDelay/2.;
 
-    Init_neurons(0);
+    Init_neurons();
     Init_connection_map();
     Init_weights();
     Init_delays_uniform();
 }
-SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
-SNN::~SNN() {
-    // Release memory for dynamically allocated arrays
-    for (int i = 0; i < N_neurons; ++i) {
-        delete[] Weight[i];
-        delete[] Weight_initial[i];
-        delete[] check_LTD[i];
-        delete[] Void_weight[i];
-        delete[] Delay[i];
-        delete[] Delay_initial[i];
-        delete[] EnableIPSP[i];
-    }
 
-    delete[] Weight;
-    delete[] Weight_initial;
-    delete[] check_LTD;
-    delete[] Void_weight;
-    delete[] Delay;
-    delete[] Delay_initial;
-    delete[] EnableIPSP;
-    
-    // Clear vectors
-    delete[] History_time;
-    delete[] History_type;
-    delete[] History_ID;
-    delete[] History_ev_class;
-    delete[] Fire_time;
-
-    delete[] Neuron_layer;
-    delete[] sumweight;
-    delete[] sumdelays;
-
-    // Delete random number generator
-    delete myRNG;
+SNN::~SNN()
+{
 }
 
 void SNN::Reset_weights(){
@@ -158,7 +133,7 @@ void SNN::Reset_weights(){
     }
 }
 
-double SNN::bisectionMethod(double a, double b, int in, double epsilon, function<float(int, double, bool)> func)
+double SNN::bisectionMethod(double a, double b, int in, double epsilon, std::function<float(int, double, bool)> func)
 {
     float fa = func(in, a, false);
     float fb = func(in, b, false);
@@ -177,7 +152,7 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, function
         float fc = func(in, c, false);
 
         // Check if the root is found within the specified tolerance
-        if (abs(fc) < epsilon)
+        if (std::abs(fc) < epsilon)
         {
             return c;
         }
@@ -200,7 +175,8 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, function
 
 // Initialize neuron potentials
 // ----------------------------
-void SNN::Init_neurons(int ievent)
+
+void SNN::Init_neurons()
 {
     for (int in = 0; in < N_neurons; in++)
     {
@@ -208,13 +184,10 @@ void SNN::Init_neurons(int ievent)
         History_time[in].clear();
         History_type[in].clear();
         History_ID[in].clear();
-        History_ev_class[in].clear();
 
         History_time[in].push_back(0);
-        History_type[in].push_back(SPIKE);
+        History_type[in].push_back(0);
         History_ID[in].push_back(0);
-        History_ev_class[in].push_back({ievent, NOCLASS});
-
         if (in < N_neuronsL[0])
             Neuron_layer[in] = 0;
         else
@@ -293,6 +266,41 @@ void SNN::Init_delays_man(){
     }
     return;
 }
+
+/*
+void SNN::Init_delays_PERT()
+{
+    // Define delays
+    for (int in = 0; in < N_neurons; in++)
+    {
+        float type = myRNG->Uniform();
+        float factor =  myRNG->Uniform();
+        cout << endl << "Neuron " << in << " TYPE " << type << endl;
+        for (int is = 0; is < N_streams; is++)
+        { 
+            Delay[in][is] = 0.;
+            Delay_initial[in][is] = 0;
+            if (is<N_InputStreams) { // no delay for neuron-originated spikes into L1
+                float most_likely = 0;
+                if (type < 0.5) 
+                    most_likely = (is + 1.)/(N_InputStreams+1.) ;
+                else            
+                    most_likely = (N_InputStreams - is)/(N_InputStreams+1.);
+                float alpha_val = (4. * most_likely  + 1.);
+                float beta_val = (5. - 4. * most_likely);
+                
+                beta_distribution<> betaDistribution(alpha_val, beta_val);
+                variate_generator<mt19937&, beta_distribution<> > betaGenerator(rng, betaDistribution);
+
+                Delay[in][is] = pow(betaGenerator(), 1.)* MaxDelay*factor;
+                Delay_initial[in][is] = Delay[in][is];
+                cout << "("<< most_likely << ", " << Delay[in][is] << ")  ";
+            }
+        }
+    }
+    cout << endl;
+    return;
+}*/
 
 void SNN::Init_delays_gauss()
 {
@@ -471,7 +479,7 @@ void SNN::Init_connection_map()
 }
 
 //Function to insert new spikes in the correct temporal position
-void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class, int ievent){
+void SNN::insert_spike(int id_neuron, double spike_time, int type, int id){
     // Find the position where the new value should be inserted
     auto it = lower_bound(History_time[id_neuron].begin(), History_time[id_neuron].end(), spike_time);
     int position = distance(History_time[id_neuron].begin(), it);
@@ -479,7 +487,6 @@ void SNN::insert_spike(int id_neuron, double spike_time, int type, int id, int s
     History_time[id_neuron].insert(it, spike_time);
     History_type[id_neuron].insert(History_type[id_neuron].begin()+position, type);
     History_ID[id_neuron].insert(History_ID[id_neuron].begin()+position, id);
-    History_ev_class[id_neuron].insert(History_ev_class[id_neuron].begin()+position, {ievent, spike_class});
 }
 
 // Model Excitatory Post-Synaptic Potential
@@ -536,7 +543,7 @@ double SNN::Neuron_firetime(int in, double t)
     for (int ih = History_type[in].size() - 1; ih > 1; ih--)
     {
         // longer approach: add "&& History_ID[in][ih] < N_InputStreams" to rescan from the last InputStream spike
-        if (History_type[in][ih] == EPSP && !Void_weight[in][History_ID[in][ih]] && History_time[in][ih]<t)
+        if (History_type[in][ih] == 1 && !Void_weight[in][History_ID[in][ih]] && History_time[in][ih]<t)
         {
             last_EPSP = History_time[in][ih];
             break;
@@ -592,63 +599,6 @@ double SNN::Neuron_firetime(int in, double t)
                            });
 }
 
-//function to extract the unique values in a subset of a vector
-vector<pair<int, int>> uniquePairsInRange(const vector<pair<int, int>>& my_pairs, int start_idx, int end_idx) {
-    vector<pair<int, int>> range_subset(my_pairs.begin() + start_idx, my_pairs.begin() + end_idx + 1);
-
-    // Sort the subrange
-    sort(range_subset.begin(), range_subset.end());
-
-    // Remove consecutive duplicates
-    auto it = unique(range_subset.begin(), range_subset.end(), [](const auto& a, const auto& b) {
-        return a.first == b.first && a.second == b.second;
-    });
-
-    // Resize the vector to remove the duplicates
-    range_subset.resize(distance(range_subset.begin(), it));
-
-    return range_subset;
-}
-
-//Inspect the history of a neuron before the activation
-vector<pair <int, int>> SNN::Inspect_History(int in, double fire_time, double window){
-    //find the position of the fire_time and the first spike in the window
-    int start_pos = distance(History_time[in].begin(), lower_bound(History_time[in].begin(), History_time[in].end(), fire_time - window));
-    int end_pos   = distance(History_time[in].begin(), upper_bound(History_time[in].begin(), History_time[in].end(), fire_time));
-
-    return (uniquePairsInRange(History_ev_class[in], start_pos, end_pos));
-    
-}
-
-//Handle the activation of a neuron
-void SNN::Activate_Neuron(int in, double t) {
-    // Reset history of this neuron before time t
-    auto it = upper_bound(History_time[in].begin(), History_time[in].end(), t);
-    if (it != History_time[in].begin()) {
-        int position = distance(History_time[in].begin(), it);
-       
-        // Erase elements before the position found by binary search
-        History_time[in].erase(History_time[in].begin(), it);
-        History_type[in].erase(History_type[in].begin(), History_type[in].begin() + position);
-        History_ID[in].erase(History_ID[in].begin(), History_ID[in].begin() + position);
-        History_ev_class[in].erase(History_ev_class[in].begin(), History_ev_class[in].begin() + position);
-    }
-    
-    // Insert the spike at time t
-    if (!History_ev_class[in].empty()) {
-        insert_spike(in, t, SPIKE, 0, NOCLASS, History_ev_class[in].front().first);
-    } else {
-        // Handle the case when the history is empty
-        insert_spike(in, t, SPIKE, 0, NOCLASS, 0); // Assuming default value for last event class
-    }
-    return;
-    /*
-    History_time[in].clear();
-    History_type[in].clear();
-    History_ID[in].clear();
-    */
-}
-
 // Compute collective effect of excitatory, post-spike, and inhibitory potentials on a neuron
 // ------------------------------------------------------------------------------------------
 float SNN::Neuron_Potential(int in, double t, bool delete_history)
@@ -668,28 +618,25 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
     int len = History_time[in].size();
     if (len > 1)
     {
-        double last_spike = History_time[in].front();
         for (int ih = 1; ih < len; ih++)
         {
             delta_t = t - History_time[in][ih];
-            if (History_type[in][ih] == EPSP)
+            if (History_type[in][ih] == 1)
             { // EPSP
                 if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
                 {
                     if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
                         P += Weight[in][History_ID[in][ih]] * EPS_potential(delta_t);
                 }
-                else if (delete_history && (History_time[in][ih] - last_spike) > 7. * max(tau_minus, taud_minus) && delta_t > 7. * max(tau_plus, taud_plus))
+                else if (delete_history)
                 {
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    History_ev_class[in].erase(History_ev_class[in].begin() + ih, History_ev_class[in].begin() + ih + 1);
-                    
                     len = len - 1;
                 }
             }
-            else if (History_type[in][ih] == IPSP)
+            else if (History_type[in][ih] == 2)
             { // IPSP
                 if (delta_t < MaxDeltaT && EnableIPSP[in][History_ID[in][ih] - N_InputStreams])
                 {
@@ -702,8 +649,22 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
                     History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
                     History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
                     History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
-                    History_ev_class[in].erase(History_ev_class[in].begin() + ih, History_ev_class[in].begin() + ih + 1);
-                    
+                    len = len - 1;
+                }
+            }
+            else if (History_type[in][ih] == 3)
+            { // IE
+                if (delta_t < MaxDeltaT && (History_time[in][ih] - t0) > tau_r)
+                {
+                    if (!Void_weight[in][History_ID[in][ih]]) // for type 1 or 3 signals, ID is the stream
+                        P += IE_potential(delta_t, in, History_ID[in][ih]);
+                }
+                else if (delete_history)
+                {
+                    // get rid of irrelevant events
+                    History_time[in].erase(History_time[in].begin() + ih, History_time[in].begin() + ih + 1);
+                    History_type[in].erase(History_type[in].begin() + ih, History_type[in].begin() + ih + 1);
+                    History_ID[in].erase(History_ID[in].begin() + ih, History_ID[in].begin() + ih + 1);
                     len = len - 1;
                 }
             }
@@ -738,57 +699,57 @@ void SNN::LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old)
     {            
         if (Void_weight[in][is])
             continue;
-        
         check_LTD[in][is] = true;
+        // Use nearest-spike approximation: search for closest pre-spike
         bool no_prespikes = true;
         int isp = History_time[in].size() - 1;
         float delta_weight = 0;
-
-        while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus)
+        
+        do
         {
             double delta_t = History_time[in][isp] - fire_time;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t <= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
             {
                 Weight[in][is] += a_plus * exp(delta_t / tau_plus);
+                
                 if (Weight[in][is] > 1.)
                     Weight[in][is] = 1.;
 
                 no_prespikes = false;
                 delta_weight += Weight[in][is] - old.Weight[in][is];
 
+                // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
                     break;
             }
             isp--;
-        }
-
-        isp = History_time[in].size() - 1;
+        } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * tau_plus);
         
-        while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus)
-        {
+        do
+        {   
             double delta_t = History_time[in][isp] - fire_time;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t <= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t <= 0) 
             {
-                if (is < N_InputStreams)
-                {
-                    Delay[in][is] += d_plus * exp(delta_t / taud_plus)*(-delta_t / taud_plus);
+                if(is < N_InputStreams){
+                    Delay[in][is]  += d_plus * exp(delta_t / taud_plus);
+                
                     if (Delay[in][is] > MaxDelay)
                         Delay[in][is] = MaxDelay;
-                }
+                }          
                 no_prespikes = false;
 
+                // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
                     break;
             }
             isp--;
-        }
+        } while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus);
 
         if (!no_prespikes)
             Renorm(in, old);
     }
     return;
 }
-
 
 void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN &old)
 {
@@ -803,7 +764,7 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
         return;
     }
     
-    double delta_t = spike_time - Fire_time[in].front();
+    double delta_t = spike_time - Fire_time[in].back();
     // if nearest_spike_approx we prevent to compute future LTD until the next activation of the neuron
     if (nearest_spike_approx)
         check_LTD[in][is] = false;
@@ -837,25 +798,23 @@ void SNN::LTD(int in, int is, double spike_time, bool nearest_spike_approx, SNN 
 void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
     if (Fire_time[in].size() == 0){
-        cout <<"skip" << endl; 
+        //cout <<"skip" << endl; 
         return;
     }
 
+    bool no_prespikes = true;
     int isp = 1;
-    double previous_firetime = History_time[in].front();
+    double previous_firetime = Fire_time[in].back();
 
     for (int is = 0; is < N_streams; is++)
     {
         if (Void_weight[in][is])
             continue;
         
-        bool no_prespikes = true;  // Moved inside the loop to reset for each stream
-        isp = 1;  // Reset isp for each stream
-
-        while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * tau_minus && History_time[in][isp] < fire_time)
+        do
         {
             double delta_t = History_time[in][isp] - previous_firetime;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t >= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
             {
                 Weight[in][is] -= a_minus * exp(-delta_t / tau_minus);
                 
@@ -864,85 +823,63 @@ void SNN::Compute_LTD(int in, double fire_time, bool nearest_spike_approx, SNN &
 
                 no_prespikes = false;
                 
+                // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
                     break;
             }
             isp++;
-        }
-
-        isp = 1;  // Reset isp again for the second loop
-        while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * taud_minus && History_time[in][isp] < fire_time)
-        { 
+        } while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7. * tau_minus && History_time[in][isp]<fire_time);
+        
+        do
+        {
             double delta_t = History_time[in][isp] - previous_firetime;
-            if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t >= 0) 
+            if (History_ID[in][isp] == is && History_type[in][isp]==1 && delta_t >= 0) 
             {
-                if (is < N_InputStreams)
-                {
-                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus)*(delta_t / taud_minus);
+                if(is<N_InputStreams){
+                    Delay[in][is] -= d_minus * exp(-delta_t / taud_minus);
+                    
                     if (Delay[in][is] < 0.)
-                        Delay[in][is] = 0.;
+                        Delay[in][is] = 0.; 
                 }
                 no_prespikes = false;
                 
+                // in this approximation we're interested only in the first spike
                 if (nearest_spike_approx)
                     break;
             }
             isp++;
-        }
-        
-        if (!no_prespikes)
-            Renorm(in, old);
+        } while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7. * taud_minus && History_time[in][isp] < fire_time);
+        if(!no_prespikes)
+            Renorm(in, old);        
     }
     return;
 }
 
-
 void SNN::Renorm(int in, SNN &old) {
-    if (in < 0 || in >= N_neurons) {
-        std::cerr << "Error: Index 'in' out of bounds in Renorm. Aborting operation." << std::endl;
-        return;
-    }
-
-    if (N_streams <= 0) {
-        std::cerr << "Error: N_streams is non-positive in Renorm. Aborting operation." << std::endl;
-        return;
-    }
-
-    if (!Void_weight || !Weight || !Delay || !sumdelays || !old.Weight) {
-        std::cerr << "Error: Null pointer encountered in Renorm. Aborting operation." << std::endl;
-        return;
-    }
-
     float weight_sum = 0.0;
-    double delay_factor = 0.0;
+    double delay_factor = 0.;
 
     // Calculate the sum of weights for the 'in' neuron
     for (int is = 0; is < N_streams; is++) {
-        if (is < N_neurons && !Void_weight[in][is]) {
-            weight_sum += Weight[in][is];
-            delay_factor += Delay[in][is];
-        }
+        if(!Void_weight[in][is]) weight_sum += Weight[in][is];
+        delay_factor+=Delay[in][is];
     }
-
-    if (sumdelays[in] == 0.0) {
-        std::cerr << "Error: sumdelays[" << in << "] is zero. Aborting operation to avoid division by zero." << std::endl;
-        return;
-    }
-
+    //cout << "delay factor " << in << "  " << delay_factor << endl;
     delay_factor /= sumdelays[in];
-
     // Check if the sum is greater than 0 to avoid division by zero
     if (weight_sum > 0.0) {
         // Normalize the weights for the 'in' neuron
         for (int is = 0; is < N_streams; is++) {
-            if (is < N_neurons && !Void_weight[in][is]) {
+            if(!Void_weight[in][is]){
+                Weight[in][is] = Weight[in][is]/weight_sum;
                 old.Weight[in][is] = Weight[in][is];
-            }
-            if (is < N_neurons) {
-                Delay[in][is] /= delay_factor;
-            }
+           }
+           Delay[in][is]/=delay_factor;
+           //TODO: maybe I should recheck the boundary conditions for the delays.
         }
     }
+
+    return;    
 }
 
 
@@ -967,19 +904,6 @@ void SNN::PrintWeights(){
         {
             if (!Void_weight[in][is]){
             cout << Weight[in][is] << ", ";
-            }
-        }
-        cout << endl <<endl;
-    }
-}
-
-void SNN::PrintDelays(){
-    for(int in = 0; in<N_neurons; in++){
-        cout << "Neuron " << in << endl;
-        for (int is = 0; is < N_streams; is++)
-        {
-            if (!Void_weight[in][is]){
-            cout << Delay[in][is] << ", ";
             }
         }
         cout << endl <<endl;
@@ -1025,455 +949,3 @@ void SNN::PrintSNN(){
     cout << "split layer0 = " << split_layer0 << endl;
     cout << "-------------------------------------" << endl;
 }
-
-#include <iostream>
-#include <cstring> // for std::memset, std::memcpy
-
-void SNN::copy_from(const SNN& other) {
-    // Deallocate previously allocated memory
-    for (int i = 0; i < N_neurons; ++i) {
-        delete[] Weight[i];
-        delete[] Weight_initial[i];
-        delete[] check_LTD[i];
-        delete[] Void_weight[i];
-        delete[] Delay[i];
-        delete[] Delay_initial[i];
-        delete[] EnableIPSP[i];
-    }
-    delete[] Weight;
-    delete[] Weight_initial;
-    delete[] check_LTD;
-    delete[] Void_weight;
-    delete[] Delay;
-    delete[] Delay_initial;
-    delete[] EnableIPSP;
-
-    // Deallocate and reallocate vector arrays
-    delete[] History_time;
-    delete[] History_type;
-    delete[] History_ID;
-    delete[] History_ev_class;
-    delete[] Fire_time;
-
-    delete[] sumdelays;
-    delete[] Neuron_layer;
-    delete[] sumweight;
-
-    // Copy scalar values
-    alpha = other.alpha;
-    CFI0 = other.CFI0;
-    CFI1 = other.CFI1;
-    CF01 = other.CF01;
-    L1inhibitfactor = other.L1inhibitfactor;
-    K = other.K;
-    K1 = other.K1;
-    K2 = other.K2;
-    IE_Pot_const = other.IE_Pot_const;
-    IPSP_dt_dilation = other.IPSP_dt_dilation;
-    MaxDelay = other.MaxDelay;
-    tau_m = other.tau_m;
-    tau_s = other.tau_s;
-    tau_r = other.tau_r;
-    tau_plus = other.tau_plus;
-    tau_minus = other.tau_minus;
-    taud_plus = other.taud_plus;
-    taud_minus = other.taud_minus;
-    a_plus = other.a_plus;
-    a_minus = other.a_minus;
-    d_plus = other.d_plus;
-    d_minus = other.d_minus;
-    sparsity = other.sparsity;
-    split_layer0 = other.split_layer0;
-    N_InputStreams = other.N_InputStreams;
-    N_streams = other.N_streams;
-    fire_granularity = other.fire_granularity;
-    fire_precision = other.fire_precision;
-    Delta_delay = other.Delta_delay;
-    Mean_delay = other.Mean_delay;
-    N_neurons = other.N_neurons;
-    Threshold[0] = other.Threshold[0];
-    Threshold[1] = other.Threshold[1];
-    tmax = other.tmax;
-    MaxDeltaT = other.MaxDeltaT;
-
-    // Allocate memory for new arrays
-    Weight = new float*[N_neurons];
-    Weight_initial = new float*[N_neurons];
-    check_LTD = new bool*[N_neurons];
-    Void_weight = new bool*[N_neurons];
-    Delay = new double*[N_neurons];
-    Delay_initial = new double*[N_neurons];
-    EnableIPSP = new bool*[N_neurons];
-
-    for (int i = 0; i < N_neurons; ++i) {
-        Weight[i] = new float[N_streams];
-        Weight_initial[i] = new float[N_streams];
-        check_LTD[i] = new bool[N_streams];
-        Void_weight[i] = new bool[N_streams];
-        Delay[i] = new double[N_streams];
-        Delay_initial[i] = new double[N_streams];
-        EnableIPSP[i] = new bool[N_neurons];
-
-        // Manually copy elements in a for loop
-        for (int j = 0; j < N_streams; ++j) {
-            Weight[i][j] = other.Weight[i][j];
-            Weight_initial[i][j] = other.Weight_initial[i][j];
-            check_LTD[i][j] = other.check_LTD[i][j];
-            Void_weight[i][j] = other.Void_weight[i][j];
-            Delay[i][j] = other.Delay[i][j];
-            Delay_initial[i][j] = other.Delay_initial[i][j];
-        }
-        for (int j = 0; j< N_neurons; ++j)
-            EnableIPSP[i][j] = other.EnableIPSP[i][j];
-    }
-
-
-    History_time = new std::vector<double>[N_neurons];
-    History_type = new std::vector<int>[N_neurons];
-    History_ID = new std::vector<int>[N_neurons];
-    History_ev_class = new std::vector<std::pair<int, int>>[N_neurons];
-    Fire_time = new std::vector<double>[N_neurons];
-
-    for (int i = 0; i < N_neurons; ++i) {
-        History_time[i] = other.History_time[i];
-        History_type[i] = other.History_type[i];
-        History_ID[i] = other.History_ID[i];
-        History_ev_class[i] = other.History_ev_class[i];
-        Fire_time[i] = other.Fire_time[i];
-    }
-
-    // Copy the Neuron_layer array
-    Neuron_layer = new int[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        Neuron_layer[i] = other.Neuron_layer[i];
-    }
-
-    // Copy the sumweight array
-    sumweight = new float[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        sumweight[i] = other.sumweight[i];
-    }
-
-    // Copy the sumdelays array
-    sumdelays = new double[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        sumdelays[i] = other.sumdelays[i];
-    }
-
-    // Copy the N_neuronsL array
-    N_neuronsL[0] = other.N_neuronsL[0];
-    N_neuronsL[1] = other.N_neuronsL[1];
-
-    // Copy the random number generator
-    if (myRNG) {
-        delete myRNG;
-    }
-    myRNG = new TRandom3(*other.myRNG);
-
-    // Copy the remaining scalar values
-    largenumber = other.largenumber;
-    epsilon = other.epsilon;
-}
-
-
-
-void SNN::dumpToJson(const string& filename) {
-    json j;
-
-    j["alpha"] = alpha;
-    j["CFI0"] = CFI0;
-    j["CFI1"] = CFI1;
-    j["CF01"] = CF01;
-    j["L1inhibitfactor"] = L1inhibitfactor;
-    j["K"] = K;
-    j["K1"] = K1;
-    j["K2"] = K2;
-    j["IE_Pot_const"] = IE_Pot_const;
-    j["IPSP_dt_dilation"] = IPSP_dt_dilation;
-    j["MaxDelay"] = MaxDelay;
-    j["tau_m"] = tau_m;
-    j["tau_s"] = tau_s;
-    j["tau_r"] = tau_r;
-    j["tau_plus"] = tau_plus;
-    j["tau_minus"] = tau_minus;
-    j["taud_plus"] = taud_plus;
-    j["taud_minus"] = taud_minus;
-    j["a_plus"] = a_plus;
-    j["a_minus"] = a_minus;
-    j["d_plus"] = d_plus;
-    j["d_minus"] = d_minus;
-    j["sparsity"] = sparsity;
-    j["split_layer0"] = split_layer0;
-    j["N_InputStreams"] = N_InputStreams;
-    j["N_streams"] = N_streams;
-    j["fire_granularity"] = fire_granularity;
-    j["fire_precision"] = fire_precision;
-    j["Delta_delay"] = Delta_delay;
-    j["Mean_delay"] = Mean_delay;
-    j["N_neurons"] = N_neurons;
-    j["Threshold"] = {Threshold[0], Threshold[1]};
-    j["tmax"] = tmax;
-    j["MaxDeltaT"] = MaxDeltaT;
-
-    json weights;
-    json weight_initials;
-    json check_ltds;
-    json void_weights;
-    json delays;
-    json delay_initials;
-    json enable_ipsp;
-
-    for (int i = 0; i < N_neurons; ++i) {
-        json weight_row;
-        json weight_initial_row;
-        json check_ltd_row;
-        json void_weight_row;
-        json delay_row;
-        json delay_initial_row;
-        json enable_ipsp_row;
-
-        for (int j = 0; j < N_streams; ++j) {
-            weight_row.push_back(Weight[i][j]);
-            weight_initial_row.push_back(Weight_initial[i][j]);
-            check_ltd_row.push_back(check_LTD[i][j]);
-            void_weight_row.push_back(Void_weight[i][j]);
-            delay_row.push_back(Delay[i][j]);
-            delay_initial_row.push_back(Delay_initial[i][j]);
-        }
-
-        for (int j = 0; j < N_neurons; j++)
-            enable_ipsp_row.push_back(EnableIPSP[i][j]);
-
-        weights[to_string(i)] = weight_row;
-        weight_initials[to_string(i)] = weight_initial_row;
-        check_ltds[to_string(i)] = check_ltd_row;
-        void_weights[to_string(i)] = void_weight_row;
-        delays[to_string(i)] = delay_row;
-        delay_initials[to_string(i)] = delay_initial_row;
-        enable_ipsp[to_string(i)] = enable_ipsp_row;
-    }
-
-    j["Weight"] = weights;
-    j["Weight_initial"] = weight_initials;
-    j["check_LTD"] = check_ltds;
-    j["Void_weight"] = void_weights;
-    j["Delay"] = delays;
-    j["Delay_initial"] = delay_initials;
-    j["EnableIPSP"] = enable_ipsp;
-
-    j["History_time"] = json::array();
-    j["History_type"] = json::array();
-    j["History_ID"] = json::array();
-    j["History_ev_class"] = json::array();
-    j["Fire_time"] = json::array();
-
-    for (int i = 0; i < N_neurons; ++i) {
-        j["History_time"].push_back(History_time[i]);
-        j["History_type"].push_back(History_type[i]);
-        j["History_ID"].push_back(History_ID[i]);
-        j["History_ev_class"].push_back(History_ev_class[i]);
-        j["Fire_time"].push_back(Fire_time[i]);
-    }
-
-    j["Neuron_layer"] = json::array();
-    for (int i = 0; i < N_neurons; ++i) {
-        j["Neuron_layer"].push_back(Neuron_layer[i]);
-    }
-
-    j["sumweight"] = json::array();
-    for (int i = 0; i < N_neurons; ++i) {
-        j["sumweight"].push_back(sumweight[i]);
-    }
-
-    j["sumdelays"] = json::array();
-    for (int i = 0; i < N_neurons; ++i) {
-        j["sumdelays"].push_back(sumdelays[i]);
-    }
-
-    j["N_neuronsL"] = {N_neuronsL[0], N_neuronsL[1]};
-    j["myRNG"] = myRNG->GetSeed();
-    j["largenumber"] = largenumber;
-    j["epsilon"] = epsilon;
-
-    ofstream file(filename);
-    file << j.dump(4);
-}
-
-void SNN::loadFromJson(const string& filename) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        throw runtime_error("Could not open file");
-    }
-
-    json j;
-    file >> j;
-
-    alpha = j["alpha"].get<float>();
-    CFI0 = j["CFI0"].get<float>();
-    CFI1 = j["CFI1"].get<float>();
-    CF01 = j["CF01"].get<float>();
-    L1inhibitfactor = j["L1inhibitfactor"].get<float>();
-    K = j["K"].get<float>();
-    K1 = j["K1"].get<float>();
-    K2 = j["K2"].get<float>();
-    IE_Pot_const = j["IE_Pot_const"].get<float>();
-    IPSP_dt_dilation = j["IPSP_dt_dilation"].get<double>();
-    MaxDelay = j["MaxDelay"].get<double>();
-    tau_m = j["tau_m"].get<double>();
-    tau_s = j["tau_s"].get<double>();
-    tau_r = j["tau_r"].get<double>();
-    tau_plus = j["tau_plus"].get<double>();
-    tau_minus = j["tau_minus"].get<double>();
-    taud_plus = j["taud_plus"].get<double>();
-    taud_minus = j["taud_minus"].get<double>();
-    a_plus = j["a_plus"].get<double>();
-    a_minus = j["a_minus"].get<double>();
-    d_plus = j["d_plus"].get<double>();
-    d_minus = j["d_minus"].get<double>();
-    sparsity = j["sparsity"].get<float>();
-    split_layer0 = j["split_layer0"].get<bool>();
-    N_InputStreams = j["N_InputStreams"].get<int>();
-    N_streams = j["N_streams"].get<int>();
-    fire_granularity = j["fire_granularity"].get<double>();
-    fire_precision = j["fire_precision"].get<float>();
-    Delta_delay = j["Delta_delay"].get<double>();
-    Mean_delay = j["Mean_delay"].get<double>();
-    N_neurons = j["N_neurons"].get<int>();
-    Threshold[0] = j["Threshold"][0].get<float>();
-    Threshold[1] = j["Threshold"][1].get<float>();
-    tmax = j["tmax"].get<double>();
-    MaxDeltaT = j["MaxDeltaT"].get<double>();
-
-    // Allocate memory for arrays
-    Weight = new float*[N_neurons];
-    Weight_initial = new float*[N_neurons];
-    check_LTD = new bool*[N_neurons];
-    Void_weight = new bool*[N_neurons];
-    Delay = new double*[N_neurons];
-    Delay_initial = new double*[N_neurons];
-    EnableIPSP = new bool*[N_neurons];
-
-    for (int i = 0; i < N_neurons; ++i) {
-        Weight[i] = new float[N_streams];
-        Weight_initial[i] = new float[N_streams];
-        check_LTD[i] = new bool[N_streams];
-        Void_weight[i] = new bool[N_streams];
-        Delay[i] = new double[N_streams];
-        Delay_initial[i] = new double[N_streams];
-        EnableIPSP[i] = new bool[N_neurons];
-    }
-
-    json weights            = j["Weight"];
-    json weight_initials    = j["Weight_initial"];
-    json check_ltds         = j["check_LTD"];
-    json void_weights       = j["Void_weight"];
-    json delays             = j["Delay"];
-    json delay_initials     = j["Delay_initial"];
-    json enable_ipsp        = j["EnableIPSP"];
-
-    // Copy data for Weight_initial matrix
-    for (json::iterator it = weights.begin(); it != weights.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json weights_row = it.value();
-        for (size_t j = 0; j < weights_row.size(); ++j) {
-            Weight[neuron_index][j] = weights_row[j].get<float>();
-        }
-    }
-
-    // Copy data for Weight_initial matrix
-    for (json::iterator it = weight_initials.begin(); it != weight_initials.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json weight_initial_row = it.value();
-        for (size_t j = 0; j < weight_initial_row.size(); ++j) {
-            Weight_initial[neuron_index][j] = weight_initial_row[j].get<float>();
-        }
-    }
-
-    // Copy data for check_LTD matrix
-    for (json::iterator it = check_ltds.begin(); it != check_ltds.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json check_ltd_row = it.value();
-        for (size_t j = 0; j < check_ltd_row.size(); ++j) {
-            check_LTD[neuron_index][j] = check_ltd_row[j].get<bool>();
-        }
-    }
-
-    // Copy data for Void_weight matrix
-    for (json::iterator it = void_weights.begin(); it != void_weights.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json void_weight_row = it.value();
-        for (size_t j = 0; j < void_weight_row.size(); ++j) {
-            Void_weight[neuron_index][j] = void_weight_row[j].get<bool>();
-        }
-    }
-
-    // Copy data for Delay matrix
-    for (json::iterator it = delays.begin(); it != delays.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json delay_row = it.value();
-        for (size_t j = 0; j < delay_row.size(); ++j) {
-            Delay[neuron_index][j] = delay_row[j].get<double>();
-        }
-    }
-
-    // Copy data for Delay_initial matrix
-    for (json::iterator it = delay_initials.begin(); it != delay_initials.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json delay_initial_row = it.value();
-        for (size_t j = 0; j < delay_initial_row.size(); ++j) {
-            Delay_initial[neuron_index][j] = delay_initial_row[j].get<double>();
-        }
-    }
-
-    // Copy data for EnableIPSP matrix
-    for (json::iterator it = enable_ipsp.begin(); it != enable_ipsp.end(); ++it) {
-        int neuron_index = stoi(it.key());
-        json enable_ipsp_row = it.value();
-        for (size_t j = 0; j < enable_ipsp_row.size(); ++j) {
-            EnableIPSP[neuron_index][j] = enable_ipsp_row[j].get<bool>();
-        }
-    }
-
-    History_time = new vector<double>[N_neurons];
-    History_type = new vector<int>[N_neurons];
-    History_ID = new vector<int>[N_neurons];
-    History_ev_class = new vector<pair<int, int>>[N_neurons];
-    Fire_time = new vector<double>[N_neurons];
-
-    for (int i = 0; i < N_neurons; ++i) {
-        History_time[i] = j["History_time"][i].get<vector<double>>();
-        History_type[i] = j["History_type"][i].get<vector<int>>();
-        History_ID[i] = j["History_ID"][i].get<vector<int>>();
-        History_ev_class[i] = j["History_ev_class"][i].get<vector<pair<int, int>>>();
-        Fire_time[i] = j["Fire_time"][i].get<vector<double>>();
-    }
-
-    Neuron_layer = new int[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        Neuron_layer[i] = j["Neuron_layer"][i].get<int>();
-    }
-
-    sumweight = new float[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        sumweight[i] = j["sumweight"][i].get<float>();
-    }
-
-    sumdelays = new double[N_neurons];
-    for (int i = 0; i < N_neurons; ++i) {
-        sumdelays[i] = j["sumdelays"][i].get<double>();
-    }
-
-    N_neuronsL[0] = j["N_neuronsL"][0].get<int>();
-    N_neuronsL[1] = j["N_neuronsL"][1].get<int>();
-
-    if (myRNG) {
-        delete myRNG;
-    }
-    myRNG = new TRandom3(j["myRNG"].get<unsigned int>());
-
-    largenumber = j["largenumber"].get<double>();
-    epsilon = j["epsilon"].get<double>();
-
-    cout << "File loaded succesfully" << endl;
-}
-
