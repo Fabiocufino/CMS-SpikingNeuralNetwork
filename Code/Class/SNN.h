@@ -10,9 +10,9 @@
 
 #include <vector>
 #include <stdexcept>
-#include <functional>
+
+#include "TF1.h"
 #include "TRandom3.h"
-#include "nlohmann/json.hpp"
 
 using namespace std;
 
@@ -22,12 +22,6 @@ private:
     double bisectionMethod(double a, double b, int in, double epsilon, std::function<float(int, double, bool)> func);
 
 public:
-    const int EPSP  = 1;
-    const int IPSP  = 2;
-    const int SPIKE = 0;
-    const int NOCLASS  = -2;
-    const int BKGCLASS = -1;
-    const int SIGCLASS = 0;
     float alpha;              // 0.25; // factor tuning inhibition strength
     
     float CFI0;
@@ -90,8 +84,6 @@ public:
     vector<double> *History_time;       // Time of signal events per each 1neuron
     vector<int> *History_type;         // Type of signal
     vector<int> *History_ID;           // ID of generating signal stream or neuron
-    vector<pair<int, int>> *History_ev_class;
-    
     vector<double> *Fire_time;          // Times of firing of each neuron
     int *Neuron_layer;
     float *sumweight; // summed weights of streams for each neurons for the purpose of normalization
@@ -102,7 +94,6 @@ public:
     double largenumber;
     double epsilon;
 
-    SNN();
     SNN(int _NL0, int _NL1,
          float _alpha,
          float _CFI0, float _CFI1, float _CF01,
@@ -124,7 +115,7 @@ public:
 
 
     //------- Functions ---------
-    void Init_neurons(int ievent);
+    void Init_neurons();
     void Init_weights_uniform();
     void Init_weights();
     void Set_weights();
@@ -135,15 +126,13 @@ public:
     void Init_delays_gauss();
     void Init_delays_uniform();
 
-    void insert_spike(int id_neuron, double spike_time, int type, int id, int spike_class, int ievent);
+    void insert_spike(int id_neuron, double spike_time, int type, int id);
     
     void Init_connection_map();
     float EPS_potential(double delta_t);
     float Spike_potential(double delta_t, int ilayer);
     float Inhibitory_potential(double delta_t, int ilayer);
     double Neuron_firetime(int in, double t);
-    vector<pair <int, int>> Inspect_History(int in, double fire_time, double window);
-    void Activate_Neuron(int in, double t);
     float Neuron_Potential(int in, double t, bool delete_history);
     float IE_potential(double delta_t, int in, int is);
     void LTP(int in, double fire_time, bool nearest_spike_approx, SNN &old);  
@@ -152,10 +141,7 @@ public:
     void Renorm(int in, SNN &old);
     void Renorm_Opt(int in, float delta_weight, SNN &old);
     void PrintWeights();
-    void PrintDelays();
     void PrintSNN();
-    void copy_from(const SNN& other);
-    void dumpToJson(const string& filename);
-    void loadFromJson(const string& filename);
+
 };
 #endif
