@@ -52,6 +52,8 @@ public:
     double tau_minus;      // [s]
     double taud_plus;      // [s]
     double taud_minus;     // [s]
+    double taud_plus_2;    // [s]
+    double taud_minus_2;   // [s]
 
     double a_plus;          
     double a_minus;       
@@ -101,9 +103,10 @@ public:
     TRandom3 *myRNG;
     double largenumber;
     double epsilon;
+    double time_scaleFactor;
 
     SNN();
-    SNN(int _NL0, int _NL1,
+    SNN( int _NL0, int _NL1,
          float _alpha,
          float _CFI0, float _CFI1, float _CF01,
          float _L1inhibitfactor,
@@ -114,7 +117,8 @@ public:
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
          double _a_plus, double _a_minus,
 
-         double _tausd_plus, double _taud_minus,
+         double _taud_plus, double _taud_minus,
+         double _taud_plus_2, double _taud_minus_2,
          double _d_plus, double _d_minus,
 
          int _N_InputStreams,
@@ -124,6 +128,20 @@ public:
 
 
     //------- Functions ---------
+    void Reset_Parameters(float _alpha,
+         float _L1inhibitfactor,
+         float _K, float _K1, float _K2,
+         float _IE_Pot_const, double _IPSP_dt_dilation,
+         double _MaxDelay,
+
+         double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
+         double _a_plus, double _a_minus,
+
+         double _taud_plus, double _taud_minus,
+         double _taud_plus_2, double _taud_minus_2,
+         double _d_plus, double _d_minus,
+
+         float _Threshold0, float _Threshold1);
     void Init_neurons(int ievent);
     void Init_weights_uniform();
     void Init_weights();
@@ -157,5 +175,8 @@ public:
     void copy_from(const SNN& other);
     void dumpToJson(const string& filename);
     void loadFromJson(const string& filename);
+
+    void Exclude_neuron(int in);
+    void Exclude_neurons(const vector<int>& neurons_to_exclude);
 };
 #endif

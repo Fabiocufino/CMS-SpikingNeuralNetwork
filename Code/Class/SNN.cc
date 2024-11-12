@@ -5,6 +5,15 @@
 using json = nlohmann::json;
 using namespace std;
 
+double determineScaleFactor(double value1, double value2) {
+    double maxAbsValue = std::max(std::abs(value1), std::abs(value2));
+    if (maxAbsValue == 0.0) {
+        return 1.0;  // Avoid division by zero; no scaling needed for zero values
+    }
+    double orderOfMagnitude = std::floor(std::log10(maxAbsValue));
+    return std::pow(10, -orderOfMagnitude);
+}
+
 SNN::SNN(int _NL0, int _NL1,
          float _alpha,
          float _CFI0, float _CFI1, float _CF01,
@@ -17,6 +26,7 @@ SNN::SNN(int _NL0, int _NL1,
          double _a_plus, double _a_minus,
 
          double _taud_plus, double _taud_minus,
+         double _taud_plus_2, double _taud_minus_2,
          double _d_plus, double _d_minus,
 
          int _N_InputStreams,
@@ -51,6 +61,8 @@ SNN::SNN(int _NL0, int _NL1,
 
                                                  taud_plus(_taud_plus),
                                                  taud_minus(_taud_minus),
+                                                 taud_plus_2(_taud_plus_2),
+                                                 taud_minus_2(_taud_minus_2),
 
                                                  d_plus(_d_plus),
                                                  d_minus(_d_minus),
@@ -77,7 +89,8 @@ SNN::SNN(int _NL0, int _NL1,
     myRNG = new TRandom3(static_cast<unsigned int>(time(0)));
     largenumber = 999999999.;
     epsilon = 1. / largenumber;
-
+    time_scaleFactor = determineScaleFactor(taud_plus, taud_plus_2);
+    
     Weight = new float *[N_neurons];         // Weight of synapse-neuron strength
     Weight_initial = new float *[N_neurons];
     Delay = new double *[N_neurons];          // Delay in incoming signals
@@ -109,7 +122,7 @@ SNN::SNN(int _NL0, int _NL1,
     sumdelays = new double[N_neurons]; // summed delays of streams for each neurons for the purpose of normalization
 
 
-    Delta_delay = MaxDelay/10.;
+    Delta_delay = MaxDelay/5.;
     Mean_delay = MaxDelay/2.;
 
     Init_neurons(0);
@@ -117,7 +130,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_weights();
     Init_delays_uniform();
 }
-SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
+SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
 SNN::~SNN() {
     // Release memory for dynamically allocated arrays
     for (int i = 0; i < N_neurons; ++i) {
@@ -153,6 +166,47 @@ SNN::~SNN() {
     delete myRNG;
 }
 
+void SNN::Reset_Parameters(float _alpha, float _L1inhibitfactor, float _K, float _K1, float _K2, float _IE_Pot_const, double _IPSP_dt_dilation, double _MaxDelay, double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus, double _a_plus, double _a_minus, double _taud_plus, double _taud_minus, double _taud_plus_2, double _taud_minus_2, double _d_plus, double _d_minus, float _Threshold0, float _Threshold1){
+    alpha = _alpha;
+    L1inhibitfactor = _L1inhibitfactor;
+    K  = _K;
+    K1 = _K1;
+    K2 = _K2;
+    IE_Pot_const = _IE_Pot_const;
+    IPSP_dt_dilation = _IPSP_dt_dilation;
+    MaxDelay = _MaxDelay;
+
+    tau_m = _tau_m; // membrane time constant (the potential will decrease ~ exp(-t/tau_m))
+    tau_s = _tau_s; // synaptic time constant
+    tau_r = _tau_r; // refractory time constant
+    tau_plus  = _tau_plus;
+    tau_minus = _tau_minus;
+
+    a_plus  = _a_plus;
+    a_minus = _a_minus;
+
+    taud_plus  = _taud_plus;
+    taud_minus = _taud_minus;
+    taud_plus_2  = _taud_plus_2;
+    taud_minus_2 = _taud_minus_2;
+
+    d_plus  = _d_plus;
+    d_minus = _d_minus;
+    
+    Threshold[0] = _Threshold0;
+    Threshold[1] = _Threshold1;
+    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
+
+    MaxDeltaT = 7. * tau_m;
+
+    fire_granularity = tau_s / 5.;
+    fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
+    Delta_delay = MaxDelay/5.;
+    Mean_delay = MaxDelay/2.;
+    time_scaleFactor = determineScaleFactor(taud_plus, taud_plus_2);
+    
+}
+
 void SNN::Reset_weights(){
     for (int in = 0; in < N_neurons; in++)
     {
@@ -163,6 +217,7 @@ void SNN::Reset_weights(){
 
 double SNN::bisectionMethod(double a, double b, int in, double epsilon, function<float(int, double, bool)> func)
 {
+
     float fa = func(in, a, false);
     float fb = func(in, b, false);
     double c = 0;
@@ -201,6 +256,16 @@ double SNN::bisectionMethod(double a, double b, int in, double epsilon, function
     return c;
 }
 
+void SNN::Exclude_neuron(int in){
+    for (int is = 0; is < N_streams; is++)
+        Void_weight[in][is] = true; 
+}
+
+void SNN::Exclude_neurons(const vector<int>& neurons_to_exclude) {
+    for (int neuron : neurons_to_exclude) {
+        Exclude_neuron(neuron);
+    }
+}
 // Initialize neuron potentials
 // ----------------------------
 void SNN::Init_neurons(int ievent)
@@ -910,7 +975,7 @@ void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
     // - double fire_time: The time at which the neuron fired, used to compute time differences for LTP.
     // - bool nearest_spike_approx: If true, only the nearest presynaptic spike is considered for LTP adjustment.
     // - SNN &old: A reference to an older version of the SNN, used if delays renormalization is enabled.
-
+    
     for (int is = 0; is < N_streams; is++)
     {            
         if (Void_weight[in][is])
@@ -921,18 +986,18 @@ void SNN::LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
         
         while (isp >= 0 && History_time[in][isp] > fire_time - 7. * taud_plus)
         {
-            double delta_t = History_time[in][isp] - fire_time;
+            double delta_t = History_time[in][isp] - fire_time + tmax;
             if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t < 0) 
             {
                 if (is < N_InputStreams)
                 {
-                    if(delta_t < -tmax){
-                        Delay[in][is] += d_plus * exp(delta_t / taud_plus);
+                    if(delta_t < 0){
+                        Delay[in][is] += d_plus * (exp(delta_t / taud_plus) - exp(delta_t / taud_plus_2)) / (time_scaleFactor*(taud_plus-taud_plus_2));
                         if (Delay[in][is] > MaxDelay)
                             Delay[in][is] = MaxDelay;
                     }
                     else{
-                        Delay[in][is] -= d_minus * exp(delta_t / taud_minus); 
+                        Delay[in][is] -= d_minus * (exp(- delta_t / taud_minus) - exp(- delta_t / taud_minus_2)) / (time_scaleFactor*(taud_minus-taud_minus_2));
                         if (Delay[in][is] < 0.)
                             Delay[in][is] = 0.;
                     } 
@@ -1023,13 +1088,13 @@ void SNN::LTD_delays(int in, double fire_time, bool nearest_spike_approx, SNN &o
 
         while (isp < History_time[in].size() && History_time[in][isp] < previous_firetime + 7 * taud_minus && History_time[in][isp] < fire_time)
         { 
-            double delta_t = History_time[in][isp] - previous_firetime;
+            double delta_t = History_time[in][isp] - previous_firetime + tmax;
             if (History_ID[in][isp] == is && History_type[in][isp] == EPSP && delta_t > 0) 
             {
                 if (is < N_InputStreams)
                 {
-                    Delay[in][is] -= d_minus * exp(- delta_t / taud_minus); 
-                    if (Delay[in][is] < 0.)
+                    Delay[in][is] -= d_minus * (exp(- delta_t / taud_minus) - exp(- delta_t / taud_minus_2)) / (time_scaleFactor*(taud_minus-taud_minus_2));
+                    if(Delay[in][is] < 0)    
                         Delay[in][is] = 0.;
                 }
                 no_prespikes = false;
@@ -1172,6 +1237,8 @@ void SNN::PrintSNN(){
     cout << "a_minus = " << a_minus << endl;
     cout << "taud_plus = " << taud_plus << endl;
     cout << "taud_minus = " << taud_minus << endl;
+    cout << "taud_plus_2 = " << taud_plus_2 << endl;
+    cout << "taud_minus_2 = " << taud_minus_2 << endl;
     cout << "d_plus = " << d_plus << endl;
     cout << "d_minus = " << d_minus << endl;
     cout << "N_neurons = " << N_neurons << endl;
@@ -1239,6 +1306,9 @@ void SNN::copy_from(const SNN& other) {
     tau_minus = other.tau_minus;
     taud_plus = other.taud_plus;
     taud_minus = other.taud_minus;
+    taud_plus_2 = other.taud_plus_2;
+    taud_minus_2 = other.taud_minus_2;
+    time_scaleFactor = other.time_scaleFactor;
     a_plus = other.a_plus;
     a_minus = other.a_minus;
     d_plus = other.d_plus;
@@ -1357,6 +1427,8 @@ void SNN::dumpToJson(const string& filename) {
     j["tau_minus"] = tau_minus;
     j["taud_plus"] = taud_plus;
     j["taud_minus"] = taud_minus;
+    j["taud_plus_2"] = taud_plus_2;
+    j["taud_minus_2"] = taud_minus_2;
     j["a_plus"] = a_plus;
     j["a_minus"] = a_minus;
     j["d_plus"] = d_plus;
@@ -1485,6 +1557,8 @@ void SNN::loadFromJson(const string& filename) {
     tau_minus = j["tau_minus"].get<double>();
     taud_plus = j["taud_plus"].get<double>();
     taud_minus = j["taud_minus"].get<double>();
+    taud_plus_2 = j["taud_plus_2"].get<double>();
+    taud_minus_2 = j["taud_minus_2"].get<double>();
     a_plus = j["a_plus"].get<double>();
     a_minus = j["a_minus"].get<double>();
     d_plus = j["d_plus"].get<double>();

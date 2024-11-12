@@ -22,7 +22,7 @@
 #include <string>
 
 //now three to generate just muonss
-static const int NFile = 3;
+static const int NFile = 6;
 static TRandom3 * myRNG = new TRandom3(65645);
 static TFile *files[NFile];
 static TDirectory *dirIT_list[NFile];
@@ -344,11 +344,11 @@ void create_event_particle_tree(TFile* inputFile, vector<int> eventClass) {
 }
 
 
-void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_100br_new.root",int Max_N_part = 1, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void generate_data(int N_events = 100000, string outRoot="Data/muons_amuons_100k_100br.root",int Max_N_part = 1, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
     //prepare a vector of indices
     //I'm choosing the number of classes by hand coherently with the file, could be automatized
-    int N_classes = 3;
+    int N_classes = 6;
     unordered_map<string, int> dictionary = generateDictionary(N_classes, Max_N_part);
     vector<int> eventClass = {};
 
@@ -357,7 +357,7 @@ void generate_data(int N_events = 100000, string outRoot="Data/muons_100k_100br_
     for (int j=0; j < 3; j++)
     {   
         //open all root files and TTrees inside
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i <= 1; i++)
         {
             string rootInput;
             if(i%2==0) rootInput = folder + P_name[j] + "GeV/SingleParticleEta0p4/" + file_name;

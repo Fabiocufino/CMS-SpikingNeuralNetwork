@@ -48,14 +48,16 @@ static float Eff_best_L0;
 static float Acc_best_L0;
 static float Q_best_L1;
 static float SelL1_best;
+static float SelTOT_best;
 static float Eff_best_L1;
 static float Acc_best_L1;
 static int indfile;
 static char progress[53] = "[--10%--20%--30%--40%--50%--60%--70%--80%--90%-100%]"; // Progress bar
 static int ievent;
+static float max_fake = 0;
 
 // New random number generator
-static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(std::time(0)));
+static TRandom3 *myRNG = new TRandom3(static_cast<unsigned int>(time(0)));
 
 // clear hits vector
 void Reset_hits()
@@ -160,46 +162,12 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
         inmin = snn.N_neuronsL[0];
         inmax = snn.N_neurons;
     }
-    if (mode == 0)
-    { // Use additive rule
-        for (int in = inmin; in < inmax; in++)
-        {
-            // select max efficiency class
-            float maxeff = 0.;
-            float sumeff = 0.;
-            for (int ic = 0; ic < N_ev_classes; ic++)
-            {
-                float e = Eff[ic + N_ev_classes * in];
-                if (e > maxeff)
-                    maxeff = e;
-                sumeff = sumeff + e;
-            }
-            if (sumeff > 0.)
-                S += maxeff * N_ev_classes / sumeff;
-        }
-        if (inmax - inmin > 0)
-            S = S / (inmax - inmin);
+    else if (level == -1){
+        inmin = 0;
+        inmax = snn.N_neurons;
     }
-    else if (mode == 1)
-    { // aim for collective effect (each neuron participates)
-        S = 1.;
-        for (int in = inmin; in < inmax; in++)
-        {
-            // select max efficiency class
-            float maxeff = 0.;
-            float sumeff = 0.;
-            for (int ic = 0; ic < N_ev_classes; ic++)
-            {
-                float e = Eff[ic + N_ev_classes * in];
-                if (e > maxeff)
-                    maxeff = e;
-                sumeff = sumeff + e;
-            }
-            if (sumeff > 0.)
-                S *= maxeff / sumeff;
-        }
-    }
-    else if (mode == 2)
+
+    if (mode == 2)
     {   // compute mutual information
         // I(N_neurons,N_classes) = Sum_i^N_n Sum_j^N_c Eff(i,j) log_2 [Eff(i,j)/Eff_i Eff_j)]
         // where  is the average efficiency of neuron i over classes, and Eff_j is the
@@ -721,6 +689,30 @@ void PlotPotentials(string rootInput, SNN &P, int _N_events)
     delete file;
 }
 
+vector<int> generate_unique_integers(int count, int range_start, int range_end) {
+    if (count > (range_end - range_start + 1)) {
+        throw invalid_argument("Count exceeds the range size.");
+    }
+    
+    vector<int> numbers(range_end - range_start + 1);
+    iota(numbers.begin(), numbers.end(), range_start);  // Fill with sequential numbers
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(numbers.begin(), numbers.end(), g);
+    
+    return vector<int>(numbers.begin(), numbers.begin() + count);  // Select first `count` elements
+}
+
+vector<int> generate_excluded_neurons(int exclude_L0, int exclude_L1, int N_neuronsL0, int N_neurons) {
+    vector<int> excluded_L0 = generate_unique_integers(exclude_L0, 0, N_neuronsL0 - 1);
+    vector<int> excluded_L1 = generate_unique_integers(exclude_L1, N_neuronsL0, N_neurons - 1);
+
+    // Combine results if desired
+    vector<int> result = excluded_L0;
+    result.insert(result.end(), excluded_L1.begin(), excluded_L1.end());
+    return result;
+}
+
 void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 {
     // The routine works as follows:
@@ -1076,8 +1068,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     bool doneL0[N_ev_classes];
     bool doneL1[N_ev_classes];
     bool Seen[N_ev_classes][snn_in.N_neurons];
-    float selectivityL0 = 0.;
-    float selectivityL1 = 0.;
+    float selectivityL0  = 0.;
+    float selectivityL1  = 0.;
+    float selectivityTOT = 0.;
     float averefftotL0 = 0.;
     float averacctotL0 = 0.;
     float averefftotL1 = 0.;
@@ -1114,6 +1107,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
 
     Q_best_L1 = 0.;
     SelL1_best = 0.;
+    SelTOT_best = 0.;
     Eff_best_L1 = 0.;
     Acc_best_L1 = 0.;
 
@@ -1286,6 +1280,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 if(iev_thisepoch < N_train){
                     snn_in.LTD_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
                     snn_in.LTP_weights(in_first, min_fire_time, nearest_spike_approx_weights, snn_old);
+                    // DEcomment for delay 
                     snn_in.LTD_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
                     snn_in.LTP_delays(in_first, min_fire_time, nearest_spike_approx_delays, snn_old);
                 } 
@@ -1539,7 +1534,9 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 float fakerate = random_fire[in] * 2. / NevPerEpoch / (1.-Train_fraction); // there are NevPerEpoch/2 events with no tracks, where we compute random_fire per neuron
                 FakeRate[in]->SetBinContent(iepoch, fakerate);
                 cout << "   - Fake rate: " << random_fire[in] << endl << endl;
+                
             }
+            max_fake = *max_element(random_fire, random_fire + (sizeof(random_fire) / sizeof(random_fire[0]))) * 2. / NevPerEpoch / (1.-Train_fraction);
             float Efftot[N_ev_classes];
             float Efftot_L0[N_ev_classes];
             
@@ -1564,6 +1561,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
             SelectivityL0-> Fill(iepoch, selectivityL0);
             selectivityL1 = Compute_Selectivity(1, 2, snn_in);
             SelectivityL1-> Fill(iepoch, selectivityL1);
+            selectivityTOT = Compute_Selectivity(-1, 2, snn_in);
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
@@ -1669,8 +1667,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 snn_in.Init_delays_uniform(); // This unlike void connections, because we can opt to learn these at each cycle too
             */
 
-            cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1
-                 << "; Eff L0 = " << averefftotL0 << " Acc L0 = " << averacctotL0 << "; Eff L1 = " << averefftotL1 << " Acc L1 = " << averacctotL1 << "; Firings: ";
+            cout << "         Ev. # " << ievent + 1 << " - LR = " << LR << "; Selectivity L0 = " << selectivityL0 << " L1 = " << selectivityL1 << " totale: " << selectivityTOT
+                 << "; Eff L0 = " << averefftotL0 << " Acc L0 = " << averacctotL0 << "; Eff L1 = " << averefftotL1 << " Acc L1 = " << averacctotL1 <<  "Acc max: " << max_fake << "; Firings: ";
 
             for (int in = 0; in < snn_in.N_neurons; in++)
             {
@@ -1879,6 +1877,8 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 SelL1_best = selectivityL1;
                 Eff_best_L1 = averefftotL1;
                 Acc_best_L1 = averacctotL1;
+
+                SelTOT_best = selectivityTOT;
 
                 snn_best.Threshold[0] = snn_in.Threshold[0];
                 snn_best.Threshold[1] = snn_in.Threshold[1];
@@ -2757,7 +2757,7 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     string namejsonfile = Path + sstr.str() + num + ".json";
     
     snn_in.dumpToJson(namejsonfile);
-    appendToJson(namejsonfile, Eff_best_L1, Acc_best_L1, SelL1_best, Q_best_L1);
+    appendToJson(namejsonfile, Eff_best_L1, max_fake, SelTOT_best, Q_best_L1);
     
     // Dump histograms to root file
     Path = SNN_PATH + "/Code/MODE/SNNT/";
@@ -2889,6 +2889,8 @@ void PrintHelp()
     cout << "   --CFI0" << endl;
     cout << "   --CFI1" << endl;
     cout << "   --split_layer0" << endl;
+    cout << "   --exclude_L0" << endl;
+    cout << "   --exclude_L1" << endl;
 
     cout << endl;
 
@@ -2919,6 +2921,8 @@ void PrintHelp()
     cout << "   --d_minus" << endl;
     cout << "   --taud_plus" << endl;
     cout << "   --taud_minus" << endl;
+    cout << "   --taud_plus_2" << endl;
+    cout << "   --taud_minus_2" << endl;
 
     cout << endl;
 
@@ -2944,25 +2948,90 @@ int main(int argc, char *argv[])
 {
     SNN_PATH = string(getenv("SNN_PATH"));
     int file_id_GS = -1;
+    SNN *S;
+    
+    // Pre scan to look for ReadPars flag
+    for (int i = 1; i < argc; i++)
+    {
+        const char *arg = argv[i];
+        if (strcmp(arg, "--ReadPars") == 0){
+            ReadPars = argv[i + 1];
+            cout << "-- WARNING --: you are fetching the network from a previous configuration!" << endl 
+                 << "               The effect of the following flags will be ignored: " << endl 
+                 << "                   - NL0 "  << endl
+                 << "                   - NL1 "  << endl
+                 << "                   - CF01 " << endl
+                 << "                   - CFI0 " << endl
+                 << "                   - CFI1 " << endl
+                 << "                   - sparsity " << endl
+                 << "                   - split_layer0 " << endl;
+            break;
+        }
+            
+    }
+
+    // update the default values
+    if (ReadPars != "none") {
+        S = new SNN();
+        cout << "Retrieving parameters from file" << endl;
+        S->loadFromJson(ReadPars);
+
+        // Set loaded values to variables for potential command-line override
+        _NL0                = S->N_neuronsL[0];
+        _NL1                = S->N_neuronsL[1];
+        _alpha              = S->alpha;
+        _CFI0               = S->CFI0;
+        _CFI1               = S->CFI1;
+        _CF01               = S->CF01;
+        _L1inhibitfactor    = S->L1inhibitfactor;
+        _K                  = S->K;
+        _K1                 = S->K1;
+        _K2                 = S->K2;
+        _IE_Pot_const       = S->IE_Pot_const;
+        _IPSP_dt_dilation   = S->IPSP_dt_dilation;
+        _MaxDelay           = S->MaxDelay;
+        _tau_m              = S->tau_m;
+        _tau_s              = S->tau_s;
+        _tau_r              = S->tau_r;
+        _tau_plus           = S->tau_plus;
+        _tau_minus          = S->tau_minus;
+        _a_plus             = S->a_plus;
+        _a_minus            = S->a_minus;
+        _taud_plus          = S->taud_plus;
+        _taud_minus         = S->taud_minus;
+        _taud_plus_2        = S->taud_plus_2;
+        _taud_minus_2       = S->taud_minus_2;
+        _d_plus             = S->d_plus;
+        _d_minus            = S->d_minus;
+        _N_InputStreams     = S->N_InputStreams;
+        _Threshold0         = S->Threshold[0];
+        _Threshold1         = S->Threshold[1];
+        _sparsity           = S->sparsity;
+        _split_layer0       = S->split_layer0;
+    }
+
     // Loop through the command-line arguments
     for (int i = 1; i < argc; i++)
     {
         const char *arg = argv[i];
-
-        if (strcmp(arg, "--NL0") == 0)
-            _NL0 = stoi(argv[i + 1]);
-        else if (strcmp(arg, "--NL1") == 0)
-            _NL1 = stoi(argv[i + 1]);
-
-        else if (strcmp(arg, "--alpha") == 0)
+        if (ReadPars == "none") {
+            if (strcmp(arg, "--NL0") == 0)
+                _NL0 = stoi(argv[i + 1]);
+            else if (strcmp(arg, "--NL1") == 0)
+                _NL1 = stoi(argv[i + 1]);
+            else if (strcmp(arg, "--CF01") == 0)
+                _CF01 = stof(argv[i + 1]);
+            else if (strcmp(arg, "--CFI0") == 0)
+                _CFI0 = stof(argv[i + 1]);
+            else if (strcmp(arg, "--CFI1") == 0)
+                _CFI1 = stof(argv[i + 1]);
+             else if (strcmp(arg, "--sparsity") == 0)
+                _sparsity = stof(argv[i + 1]);
+            else if (strcmp(arg, "--split_layer0") == 0)
+                _split_layer0 = stoi(argv[i + 1]);
+        }
+        if (strcmp(arg, "--alpha") == 0)
             _alpha = stof(argv[i + 1]);
-
-        else if (strcmp(arg, "--CF01") == 0)
-            _CF01 = stof(argv[i + 1]);
-        else if (strcmp(arg, "--CFI0") == 0)
-            _CFI0 = stof(argv[i + 1]);
-        else if (strcmp(arg, "--CFI1") == 0)
-            _CFI1 = stof(argv[i + 1]);
 
         else if (strcmp(arg, "--L1inhibitfactor") == 0)
             _L1inhibitfactor = stof(argv[i + 1]);
@@ -3002,6 +3071,10 @@ int main(int argc, char *argv[])
             _taud_plus = stof(argv[i + 1]);
         else if (strcmp(arg, "--taud_minus") == 0)
             _taud_minus = stof(argv[i + 1]);
+        else if (strcmp(arg, "--taud_plus_2") == 0)
+            _taud_plus_2 = stof(argv[i + 1]);
+        else if (strcmp(arg, "--taud_minus_2") == 0)
+            _taud_minus_2 = stof(argv[i + 1]);
 
         else if (strcmp(arg, "--d_plus") == 0)
             _d_plus = stof(argv[i + 1]);
@@ -3035,16 +3108,14 @@ int main(int argc, char *argv[])
             N_ev_classes = stoi(argv[i + 1]);
         else if (strcmp(arg, "--TrainingCode") == 0)
             TrainingCode = stoi(argv[i + 1]);
-        else if (strcmp(arg, "--ReadPars") == 0)
-            ReadPars = argv[i + 1];
         else if (strcmp(arg, "--NROOT") == 0)
             NROOT = stoi(argv[i + 1]);
         else if (strcmp(arg, "--file_id_GS") == 0)
             file_id_GS = stoi(argv[i + 1]);
-        else if (strcmp(arg, "--sparsity") == 0)
-            _sparsity = stof(argv[i + 1]);
-        else if (strcmp(arg, "--split_layer0") == 0)
-            _split_layer0 = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--exclude_L0") == 0)
+            _exclude_L0 = stoi(argv[i + 1]);
+        else if (strcmp(arg, "--exclude_L1") == 0)
+            _exclude_L1 = stoi(argv[i + 1]);
         else if (strcmp(arg, "--help") == 0)
         {
             PrintHelp();
@@ -3054,32 +3125,46 @@ int main(int argc, char *argv[])
     }
     rootInput = SNN_PATH + rootInput;
     cout << rootInput << endl;
-
-    SNN S(_NL0, _NL1,
+    
+    if (ReadPars != "none") {
+        S = new SNN();
+        cout << "Retrieving parameters from file" << endl;
+        S->loadFromJson(ReadPars);
+        S->Reset_Parameters(_alpha, _L1inhibitfactor, _K, _K1, _K2, _IE_Pot_const, _IPSP_dt_dilation, _MaxDelay, _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus, _a_plus, _a_minus, _taud_plus, _taud_minus, _taud_plus_2, _taud_minus_2, _d_plus, _d_minus, _Threshold0, _Threshold1);
+    }
+    else{
+        S = new SNN(_NL0, _NL1,
           _alpha,
           _CFI0, _CFI1, _CF01,
-          _L1inhibitfactor,
-          _K, _K1, _K2,
-          _IE_Pot_const, _IPSP_dt_dilation,
-          _MaxDelay,
+         _L1inhibitfactor,
+          _K,  _K1,  _K2,
+         _IE_Pot_const, _IPSP_dt_dilation,
+         _MaxDelay,
 
           _tau_m, _tau_s, _tau_r, _tau_plus, _tau_minus,
-          _a_plus, _a_minus,
+         _a_plus,  _a_minus,
 
-          _taud_plus, _taud_minus,
-          _d_plus, _d_minus,
+         _taud_plus, _taud_minus,
+         _taud_plus_2, _taud_minus_2,
+         _d_plus, _d_minus,
 
           _N_InputStreams,
           _Threshold0, _Threshold1, _sparsity, _split_layer0);
-
-    if (ReadPars != "none") {
-        cout << "Retrieving parameters from file" << endl;
-        S.loadFromJson(ReadPars);
     }
-    // preparing the file to plot the neuron potentials of the best configurations
-    SNN_Tracking(S, file_id_GS);
-    cout << "Creating the file for the potentials plot" << endl;
-    PlotPotentials(rootInput.c_str(), S, 12);
 
+    if(_exclude_L0 > 0 || _exclude_L1 > 0){
+        vector<int> excluded_neurons = generate_excluded_neurons(_exclude_L0, _exclude_L1, S->N_neuronsL[0], S->N_neurons);
+
+        // Exclude neurons in SNN
+        S->Exclude_neurons(excluded_neurons);
+    }
+    
+    // preparing the file to plot the neuron potentials of the best configurations
+    SNN_Tracking(*S, file_id_GS);
+    cout << "Creating the file for the potentials plot" << endl;
+    PlotPotentials(rootInput.c_str(), *S, 12);
+
+    
     return 0;
 }
+

@@ -298575,7 +298575,7 @@
         ]
     ],
     "IE_Pot_const": 1.0,
-    "IPSP_dt_dilation": 1.0,
+    "IPSP_dt_dilation": 0.35,
     "K": 1.0,
     "K1": 2.0,
     "K2": 4.0,

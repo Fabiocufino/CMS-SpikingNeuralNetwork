@@ -88,14 +88,14 @@ static float _K = 1;
 static float _K1 = 2; 
 static float _K2 = 4;
 static float _IE_Pot_const = 1; 
-static double _IPSP_dt_dilation = 1;
+static double _IPSP_dt_dilation = 0.35;
 
 static double _tau_m = 1.e-09 / 2;
 static double _tau_s =  0.25e-09 / 2;
 static double _tau_r = 0.5e-09 / 2;
 static double _tau_plus = 1.68e-09 /2;
 static double _tau_minus = 3.37e-09 /2;
-static double _MaxDelay =  1.e-09;
+static double _MaxDelay =  2.5e-09;
 static double _a_plus = 0.00003125;
 static double _a_minus = 0.00002656; 
 
@@ -103,12 +103,17 @@ static double _d_plus = 1.e-11;
 static double _d_minus = 1.e-11; 
 static double _taud_plus = _tau_minus;
 static double _taud_minus = _tau_minus;
+static double _taud_plus_2 = _taud_plus/4;
+static double _taud_minus_2 = _taud_minus/4;
 
 static float _Threshold0 = 0.45;
 static float _Threshold1 = 0.45;
 
 static float _sparsity = 2;
 static bool _split_layer0 = false;
+
+static int _exclude_L0 = 0;
+static int _exclude_L1 = 0;
 
 static int _N_InputStreams = N_bin_r*N_bin_z;
 static string SNN_PATH = "";
