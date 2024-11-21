@@ -80,11 +80,13 @@ SNN::SNN(int _NL0, int _NL1,
     N_neuronsL[1] = _NL1;
     N_neurons = N_neuronsL[0] + N_neuronsL[1];
     N_streams = N_InputStreams + _NL0;
-    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
-
+    K=1;
     MaxDeltaT = 7. * tau_m;
+    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
+    cout << tau_s << " " << tau_m << " " << tmax <<" " <<  EPS_potential(tmax) << endl;    
+    K = 1./EPS_potential(tmax);
 
-    fire_granularity = tau_s / 5.;
+    fire_granularity = tmax / 5.;
     fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
     myRNG = new TRandom3(static_cast<unsigned int>(time(0)));
     largenumber = 999999999.;
@@ -195,14 +197,15 @@ void SNN::Reset_Parameters(float _alpha, float _L1inhibitfactor, float _K, float
     
     Threshold[0] = _Threshold0;
     Threshold[1] = _Threshold1;
-    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
-
     MaxDeltaT = 7. * tau_m;
+    K = 1.;
 
-    fire_granularity = tau_s / 5.;
+    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
+    K = 1./EPS_potential(tmax);
+    fire_granularity = tmax / 5.;
     fire_precision = min(Threshold[0], Threshold[1]) *2.5 / 100.;
     Delta_delay = MaxDelay/5.;
-    Mean_delay = MaxDelay/2.;
+    Mean_delay  = MaxDelay/2.;
     time_scaleFactor = determineScaleFactor(taud_plus, taud_plus_2);
     
 }
@@ -672,7 +675,7 @@ double SNN::Neuron_firetime(int in, double t)
 
     // now I want to scan the potential from the last EPSP to time t at fire_granularity steps
     double t_neg;
-    if(last_EPSP - t0 > tau_r) t_neg = last_EPSP;
+    if(last_EPSP - t0 - MaxDelay > tau_r) t_neg = last_EPSP - MaxDelay;
     else(t_neg) = t0+tau_r;
 
     double P_neg = Neuron_Potential(in, t_neg, true);
@@ -1325,6 +1328,7 @@ void SNN::copy_from(const SNN& other) {
     Threshold[0] = other.Threshold[0];
     Threshold[1] = other.Threshold[1];
     tmax = other.tmax;
+    
     MaxDeltaT = other.MaxDeltaT;
 
     // Allocate memory for new arrays
@@ -1708,5 +1712,6 @@ void SNN::loadFromJson(const string& filename) {
     epsilon = j["epsilon"].get<double>();
 
     cout << "File loaded succesfully" << endl;
+    cout << "Max: " << EPS_potential(tmax) << endl;  
 }
 

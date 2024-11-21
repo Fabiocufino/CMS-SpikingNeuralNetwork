@@ -211,6 +211,143 @@ float Compute_Selectivity(int level, int mode, SNN &snn)
     return S;
 }
 
+float computeMutualInformation(
+    int level,
+    int *gen_sum,
+    int **fired_sum,
+    SNN &snn,
+    bool equiprobable_classes = true)
+{
+    int inmin, inmax;
+    if (level == 0)
+    {
+        inmin = 0;
+        inmax = snn.N_neuronsL[0];
+    }
+    else if (level == 1)
+    {
+        inmin = snn.N_neuronsL[0];
+        inmax = snn.N_neurons;
+    }
+    else if (level == -1){
+        inmin = 0;
+        inmax = snn.N_neurons;
+    }
+    const float epsilon = 1e-10f;
+    float N_total = 0.0f;
+    
+    // Compute total number of events
+    for (int ic = 0; ic < N_ev_classes; ic++) {
+        N_total += gen_sum[ic];
+    }
+
+    // Compute joint probabilities P(neuron fires, class ic)
+    vector<vector<float>> P_joint(snn.N_neurons, vector<float>(N_ev_classes, 0.0f));
+    for (int in = inmin; in < inmax; in++) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_joint[in][ic] = fired_sum[ic][in] / N_total;
+        }
+    }
+
+    // Compute marginal probabilities for neurons P(neuron fires)
+    vector<float> P_neuron(snn.N_neurons, 0.0f);
+    for (int in = inmin; in < inmax; in++) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_neuron[in] += P_joint[in][ic];
+        }
+    }
+
+    // Compute marginal probabilities for classes P(class ic)
+    vector<float> P_class(N_ev_classes, 0.0f);
+    if (equiprobable_classes) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_class[ic] = 1.0f / N_ev_classes;
+        }
+    } else {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_class[ic] = gen_sum[ic] / N_total;
+        }
+    }
+
+    // Compute mutual information
+    float I = 0.0f;
+    for (int in = inmin; in < inmax; in++) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            float P_joint_value = P_joint[in][ic];
+            float P_neuron_value = P_neuron[in];
+            float P_class_value = P_class[ic];
+
+            if (P_joint_value > 0 && P_neuron_value > 0 && P_class_value > 0) {
+                I += P_joint_value * (log2(P_joint_value + epsilon) - log2(P_neuron_value + epsilon) - log2(P_class_value + epsilon));
+            }
+        }
+    }
+
+    return I;
+}
+
+vector<float> computeMutualInformationPerNeuron(
+    int N_ev_classes,
+    int N_neurons,
+    const vector<float>& gen_sum,
+    const vector<vector<float>>& fired_sum,
+    bool equiprobable_classes = true)
+{
+    const float epsilon = 1e-10f;
+    float N_total = 0.0f;
+
+    // Compute total number of events
+    for (int ic = 0; ic < N_ev_classes; ic++) {
+        N_total += gen_sum[ic];
+    }
+
+    // Compute joint probabilities P(neuron fires, class ic)
+    vector<vector<float>> P_joint(N_neurons, vector<float>(N_ev_classes, 0.0f));
+    for (int in = 0; in < N_neurons; in++) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_joint[in][ic] = fired_sum[ic][in] / N_total;
+        }
+    }
+
+    // Compute marginal probabilities for neurons P(neuron fires)
+    vector<float> P_neuron(N_neurons, 0.0f);
+    for (int in = 0; in < N_neurons; in++) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_neuron[in] += P_joint[in][ic];
+        }
+    }
+
+    // Compute marginal probabilities for classes P(class ic)
+    vector<float> P_class(N_ev_classes, 0.0f);
+    if (equiprobable_classes) {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_class[ic] = 1.0f / N_ev_classes;
+        }
+    } else {
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            P_class[ic] = gen_sum[ic] / N_total;
+        }
+    }
+
+    // Compute mutual information per neuron
+    vector<float> MI_per_neuron(N_neurons, 0.0f);
+    for (int in = 0; in < N_neurons; in++) {
+        float I = 0.0f;
+        for (int ic = 0; ic < N_ev_classes; ic++) {
+            float P_joint_value = P_joint[in][ic];
+            float P_neuron_value = P_neuron[in];
+            float P_class_value = P_class[ic];
+
+            if (P_joint_value > 0 && P_neuron_value > 0 && P_class_value > 0) {
+                I += P_joint_value * (log2(P_joint_value + epsilon) - log2(P_neuron_value + epsilon) - log2(P_class_value + epsilon));
+            }
+        }
+        MI_per_neuron[in] = I;
+    }
+
+    return MI_per_neuron;
+}
+
 // Compute Q-value
 // ---------------
 float Compute_Q(float eff, float acc, float sel)
@@ -1032,7 +1169,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
         N_fires[in] = 0.;
         LastP[in] = 0.;
     }
-    int fired_sum[N_ev_classes][snn_in.N_neurons];
+    int **fired_sum;
+    fired_sum = new int*[N_ev_classes];
+    for (int i = 0; i < N_ev_classes; ++i) {
+        fired_sum[i] = new int[snn_in.N_neurons];
+    }
+
     int random_fire[snn_in.N_neurons];
     int fired_sum_window[N_ev_classes][snn_in.N_neurons];
     int random_fire_window[snn_in.N_neurons];
@@ -1557,11 +1699,11 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 Efftot_L0[ic] = etl0;
             }
 
-            selectivityL0 = Compute_Selectivity(0, 2, snn_in);
+            selectivityL0 = computeMutualInformation(0, gen_sum, fired_sum, snn_in, false);
             SelectivityL0-> Fill(iepoch, selectivityL0);
-            selectivityL1 = Compute_Selectivity(1, 2, snn_in);
+            selectivityL1 = computeMutualInformation(1, gen_sum, fired_sum, snn_in, false);
             SelectivityL1-> Fill(iepoch, selectivityL1);
-            selectivityTOT = Compute_Selectivity(-1, 2, snn_in);
+            selectivityTOT = computeMutualInformation(-1, gen_sum, fired_sum, snn_in, false);
 
             // Q value is average efficiency divided by sqrt (aver eff plus aver acceptance)
             // -----------------------------------------------------------------------------
@@ -2873,6 +3015,12 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     // End of program
     rootfile->Close();
     gROOT->Time();
+
+    // Deallocate memory to prevent memory leaks
+    for (int i = 0; i < N_ev_classes; ++i) {
+        delete[] fired_sum[i]; // Delete each row
+    }
+    delete[] fired_sum;
 
     return;
 }
