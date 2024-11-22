@@ -82,7 +82,10 @@
         "ranges": "cpp",
         "valarray": "cpp",
         "SNNT13_old.C": "cpp",
-        "modify_canvas.C": "cpp"
+        "modify_canvas.C": "cpp",
+        "new_SNN.C": "cpp",
+        "new_SNNT.C": "cpp",
+        "stream_plot.C": "cpp"
     },
     "cmake.configureOnOpen": true
 }

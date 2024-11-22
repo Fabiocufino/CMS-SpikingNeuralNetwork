@@ -66,12 +66,8 @@ static bool batch = false;
 static string rootInput = "/Code/Data/muons_100k_100br_new.root";
 static int N_classes = 3;
 static int N_ev_classes = 3;
-static int TrainingCode = 0;
 static string ReadPars = "none";
 static long int NROOT = 100000;                //number of events inside the root file
-static bool update9 = false;                // controls whether to optimize 7 network parameters
-static bool updateDelays = false;           // controls whether to optimize neuron delays
-static bool updateConnections = false;      // controls whether to optimize connections between streams and neurons
 
 // -------------------------------------------
 // class constants
@@ -87,7 +83,6 @@ static float _L1inhibitfactor = 1;
 static float _K = 1; 
 static float _K1 = 2; 
 static float _K2 = 4;
-static float _IE_Pot_const = 1; 
 static double _IPSP_dt_dilation = 0.35;
 
 static double _tau_m = 1.e-09 / 2;
@@ -126,12 +121,6 @@ static const int MaxEvents = 10000000;
 static const double largenumber = 999999999.;
 static const double epsilon = 1. / largenumber;
 static const int MaxNeurons = 100;
-static float ProbWSwitchUp = 0.5;
-static float ProbWSwitchDown = 0.05;
-static float MaxFactor = 0.2;           // Initial factor of excursion of parameters for optimization
-static float eff_target = 0.9;
-static float acc_target = 0.05;
-static bool learnDelays = false;
 static const bool nearest_spike_approx_weights = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
 static const bool nearest_spike_approx_delays = false; // Used to turn on the nearest spike approximation inside LTD and LTP functions
 static int N_display = 500;

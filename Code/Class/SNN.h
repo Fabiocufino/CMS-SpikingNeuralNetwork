@@ -40,7 +40,6 @@ public:
     float K1;                   // constants to tune post-synaptic shape
     float K2;                   // see above
 
-    float IE_Pot_const;        // Constant for IE modeling
     double IPSP_dt_dilation;     // shape factor of exponential IPSP signal
 
     double MaxDelay;         // Determines shape of IE signal[s]
@@ -111,7 +110,7 @@ public:
          float _CFI0, float _CFI1, float _CF01,
          float _L1inhibitfactor,
          float _K, float _K1, float _K2,
-         float _IE_Pot_const, double _IPSP_dt_dilation,
+         double _IPSP_dt_dilation,
          double _MaxDelay,
 
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
@@ -131,7 +130,7 @@ public:
     void Reset_Parameters(float _alpha,
          float _L1inhibitfactor,
          float _K, float _K1, float _K2,
-         float _IE_Pot_const, double _IPSP_dt_dilation,
+         double _IPSP_dt_dilation,
          double _MaxDelay,
 
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
@@ -162,7 +161,6 @@ public:
     vector<pair <int, int>> Inspect_History(int in, double fire_time, double window);
     void Activate_Neuron(int in, double t);
     float Neuron_Potential(int in, double t, bool delete_history);
-    float IE_potential(double delta_t, int in, int is);
     void LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old);  
     void LTP_delays(int in, double fire_time, bool nearest_spike_approx, SNN &old);  
     void LTD_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old);
@@ -178,5 +176,7 @@ public:
 
     void Exclude_neuron(int in);
     void Exclude_neurons(const vector<int>& neurons_to_exclude);
+    void CopyNeuronFrom(int from, int to);
+    void MirrorDelays(int in);
 };
 #endif

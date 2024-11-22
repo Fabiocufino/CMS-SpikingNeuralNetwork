@@ -19,7 +19,7 @@ SNN::SNN(int _NL0, int _NL1,
          float _CFI0, float _CFI1, float _CF01,
          float _L1inhibitfactor,
          float _K, float _K1, float _K2,
-         float _IE_Pot_const, double _IPSP_dt_dilation,
+         double _IPSP_dt_dilation,
          double _MaxDelay,
 
          double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus,
@@ -43,8 +43,6 @@ SNN::SNN(int _NL0, int _NL1,
                                                  K(_K),
                                                  K1(_K1),
                                                  K2(_K2),
-
-                                                 IE_Pot_const(_IE_Pot_const),
 
                                                  IPSP_dt_dilation(_IPSP_dt_dilation),
 
@@ -82,8 +80,7 @@ SNN::SNN(int _NL0, int _NL1,
     N_streams = N_InputStreams + _NL0;
     K=1;
     MaxDeltaT = 7. * tau_m;
-    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);
-    cout << tau_s << " " << tau_m << " " << tmax <<" " <<  EPS_potential(tmax) << endl;    
+    tmax = tau_s * tau_m / (tau_m - tau_s) * log(tau_m/tau_s);  
     K = 1./EPS_potential(tmax);
 
     fire_granularity = tmax / 5.;
@@ -132,7 +129,7 @@ SNN::SNN(int _NL0, int _NL1,
     Init_weights();
     Init_delays_uniform();
 }
-SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
+SNN::SNN() : SNN(1, 1, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0f, 0.0f, 0.0f, false) {}
 SNN::~SNN() {
     // Release memory for dynamically allocated arrays
     for (int i = 0; i < N_neurons; ++i) {
@@ -152,13 +149,6 @@ SNN::~SNN() {
     delete[] Delay;
     delete[] Delay_initial;
     delete[] EnableIPSP;
-    
-    // Clear vectors
-    delete[] History_time;
-    delete[] History_type;
-    delete[] History_ID;
-    delete[] History_ev_class;
-    delete[] Fire_time;
 
     delete[] Neuron_layer;
     delete[] sumweight;
@@ -168,13 +158,12 @@ SNN::~SNN() {
     delete myRNG;
 }
 
-void SNN::Reset_Parameters(float _alpha, float _L1inhibitfactor, float _K, float _K1, float _K2, float _IE_Pot_const, double _IPSP_dt_dilation, double _MaxDelay, double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus, double _a_plus, double _a_minus, double _taud_plus, double _taud_minus, double _taud_plus_2, double _taud_minus_2, double _d_plus, double _d_minus, float _Threshold0, float _Threshold1){
+void SNN::Reset_Parameters(float _alpha, float _L1inhibitfactor, float _K, float _K1, float _K2, double _IPSP_dt_dilation, double _MaxDelay, double _tau_m, double _tau_s, double _tau_r, double _tau_plus, double _tau_minus, double _a_plus, double _a_minus, double _taud_plus, double _taud_minus, double _taud_plus_2, double _taud_minus_2, double _d_plus, double _d_minus, float _Threshold0, float _Threshold1){
     alpha = _alpha;
     L1inhibitfactor = _L1inhibitfactor;
     K  = _K;
     K1 = _K1;
     K2 = _K2;
-    IE_Pot_const = _IE_Pot_const;
     IPSP_dt_dilation = _IPSP_dt_dilation;
     MaxDelay = _MaxDelay;
 
@@ -268,6 +257,44 @@ void SNN::Exclude_neurons(const vector<int>& neurons_to_exclude) {
     for (int neuron : neurons_to_exclude) {
         Exclude_neuron(neuron);
     }
+}
+
+void SNN::CopyNeuronFrom(int from, int to){
+    if(from < 0 || to >= N_neurons){
+        cout << "Warning: invalid index. Received: " << from << " " << to << endl;
+        return; 
+    }
+
+    for (int is = 0; is < N_streams; is++){
+        Void_weight[to][is] = Void_weight[from][is];
+        Weight_initial[to][is] = Weight_initial[from][is];
+        Weight[to][is] = Weight[from][is];
+        Delay_initial[to][is] = Delay_initial[from][is];
+        Delay[to][is] = Delay[from][is];
+        sumweight[to] = sumweight[from];
+        sumdelays[to] = sumdelays[from];
+    }
+}
+
+
+void SNN::MirrorDelays(int in){
+    int count = 0;
+    double meanDelay = 0;
+    for (int is = 0; is < N_streams; is++) {
+        if (is < N_neuronsL[0] && !Void_weight[in][is]) {
+            meanDelay += Delay[in][is];
+            count++;
+        }
+    }
+    meanDelay/=count;
+    sumdelays[in] = 0;
+    for (int is = 0; is < N_streams; is++) {
+        if (is < N_neuronsL[0] && !Void_weight[in][is]) {
+            Delay[in][is] = 2*meanDelay - Delay[in][is];
+            sumdelays[in] += Delay[in][is];
+        }
+    }
+    return;
 }
 // Initialize neuron potentials
 // ----------------------------
@@ -434,7 +461,6 @@ void SNN::Init_delays_uniform()
             Delay_initial[in][is] = 0.;
             sumdelays[in]+=Delay[in][is];
         }
-        //cout << in << " " << sumdelays[in] << endl;
     }
 
     return;
@@ -908,25 +934,6 @@ float SNN::Neuron_Potential(int in, double t, bool delete_history)
     return P;
 }
 
-// Model Inhibitory-Excitatory signal (IE) as combination of two EPSP-like shapes, a negative one followed by a positive one
-// This is a crude model, loosely inspired by shapes in Fig.2 of F. Sandin and M. Nilsson, "Synaptic Delays for Insect-Inspired
-// Feature Detection in Dynamic Neuromorphic Processors", doi.org/10.3389/fnins.2020.00150
-// ----------------------------------------------------------------------------------------------------------------------------
-float SNN::IE_potential(double delta_t, int in, int is)
-{
-    float sp = 0.;
-    if (delta_t >= 0. && delta_t < Delay[in][is])
-    {
-        sp = -IE_Pot_const * EPS_potential(delta_t);
-    }
-    else if (delta_t >= Delay[in][is] && delta_t < MaxDeltaT + Delay[in][is])
-    {
-        delta_t = delta_t - Delay[in][is];
-        sp = IE_Pot_const * EPS_potential(delta_t); // So for zero delay, this is an EPSP
-    }
-    return sp;
-}
-
 //LTP rule for weights
 void SNN::LTP_weights(int in, double fire_time, bool nearest_spike_approx, SNN &old)
 {
@@ -1228,7 +1235,6 @@ void SNN::PrintSNN(){
     cout << "K = " << K << endl;
     cout << "K1 = " << K1 << endl;
     cout << "K2 = " << K2 << endl;
-    cout << "IE_Pot_const = " << IE_Pot_const << endl;
     cout << "IPSP_dt_dilation = " << IPSP_dt_dilation << endl;
     cout << "MaxDelay = " << MaxDelay << endl;
     cout << "tau_m = " << tau_m << endl;
@@ -1299,7 +1305,6 @@ void SNN::copy_from(const SNN& other) {
     K = other.K;
     K1 = other.K1;
     K2 = other.K2;
-    IE_Pot_const = other.IE_Pot_const;
     IPSP_dt_dilation = other.IPSP_dt_dilation;
     MaxDelay = other.MaxDelay;
     tau_m = other.tau_m;
@@ -1421,7 +1426,6 @@ void SNN::dumpToJson(const string& filename) {
     j["K"] = K;
     j["K1"] = K1;
     j["K2"] = K2;
-    j["IE_Pot_const"] = IE_Pot_const;
     j["IPSP_dt_dilation"] = IPSP_dt_dilation;
     j["MaxDelay"] = MaxDelay;
     j["tau_m"] = tau_m;
@@ -1551,7 +1555,6 @@ void SNN::loadFromJson(const string& filename) {
     K = j["K"].get<float>();
     K1 = j["K1"].get<float>();
     K2 = j["K2"].get<float>();
-    IE_Pot_const = j["IE_Pot_const"].get<float>();
     IPSP_dt_dilation = j["IPSP_dt_dilation"].get<double>();
     MaxDelay = j["MaxDelay"].get<double>();
     tau_m = j["tau_m"].get<double>();
@@ -1712,6 +1715,4 @@ void SNN::loadFromJson(const string& filename) {
     epsilon = j["epsilon"].get<double>();
 
     cout << "File loaded succesfully" << endl;
-    cout << "Max: " << EPS_potential(tmax) << endl;  
 }
-
