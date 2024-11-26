@@ -29,6 +29,10 @@ if ! [[ -e "Code/MODE/potentials.csv" ]];then
     touch "Code/MODE/potentials.csv"
 fi
 
+if ! [[ -e "Code/Pretrained_Models" ]];then
+    mkdir Code/Pretrained_Models
+fi
+
 echo "Collecting the data files if missing... the process could take some minutes"
 
 if ! [[ -e "Code/Data/ordered.root" ]];then
@@ -59,6 +63,18 @@ if ! [[ -e "Code/Data/double_tracks_muons_amuons_50k_100br.root" ]];then
     wget -o - -O Code/Data/double_tracks_muons_amuons_50k_100br.root "https://www.dropbox.com/scl/fi/nv2db0d6ib1censt9xwkb/double_tracks_muons_amuons_50k_100br.root?rlkey=zlhanfdupsn1os6w6h3q4660c&st=zhtp1xfq&dl=0"
 fi
 
+echo "Process completed"
+echo ""
+echo "Collecting the pretraied models if missing... the process could take some minutes"
+
+if ! [[ -e "Code/Pretrained_Models/model_000.root" ]];then
+    wget -o - -O Code/Pretrained_Models/model_000.root "https://www.dropbox.com/scl/fi/isn6q49ucvj58u139m123/model_000.root?rlkey=e8lqytkgc69yts1u9okabweel&st=kswlxkzu&dl=0"
+fi
+
+if ! [[ -e "Code/Pretrained_Models/model_000.json" ]];then
+    wget -o - -O Code/Pretrained_Models/model_000.json "https://www.dropbox.com/scl/fi/lkdn260hoyhp1oynt3041/model_000.json?rlkey=vqwq5vxvloym14fm5bfmg1y0l&st=42wic6ah&dl=0"
+fi
+
 
 if grep -q "SNN_PATH=" ~/.bashrc; then
     sed -i "s|export SNN_PATH=.*|export SNN_PATH=$(pwd)|g" ~/.bashrc
@@ -68,11 +84,6 @@ else
     echo "export SNN_PATH=$(pwd)" >> ~/.bashrc
     source ~/.bashrc
     echo "SNN_PATH is set to current directory."
-fi
-
-
-if ! [[ -e "Code/Data/muons_100k_100br_new.root" ]]; then
-    wget -o - -O Code/Data/muons_100k_100br_new.root "https://www.dropbox.com/scl/fi/w7rgcgnv4pd9gusy70yt5/muons_100k_100br_new.root?rlkey=tmxrj8ckqjgcaidwdssph9w2e&st=zbch3kpb&dl=0"
 fi
 
 echo "Execution terminated"
