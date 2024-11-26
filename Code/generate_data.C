@@ -344,7 +344,7 @@ void create_event_particle_tree(TFile* inputFile, vector<int> eventClass) {
 }
 
 
-void generate_data(int N_events = 100000, string outRoot="Data/muons_amuons_100k_100br.root",int Max_N_part = 1, float bkg_rate = 100, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
+void generate_data(int N_events = 50000, string outRoot="Data/muons_amuons_50k_300br.root",int Max_N_part = 1, float bkg_rate = 300, bool random_ev = true, float bg_freq=0.5, string folder = "/home/ema/Documents/thesis/DATA/MuGun/", string file_name = "clusters_ntuple.root")
 {   
     //prepare a vector of indices
     //I'm choosing the number of classes by hand coherently with the file, could be automatized
