@@ -12,6 +12,10 @@
 #include "Riostream.h"
 #include "Snnt_constants.h"
 
+#include <TGraph.h>
+#include <TMultiGraph.h>
+#include <TLegend.h>
+
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
@@ -1199,7 +1203,10 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
     TH1F *BestEff[snn_in.N_neurons];
     TH1F *BestFR[snn_in.N_neurons];
     TH1F *BestEtot[snn_in.N_neurons];
+   // TH1F *Monitor_efficiencyL0=new TH1F("EfficienyL0","", 10, 0, 100000);
+// TH1F *Monitor_efficiencyL1=new TH1F("EfficienyL1","", 10, 0, 100000);
 
+ //TH1F *Monitor_fakerateL0=new TH1F("FakerateL0","", 10, 0, 100000);
     for (int i = 0; i < snn_in.N_neurons * snn_in.N_streams; i++)
     {
         sprintf(name, "HWeight%d", i);
@@ -2215,10 +2222,20 @@ void SNN_Tracking(SNN &snn_in, int file_id_GS = -1)
                 Acc_best_L1 = averacctotL1;
 
   monitor_selectivityL0[count_step-1]=SelL0_best;
+ 
      monitor_selectivityL1[count_step-1]=SelL1_best;
+     
      monitor_efficiencyL0[count_step-1]=Eff_best_L0;
+     // Monitor_efficiencyL0->Fill(count_step*10000, Eff_best_L0);
+       
         monitor_efficiencyL1[count_step-1]=Eff_best_L1;
+       //  Monitor_efficiencyL1->Fill(count_step*10000, Eff_best_L1);
+        // Monitor_efficiencyL1->SetMarkerColor(kGreen);
+
        monitor_fakerateL0[count_step-1]=Acc_best_L0;
+     //  Monitor_fakerateL0->Fill(count_step*10000, Acc_best_L0);
+      // Monitor_fakerateL0->SetMarkerColor(kRed);
+    
      monitor_fakerateL1[count_step-1]=Acc_best_L1;
 
      
@@ -2834,6 +2851,22 @@ cout<<"FINAL IEVENT "<<ievent<<endl;
         Eff_totL0[ic]->Draw("SAME");
         Efficiency[i]->Draw("SAME");
     }
+//TCanvas *Ev = new TCanvas("Ev", "", 800, 800);
+//Monitor_efficiencyL0->SetMaximum(1);
+//Monitor_efficiencyL0->SetMinimum(0);
+//Monitor_efficiencyL0->SetLineColor(kBlue);
+//Monitor_efficiencyL0->Draw("");
+
+//Monitor_efficiencyL1->SetMaximum(1);
+//Monitor_efficiencyL1->SetMinimum(0);
+//Monitor_efficiencyL1->SetLineColor(kGreen);
+//Monitor_efficiencyL1->Draw("SAME");
+
+//Monitor_fakerateL0->SetMaximum(1);
+//Monitor_fakerateL0->SetMinimum(0);
+//Monitor_fakerateL0->SetLineColor(kRed);
+//Monitor_fakerateL0->Draw("SAME");
+
 
     TCanvas *E1 = new TCanvas("E1", "", 800, 800);
     E1->Divide(N_classes, snn_in.N_neuronsL[1]);
@@ -3117,8 +3150,89 @@ for (int ii = 0; ii < count_step-1; ii++) {
 }
 cout << "]" << endl;
 
+  const int n_points = 10;
+
+// X-axis: Independent variable
+float x[n_points];
+for (int i = 0; i < n_points; ++i) {
+    x[i] = (i + 1) * 10000; // Adjust index to start from 0
+}
+
+// Y-axis: Dependent variables
 
 
+// Create graphs
+TGraph* graph1 = new TGraph(n_points);
+TGraph* graph2 = new TGraph(n_points);
+TGraph* graph3 = new TGraph(n_points);
+TGraph* graph4 = new TGraph(n_points);
+TGraph* graph5 = new TGraph(n_points);
+TGraph* graph6 = new TGraph(n_points);
+
+for (int i = 0; i < n_points; ++i) {
+    graph1->SetPoint(i, x[i], monitor_efficiencyL0[i]);
+    graph2->SetPoint(i, x[i], monitor_efficiencyL1[i]);
+    graph3->SetPoint(i, x[i], monitor_fakerateL0[i]);
+    graph4->SetPoint(i, x[i], monitor_fakerateL1[i]);
+    graph5->SetPoint(i, x[i], monitor_selectivityL0[i]);
+    graph6->SetPoint(i, x[i], monitor_selectivityL1[i]);
+}
+
+// Style the graphs
+graph1->SetMarkerStyle(20);
+graph1->SetMarkerColor(kRed);
+graph1->SetLineColor(kRed);
+
+graph2->SetMarkerStyle(21);
+graph2->SetMarkerColor(kBlue);
+graph2->SetLineColor(kBlue);
+
+graph3->SetMarkerStyle(22);
+graph3->SetMarkerColor(kGreen);
+graph3->SetLineColor(kGreen);
+
+graph4->SetMarkerStyle(23);
+graph4->SetMarkerColor(kMagenta);
+graph4->SetLineColor(kMagenta);
+
+graph5->SetMarkerStyle(24);
+graph5->SetMarkerColor(kOrange);
+graph5->SetLineColor(kOrange);
+
+graph6->SetMarkerStyle(25);
+graph6->SetMarkerColor(kCyan);
+graph6->SetLineColor(kCyan);
+
+// Create a TMultiGraph
+TMultiGraph* mg = new TMultiGraph();
+mg->Add(graph1, "LP");
+mg->Add(graph2, "LP");
+mg->Add(graph3, "LP");
+mg->Add(graph4, "LP");
+mg->Add(graph5, "LP");
+mg->Add(graph6, "LP");
+
+// Create a canvas and draw the multigraph
+TCanvas* Ex = new TCanvas("Ex", "Efficiencies vs X", 800, 600);
+mg->Draw("AL");
+mg->SetTitle("Metrics vs X;X-axis;Y-axis");
+mg->GetXaxis()->SetTitle("X-axis");
+mg->GetYaxis()->SetTitle("Metrics");
+mg->GetXaxis()->SetRangeUser(0, n_points * 10000); // Adjust range as needed
+mg->GetYaxis()->SetRangeUser(0, 1);
+
+// Move the legend to the right outside the plot
+TLegend* legend = new TLegend(0.75, 0.2, 1.0, 0.8);
+legend->SetBorderSize(1);
+legend->SetFillColorAlpha(kWhite, 0.8);
+legend->SetTextSize(0.03);
+legend->AddEntry(graph1, "Efficiency L0", "lp");
+legend->AddEntry(graph2, "Efficiency L1", "lp");
+legend->AddEntry(graph3, "Fakerate L0", "lp");
+legend->AddEntry(graph4, "Fakerate L1", "lp");
+legend->AddEntry(graph5, "Selectivity L0", "lp");
+legend->AddEntry(graph6, "Selectivity L1", "lp");
+legend->Draw();
 
 
 
@@ -3162,8 +3276,10 @@ cout << "]" << endl;
     D->Write();
     Y->Write();
     MW->Write();
+    Ex->Write();//grpah
     delay_canvas->Write();
     delta_delay_canvas->Write();
+    //Ev->Write();
 
     cout << "Saving pdf" << endl;
     S->SaveAs((SNN_PATH + "/Code/pdf/S.pdf").c_str(), "pdf");
@@ -3178,6 +3294,7 @@ cout << "]" << endl;
     MW->SaveAs((SNN_PATH + "/Code/pdf/MWlog.pdf").c_str(), "pdf");
     delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delay_canvas.pdf").c_str(), "pdf");
     delta_delay_canvas->SaveAs((SNN_PATH + "/Code/pdf/delta_delay_canvas.pdf").c_str(), "pdf");
+    Ex->SaveAs((SNN_PATH + "/Code/pdf/Ex.pdf").c_str(), "pdf");
 
     // Then histograms
     SelectivityL0->Write();
@@ -3242,6 +3359,17 @@ cout << "]" << endl;
         StreamsN[i]->Write();
     }
     EffMap->Write();
+    //Monitor_efficiencyL0->Write();
+
+   // Monitor_efficiencyL1->Write();
+   // Monitor_fakerateL0->Write();
+
+//writing graph
+graph1->Write();
+graph2->Write();
+mg->Write();
+
+
 
     MW->Write();
     rootfile->Write();
